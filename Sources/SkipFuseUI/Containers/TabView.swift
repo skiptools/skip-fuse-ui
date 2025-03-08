@@ -49,4 +49,103 @@ extension View {
             return $0.Java_viewOrEmpty.tabItem(bridgedLabel: label.Java_viewOrEmpty)
         }
     }
+
+    nonisolated public func tabViewStyle<S>(_ style: S) -> some View where S : TabViewStyle {
+        return ModifierView(target: self) {
+            let displayMode = (style as? PageTabViewStyle)?.indexDisplayMode.rawValue
+            return $0.Java_viewOrEmpty.tabViewStyle(bridgedStyle: style.identifier, bridgedDisplayMode: displayMode)
+        }
+    }
+}
+
+@MainActor /* @preconcurrency */ public protocol TabViewStyle {
+    var identifier: Int { get } // For bridging
+}
+
+extension TabViewStyle {
+    public var identifier: Int { -1 }
+}
+
+@MainActor /* @preconcurrency */ public struct SidebarAdaptableTabViewStyle : TabViewStyle {
+    @available(*, unavailable)
+    nonisolated public init() {
+    }
+}
+
+extension TabViewStyle where Self == SidebarAdaptableTabViewStyle {
+    @available(*, unavailable)
+    @MainActor /* @preconcurrency */ public static var sidebarAdaptable: SidebarAdaptableTabViewStyle {
+        fatalError()
+    }
+}
+
+@MainActor /* @preconcurrency */ public struct TabBarOnlyTabViewStyle : TabViewStyle {
+    nonisolated public init() {
+    }
+
+    public let identifier = 1 // For bridging
+}
+
+extension TabViewStyle where Self == TabBarOnlyTabViewStyle {
+    @MainActor /* @preconcurrency */ public static var tabBarOnly: TabBarOnlyTabViewStyle {
+        return TabBarOnlyTabViewStyle()
+    }
+}
+
+@MainActor /* @preconcurrency */ public struct DefaultTabViewStyle : TabViewStyle {
+    nonisolated public init() {
+    }
+
+    public let identifier = 0 // For bridging
+}
+
+extension TabViewStyle where Self == DefaultTabViewStyle {
+    @MainActor /* @preconcurrency */ public static var automatic: DefaultTabViewStyle {
+        return DefaultTabViewStyle()
+    }
+}
+
+@MainActor /* @preconcurrency */ public struct GroupedTabViewStyle : TabViewStyle {
+    @available(*, unavailable)
+    nonisolated public init() {
+    }
+}
+
+extension TabViewStyle where Self == GroupedTabViewStyle {
+    @available(*, unavailable)
+    @MainActor /* @preconcurrency */ public static var grouped: GroupedTabViewStyle {
+        fatalError()
+    }
+}
+
+@MainActor /* @preconcurrency */ public struct PageTabViewStyle: TabViewStyle {
+    public let indexDisplayMode: PageTabViewStyle.IndexDisplayMode
+
+    public struct IndexDisplayMode : RawRepresentable, Equatable {
+        public let rawValue: Int
+
+        public init(rawValue: Int) {
+            self.rawValue = rawValue
+        }
+
+        public static let automatic = IndexDisplayMode(rawValue: 0) // For bridging
+        public static let always = IndexDisplayMode(rawValue: 1) // For bridging
+        public static let never = IndexDisplayMode(rawValue: 2) // For bridging
+    }
+
+    /* nonisolated */ public init(indexDisplayMode: PageTabViewStyle.IndexDisplayMode = .automatic) {
+        self.indexDisplayMode = indexDisplayMode
+    }
+
+    public let identifier = 2 // For bridging
+}
+
+extension TabViewStyle where Self == PageTabViewStyle {
+    @MainActor /* @preconcurrency */ public static var page: PageTabViewStyle {
+        return PageTabViewStyle()
+    }
+
+    @MainActor /* @preconcurrency */ public static func page(indexDisplayMode: PageTabViewStyle.IndexDisplayMode) -> PageTabViewStyle {
+        return PageTabViewStyle(indexDisplayMode: indexDisplayMode)
+    }
 }
