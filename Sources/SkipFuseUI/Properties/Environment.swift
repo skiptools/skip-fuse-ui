@@ -4,7 +4,7 @@ import SkipBridge
 import SkipUI
 
 /* @frozen */ @propertyWrapper public struct Environment<Value> : DynamicProperty {
-    private let defaultValue: @Sendable () -> Value
+    private let defaultValue: /* @Sendable */ () -> Value
     private let valueBox: Box<Box<Value>?> = Box(nil)
 
     /* @inlinable */ public init(_ keyPath: KeyPath<EnvironmentValues, Value>) {

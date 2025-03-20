@@ -46,7 +46,7 @@ extension View {
     /* nonisolated */ public func tabItem<V>(@ViewBuilder _ label: () -> V) -> some View where V : View {
         let label = label()
         return ModifierView(target: self) {
-            return $0.Java_viewOrEmpty.tabItem(bridgedLabel: label.Java_viewOrEmpty)
+            $0.Java_viewOrEmpty.tabItem(bridgedLabel: label.Java_viewOrEmpty)
         }
     }
 

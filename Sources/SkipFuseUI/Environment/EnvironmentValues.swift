@@ -50,6 +50,8 @@ extension EnvironmentValues {
         switch key {
         case "colorScheme":
             return ColorScheme(rawValue: bridgedValue as! Int)
+        case "dismiss":
+            return DismissAction(action: (bridgedValue as! SkipUI.DismissAction).action)
         default:
             return nil
         }
@@ -59,6 +61,7 @@ extension EnvironmentValues {
         var keys: [AnyHashable: String] = [:]
         // Initialize builtins
         keys[\EnvironmentValues.colorScheme] = "colorScheme"
+        keys[\EnvironmentValues.dismiss] = "dismiss"
         return keys
     }()
 
@@ -438,5 +441,16 @@ extension EnvironmentValues {
     public var colorSchemeContrast: Any /* ColorSchemeContrast */ {
         get { fatalError("Read via @Environment property wrapper") }
         set { fatalError("Set via dedicated View modifier") }
+    }
+}
+
+extension EnvironmentValues {
+    public var dismiss: DismissAction {
+        get { fatalError("Read via @Environment property wrapper") }
+    }
+
+    @available(*, unavailable)
+    public var isPresented: Bool {
+        get { fatalError("Read via @Environment property wrapper") }
     }
 }

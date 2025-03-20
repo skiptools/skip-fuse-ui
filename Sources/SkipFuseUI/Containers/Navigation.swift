@@ -471,13 +471,30 @@ public struct ZoomNavigationTransition : NavigationTransition {
     }
 }
 
-//~~~ TODO: Delegate to newer .toolbar when implemented
-//extension View {
-//    nonisolated public func navigationBarItems<L, T>(leading: L, trailing: T) -> some View where L : View, T : View
-//    nonisolated public func navigationBarItems<L>(leading: L) -> some View where L : View
-//    nonisolated public func navigationBarItems<T>(trailing: T) -> some View where T : View
-//    nonisolated public func navigationBarHidden(_ hidden: Bool) -> some View
-//}
+extension View {
+    /* nonisolated */ public func navigationBarItems<L, T>(leading: L, trailing: T) -> some View where L : View, T : View {
+        return toolbar {
+            ToolbarItem(placement: .navigationBarLeading) { leading }
+            ToolbarItem(placement: .navigationBarTrailing) { trailing }
+        }
+    }
+
+    /* nonisolated */ public func navigationBarItems<L>(leading: L) -> some View where L : View {
+        return toolbar {
+            ToolbarItem(placement: .navigationBarLeading) { leading }
+        }
+    }
+
+    /* nonisolated */ public func navigationBarItems<T>(trailing: T) -> some View where T : View {
+        return toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) { trailing }
+        }
+    }
+
+    /* nonisolated */ public func navigationBarHidden(_ hidden: Bool) -> some View {
+        return toolbarVisibility(.hidden, for: .navigationBar)
+    }
+}
 
 extension View {
     /* nonisolated */ public func navigationBarTitle(_ title: Text) -> some View {

@@ -61,7 +61,7 @@ extension View {
 extension View {
     /* nonisolated */ public func border<S>(_ content: S, width: CGFloat = 1) -> some View where S : ShapeStyle {
         return ModifierView(target: self) {
-            return $0.Java_viewOrEmpty.border(content.Java_view as? any SkipUI.ShapeStyle ?? SkipUI.Color._clear, width: width)
+            $0.Java_viewOrEmpty.border(content.Java_view as? any SkipUI.ShapeStyle ?? SkipUI.Color._clear, width: width)
         }
     }
 }
@@ -69,7 +69,7 @@ extension View {
 extension View {
     /* nonisolated */ public func colorInvert() -> some View {
         return ModifierView(target: self) {
-            return $0.Java_viewOrEmpty.colorInvert()
+            $0.Java_viewOrEmpty.colorInvert()
         }
     }
 }
@@ -77,7 +77,7 @@ extension View {
 extension View {
     /* @inlinable nonisolated */ public func disabled(_ disabled: Bool) -> some View {
         return ModifierView(target: self) {
-            return $0.Java_viewOrEmpty.disabled(disabled)
+            $0.Java_viewOrEmpty.disabled(disabled)
         }
     }
 }
@@ -85,13 +85,25 @@ extension View {
 extension View {
     /* nonisolated */ public func foregroundColor(_ color: Color?) -> some View {
         return ModifierView(target: self) {
-            return $0.Java_viewOrEmpty.foregroundColor(color?.Java_view as? SkipUI.Color)
+            $0.Java_viewOrEmpty.foregroundColor(color?.Java_view as? SkipUI.Color)
         }
     }
 
     /* nonisolated */ public func foregroundStyle<S>(_ style: S) -> some View where S : ShapeStyle {
         return ModifierView(target: self) {
-            return $0.Java_viewOrEmpty.foregroundStyle(style.Java_view as? any SkipUI.ShapeStyle ?? SkipUI.Color._clear)
+            $0.Java_viewOrEmpty.foregroundStyle(style.Java_view as? any SkipUI.ShapeStyle ?? SkipUI.Color._clear)
+        }
+    }
+}
+
+extension View {
+    @inlinable /* nonisolated */ public func edgesIgnoringSafeArea(_ edges: Edge.Set) -> some View {
+        return ignoresSafeArea(edges: edges)
+    }
+
+    /* @inlinable nonisolated */ public func ignoresSafeArea(_ regions: SafeAreaRegions = .all, edges: Edge.Set = .all) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.ignoresSafeArea(bridgedRegions: Int(regions.rawValue), bridgedEdges: Int(edges.rawValue))
         }
     }
 }
@@ -116,9 +128,17 @@ extension View {
 }
 
 extension View {
+    /* @inlinable nonisolated */ public func hidden() -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.hidden()
+        }
+    }
+}
+
+extension View {
     /* @inlinable nonisolated */ public func padding(_ insets: EdgeInsets) -> some View {
         return ModifierView(target: self) {
-            return $0.Java_viewOrEmpty.padding(top: insets.top, leading: insets.leading, bottom: insets.bottom, trailing: insets.trailing)
+            $0.Java_viewOrEmpty.padding(top: insets.top, leading: insets.leading, bottom: insets.bottom, trailing: insets.trailing)
         }
     }
 
@@ -148,7 +168,7 @@ extension View {
 extension View {
     /* nonisolated */ public func tag<V>(_ tag: V, includeOptional: Bool = true) -> some View where V : Hashable {
         return ModifierView(target: self) {
-            return $0.Java_viewOrEmpty.tag(SwiftHashable(tag)) // Tag with bridgable wrapper
+            $0.Java_viewOrEmpty.tag(SwiftHashable(tag)) // Tag with bridgable wrapper
         }
     }
 }
@@ -161,7 +181,7 @@ extension View {
 
     /* @inlinable nonisolated */ public func tint(_ tint: Color?) -> some View {
         return ModifierView(target: self) {
-            return $0.Java_viewOrEmpty.tint(tint?.Java_view as? SkipUI.Color)
+            $0.Java_viewOrEmpty.tint(tint?.Java_view as? SkipUI.Color)
         }
     }
 }

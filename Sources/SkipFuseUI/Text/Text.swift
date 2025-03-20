@@ -365,13 +365,13 @@ extension Text {
 extension View {
     public func font(_ font: Font?) -> some View {
         return ModifierView(target: self) {
-            return $0.Java_viewOrEmpty.font(font?.spec.Java_font)
+            $0.Java_viewOrEmpty.font(font?.spec.Java_font)
         }
     }
 
     public func fontWeight(_ weight: Font.Weight?) -> some View {
         return ModifierView(target: self) {
-            return $0.Java_viewOrEmpty.fontWeight(bridgedWeight: weight?.value)
+            $0.Java_viewOrEmpty.fontWeight(bridgedWeight: weight?.value)
         }
     }
 
@@ -394,7 +394,7 @@ extension View {
 
     /* nonisolated */ public func italic(_ isActive: Bool) -> some View {
         return ModifierView(target: self) {
-            return $0.Java_viewOrEmpty.italic(isActive)
+            $0.Java_viewOrEmpty.italic(isActive)
         }
     }
 
@@ -404,7 +404,7 @@ extension View {
 
     /* nonisolated */ public func fontDesign(_ design: Font.Design?) -> some View {
         return ModifierView(target: self) {
-            return $0.Java_viewOrEmpty.fontDesign(bridgedDesign: design?.rawValue)
+            $0.Java_viewOrEmpty.fontDesign(bridgedDesign: design?.rawValue)
         }
     }
 
@@ -415,13 +415,13 @@ extension View {
 
     /* nonisolated */ public func strikethrough(_ isActive: Bool = true, pattern: Text.LineStyle.Pattern = .solid, color: Color? = nil) -> some View {
         return ModifierView(target: self) {
-            return $0.Java_viewOrEmpty.bridgedStrikethrough(isActive)
+            $0.Java_viewOrEmpty.bridgedStrikethrough(isActive)
         }
     }
 
     /* nonisolated */ public func underline(_ isActive: Bool = true, pattern: Text.LineStyle.Pattern = .solid, color: Color? = nil) -> some View {
         return ModifierView(target: self) {
-            return $0.Java_viewOrEmpty.bridgedUnderline(isActive)
+            $0.Java_viewOrEmpty.bridgedUnderline(isActive)
         }
     }
 
@@ -462,7 +462,7 @@ extension View {
 
     public func lineLimit(_ number: Int?) -> some View {
         return ModifierView(target: self) {
-            return $0.Java_viewOrEmpty.lineLimit(number)
+            $0.Java_viewOrEmpty.lineLimit(number)
         }
     }
 
@@ -488,7 +488,7 @@ extension View {
 
     public func multilineTextAlignment(_ alignment: TextAlignment) -> some View {
         return ModifierView(target: self) {
-            return $0.Java_viewOrEmpty.multilineTextAlignment(bridgedAlignment: alignment.rawValue)
+            $0.Java_viewOrEmpty.multilineTextAlignment(bridgedAlignment: alignment.rawValue)
         }
     }
 
@@ -499,7 +499,7 @@ extension View {
 
     public func redacted(reason: RedactionReasons) -> some View {
         return ModifierView(target: self) {
-            return $0.Java_viewOrEmpty.redacted(bridgedReason: reason.rawValue)
+            $0.Java_viewOrEmpty.redacted(bridgedReason: reason.rawValue)
         }
     }
 

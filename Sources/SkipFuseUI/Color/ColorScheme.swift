@@ -10,13 +10,13 @@ public enum ColorScheme : Int, CaseIterable, Hashable /*, Sendable */ {
 extension View {
     /* nonisolated */ public func colorScheme(_ colorScheme: ColorScheme) -> some View {
         return ModifierView(target: self) {
-            return $0.Java_viewOrEmpty.colorScheme(bridgedColorScheme: colorScheme.rawValue)
+            $0.Java_viewOrEmpty.colorScheme(bridgedColorScheme: colorScheme.rawValue)
         }
     }
 
     /* nonisolated */ public func preferredColorScheme(_ colorScheme: ColorScheme?) -> some View {
         return ModifierView(target: self) {
-            return $0.Java_viewOrEmpty.preferredColorScheme(bridgedColorScheme: colorScheme?.rawValue)
+            $0.Java_viewOrEmpty.preferredColorScheme(bridgedColorScheme: colorScheme?.rawValue)
         }
     }
 }

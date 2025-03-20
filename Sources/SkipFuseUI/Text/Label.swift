@@ -177,7 +177,7 @@ extension View {
     /* nonisolated */ public func labelStyle<S>(_ style: S) -> some View where S : LabelStyle {
         let rawValue = (style as? any RawRepresentable)?.rawValue as? Int ?? 0
         return ModifierView(target: self) {
-            return $0.Java_viewOrEmpty.labelStyle(bridgedStyle: rawValue)
+            $0.Java_viewOrEmpty.labelStyle(bridgedStyle: rawValue)
         }
     }
 }

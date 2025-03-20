@@ -6326,11 +6326,31 @@ public struct ContentShapeKinds : OptionSet, Sendable {
     @available(tvOS, unavailable)
     public static let dragPreview: ContentShapeKinds
 
-    /// The kind for the focus effect.
-    @available(iOS, unavailable)
-    @available(tvOS, unavailable)
-    @available(visionOS, unavailable)
-    public static let focusEffect: ContentShapeKinds
+    /// The kind for context menu previews.
+    ///
+    /// When using this kind, only the preview shape will be affected. To
+    /// control the shape used to hit-test and start the context menu
+    /// presentation, use the `.interaction` kind.
+    @available(tvOS 17.0, *)
+    @available(macOS, unavailable)
+    @available(watchOS, unavailable)
+    public static let contextMenuPreview: ContentShapeKinds
+
+    /// The kind for hover effects.
+    ///
+    /// When using this kind, only the preview shape is affected. To control
+    /// the shape used to hit-test and start the effect, use the `interaction`
+    /// kind.
+    ///
+    /// On tvOS, this is used to define the shape of any hover effect applied to
+    /// focusable and hoverable controls, for example button border or clipping
+    /// shapes.
+    ///
+    /// This kind does not affect the `onHover` modifier.
+    @available(tvOS 18.0, *)
+    @available(macOS, unavailable)
+    @available(watchOS, unavailable)
+    public static let hoverEffect: ContentShapeKinds
 
     /// The kind for accessibility visuals and sorting.
     ///
@@ -6556,83 +6576,6 @@ public struct ContentTransition : Equatable, Sendable {
     ///   - lhs: A value to compare.
     ///   - rhs: Another value to compare.
     public static func == (a: ContentTransition, b: ContentTransition) -> Bool
-}
-
-/// The active appearance expected of controls in a window.
-///
-/// `ControlActiveState` and `EnvironmentValues.controlActiveState` are
-/// deprecated, use `EnvironmentValues.appearsActive` instead.
-@available(iOS, unavailable)
-@available(macCatalyst, introduced: 13.0, deprecated: 100000.0, message: "Use `EnvironmentValues.appearsActive` instead.")
-@available(macOS, introduced: 10.15, deprecated: 100000.0, message: "Use `EnvironmentValues.appearsActive` instead.")
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
-@available(visionOS, unavailable)
-public enum ControlActiveState : Equatable, CaseIterable, Sendable {
-
-    case key
-
-    case active
-
-    case inactive
-
-    /// Returns a Boolean value indicating whether two values are equal.
-    ///
-    /// Equality is the inverse of inequality. For any values `a` and `b`,
-    /// `a == b` implies that `a != b` is `false`.
-    ///
-    /// - Parameters:
-    ///   - lhs: A value to compare.
-    ///   - rhs: Another value to compare.
-    public static func == (a: ControlActiveState, b: ControlActiveState) -> Bool
-
-    /// Hashes the essential components of this value by feeding them into the
-    /// given hasher.
-    ///
-    /// Implement this method to conform to the `Hashable` protocol. The
-    /// components used for hashing must be the same as the components compared
-    /// in your type's `==` operator implementation. Call `hasher.combine(_:)`
-    /// with each of these components.
-    ///
-    /// - Important: In your implementation of `hash(into:)`,
-    ///   don't call `finalize()` on the `hasher` instance provided,
-    ///   or replace it with a different instance.
-    ///   Doing so may become a compile-time error in the future.
-    ///
-    /// - Parameter hasher: The hasher to use when combining the components
-    ///   of this instance.
-    public func hash(into hasher: inout Hasher)
-
-    /// A type that can represent a collection of all values of this type.
-    @available(iOS, unavailable, message: "Use `EnvironmentValues.appearsActive` instead.")
-    @available(tvOS, unavailable, message: "Use `EnvironmentValues.appearsActive` instead.")
-    @available(watchOS, unavailable, message: "Use `EnvironmentValues.appearsActive` instead.")
-    @available(visionOS, unavailable, message: "Use `EnvironmentValues.appearsActive` instead.")
-    @available(macOS, introduced: 10.15, deprecated: 100000.0, message: "Use `EnvironmentValues.appearsActive` instead.")
-    @available(macCatalyst, introduced: 13.0, deprecated: 100000.0, message: "Use `EnvironmentValues.appearsActive` instead.")
-    public typealias AllCases = [ControlActiveState]
-
-    /// A collection of all values of this type.
-    nonisolated public static var allCases: [ControlActiveState] { get }
-
-    /// The hash value.
-    ///
-    /// Hash values are not guaranteed to be equal across different executions of
-    /// your program. Do not save hash values to use during a future execution.
-    ///
-    /// - Important: `hashValue` is deprecated as a `Hashable` requirement. To
-    ///   conform to `Hashable`, implement the `hash(into:)` requirement instead.
-    ///   The compiler provides an implementation for `hashValue` for you.
-    public var hashValue: Int { get }
-}
-
-@available(iOS, unavailable)
-@available(macCatalyst, introduced: 13.0, deprecated: 100000.0, message: "Use `EnvironmentValues.appearsActive` instead.")
-@available(macOS, introduced: 10.15, deprecated: 100000.0, message: "Use `EnvironmentValues.appearsActive` instead.")
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
-@available(visionOS, unavailable)
-extension ControlActiveState : Hashable {
 }
 
 /// The size classes, like regular or small, that you can apply to controls
@@ -7111,6 +7054,80 @@ extension CustomAnimation {
     /// - Returns: A Boolean value of `true` if the animation should merge with
     ///   the previous animation; otherwise, `false`.
     public func shouldMerge<V>(previous: Animation, value: V, time: TimeInterval, context: inout AnimationContext<V>) -> Bool where V : VectorArithmetic
+}
+
+/// A type that represents how a view should change when a pointer hovers
+/// over a view, or when someone looks at the view.
+///
+/// Custom hover effects apply their inactive values when the effect is
+/// inactive, and their active values when the effect is active. For example,
+/// the following effect causes a view to be partially transparent when
+/// inactive, but animate to fully opaque when active:
+///
+///
+///     struct FadeInHoverEffect: CustomHoverEffect {
+///         func body(content: Content) -> some CustomHoverEffect {
+///             content.hoverEffect { effect, isActive, proxy in
+///                 effect.animation(.easeOut) {
+///                     $0.opacity(isActive ? 1 : 0.5)
+///                 }
+///             }
+///         }
+///     }
+///
+///
+/// This effect can be applied to a view using the `hoverEffect(_:)` modifier:
+///
+///
+///     Color.red
+///         .hoverEffect(FadeInHoverEffect())
+///
+///
+/// Hover effects do not affect a view's layout, and may be applied to a view
+/// out-of-process. Therefore an effect's current phase may not be visible
+/// within your app.
+@available(iOS 18.0, tvOS 18.0, visionOS 2.0, *)
+@available(macOS, unavailable)
+@available(watchOS, unavailable)
+public protocol CustomHoverEffect {
+
+    /// The type of effect representing the body of this effect. When you create
+    /// a custom effect, Swift infers this type from your implementation of the
+    /// required ``CustomHoverEffect/body(content:)`` method.
+    associatedtype Body : CustomHoverEffect
+
+    /// The content effect type passed to `body(content:)`.
+    typealias Content = EmptyHoverEffect
+
+    /// Defines the effect produced by this effect.
+    ///
+    /// You implement this method to describe a custom effect to apply to a
+    /// view. `content` is an empty effect you use to build your effect, which
+    /// will later be applied to a View, or combined with other
+    /// `CustomHoverEffect`s.
+    ///
+    /// - Parameter content: An empty effect you use to compose the custom
+    ///   effect.
+    /// - Returns: A custom effect.
+    func body(content: Self.Content) -> Self.Body
+}
+
+@available(iOS 18.0, tvOS 18.0, visionOS 2.0, *)
+@available(macOS, unavailable)
+@available(watchOS, unavailable)
+extension CustomHoverEffect where Self.Body == Never {
+
+    /// Defines the effect produced by this effect.
+    ///
+    /// You implement this method to describe a custom effect to apply to a
+    /// view. `content` is an empty effect you use to build your effect, which
+    /// will later be applied to a View, or combined with other
+    /// `CustomHoverEffect`s.
+    ///
+    /// - Parameter content: An empty effect you use to compose the custom
+    ///   effect.
+    /// - Returns: A custom effect.
+    public func body(content: Self.Content) -> Self.Body
 }
 
 /// A selectability type that disables text selection by the person using your app.
@@ -7743,6 +7760,24 @@ extension EmptyAnimatableData : Sendable {
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension EmptyAnimatableData : BitwiseCopyable {
+}
+
+/// A base hover effect used to build additional effects.
+///
+/// `EmptyHoverEffect`
+/// does not change a view on hover.
+@available(iOS 18.0, tvOS 18.0, visionOS 2.0, *)
+@available(macOS, unavailable)
+@available(watchOS, unavailable)
+public struct EmptyHoverEffect : CustomHoverEffect {
+
+    /// The type of effect representing the body of this effect. When you create
+    /// a custom effect, Swift infers this type from your implementation of the
+    /// required ``CustomHoverEffect/body(content:)`` method.
+    @available(iOS 18.0, tvOS 18.0, visionOS 2.0, *)
+    @available(watchOS, unavailable)
+    @available(macOS, unavailable)
+    public typealias Body = Never
 }
 
 /// An empty, or identity, modifier, used during development to switch
@@ -8996,26 +9031,6 @@ extension EnvironmentValues {
 
     /// The current time zone that views should use when handling dates.
     public var timeZone: TimeZone
-
-    /// The active appearance expected of controls in a window.
-    ///
-    /// `ControlActiveState` and `EnvironmentValues.controlActiveState` are
-    /// deprecated, use `EnvironmentValues.appearsActive` instead.
-    ///
-    /// Starting with macOS 15.0, the value of this environment property is
-    /// strictly mapped to and from `EnvironmentValues.appearsActive` as follows:
-    /// - `appearsActive == true`, `controlActiveState` returns `.key`
-    /// - `appearsActive == false`, `controlActiveState` returns `.inactive`
-    /// - `controlActiveState` is set to `.key` or `.active`, `appearsActive`
-    ///   will be set to `true`.
-    /// - `controlActiveState` is set to `.inactive`, `appearsActive` will be
-    ///    set to `false`.
-    @available(iOS, unavailable)
-    @available(macOS, introduced: 10.15, deprecated: 100000.0, message: "Use `EnvironmentValues.appearsActive` instead.")
-    @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
-    @available(visionOS, unavailable)
-    public var controlActiveState: ControlActiveState
 
     /// The horizontal size class of this environment.
     ///
@@ -16828,13 +16843,6 @@ public struct MaterialActiveAppearance : Sendable, Equatable {
     /// Materials will always appear active.
     public static let active: MaterialActiveAppearance
 
-    /// Materials will always appear inactive.
-    @available(iOS, unavailable)
-    @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
-    @available(visionOS, unavailable)
-    public static let inactive: MaterialActiveAppearance
-
     /// Materials will have an active or inactive appearance based on
     /// the active appearance of their window.
     ///
@@ -17207,6 +17215,12 @@ extension ModifiedContent : DynamicViewContent where Content : DynamicViewConten
     /// The type of the underlying collection of data.
     @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
     public typealias Data = Content.Data
+}
+
+@available(iOS 18.0, tvOS 18.0, visionOS 2.0, *)
+@available(macOS, unavailable)
+@available(watchOS, unavailable)
+extension ModifiedContent : CustomHoverEffect where Content : CustomHoverEffect, Modifier : CustomHoverEffect {
 }
 
 /// A keyframe that immediately moves to the given value without interpolating.
@@ -35624,6 +35638,12 @@ extension FormatStyle where Self == SystemFormatStyle.DateReference {
     public static func reference(to date: Date, allowedFields: Set<Date.RelativeFormatStyle.Field> = [.year, .month, .day, .hour, .minute], maxFieldCount: Int = 2, thresholdField: Date.RelativeFormatStyle.Field = .day) -> SystemFormatStyle.DateReference
 }
 
+@available(iOS 18.0, tvOS 18.0, visionOS 2.0, *)
+@available(macOS, unavailable)
+@available(watchOS, unavailable)
+extension Never : CustomHoverEffect {
+}
+
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension CGSize : Animatable {
 
@@ -35958,5 +35978,4 @@ extension FormatStyle where Self == SystemFormatStyle.Stopwatch {
     /// hours and minutes to be shown.
     public static func stopwatch(startingAt startDate: Date, showsHours: Bool = true, maxFieldCount: Int = 4, maxPrecision: Duration = .milliseconds(10)) -> SystemFormatStyle.Stopwatch
 }
-
 
