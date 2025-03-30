@@ -29,7 +29,7 @@ extension ScrollView {
 
 extension ScrollView : SkipUIBridging {
     public var Java_view: any SkipUI.View {
-        return SkipUI.ScrollView(bridgedAxes: Int(axes.rawValue), bridgedContent: content.Java_viewOrEmpty)
+        return SkipUI.ScrollView(bridgedAxes: Int(axes.rawValue), showsIndicators: showsIndicators, bridgedContent: content.Java_viewOrEmpty)
     }
 }
 
