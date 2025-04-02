@@ -16,8 +16,6 @@ let package = Package(
     targets: [
         .target(name: "SkipFuseUI", dependencies: [
             .product(name: "SkipFuse", package: "skip-fuse"),
-            .product(name: "SkipBridge", package: "skip-bridge"),
-            .product(name: "SwiftJNI", package: "swift-jni"),
             .product(name: "SkipUI", package: "skip-ui")
         ], plugins: [.plugin(name: "skipstone", package: "skip")]),
         .testTarget(name: "SkipFuseUITests", dependencies: [
