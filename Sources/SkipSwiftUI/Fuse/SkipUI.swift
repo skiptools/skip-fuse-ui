@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import SkipBridge
 
+@_exported import class SkipUI.AppStorageSupport
 @_exported import struct SkipUI.EmptyView
 @_exported import class SkipUI.EnvironmentSupport
 @_exported import class SkipUI.StateSupport

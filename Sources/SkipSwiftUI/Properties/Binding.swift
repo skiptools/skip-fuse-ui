@@ -1,6 +1,7 @@
 // Copyright 2025 Skip
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import SkipBridge
+import SkipUI
 
 @frozen @propertyWrapper @dynamicMemberLookup public struct Binding<Value> {
     let get: () -> Value
@@ -8,6 +9,14 @@ import SkipBridge
 
     /* @preconcurrency */ public init(valueBox: BridgedStateBox<Value>? = nil, get: @escaping /* @isolated(any) @Sendable */ () -> Value, set: @escaping /* @isolated(any) @Sendable */ (Value) -> Void) {
         self.valueBox = valueBox
+        self.appStorageBox = nil
+        self.get = get
+        self.set = set
+    }
+
+    /* @preconcurrency */ public init(appStorageBox: BridgedAppStorageBox<Value>, get: @escaping /* @isolated(any) @Sendable */ () -> Value, set: @escaping /* @isolated(any) @Sendable */ (Value) -> Void) {
+        self.appStorageBox = appStorageBox
+        self.valueBox = nil
         self.get = get
         self.set = set
     }
@@ -21,6 +30,12 @@ import SkipBridge
     /// This is exposed to generated code here rather than on the `State` because the property wrapper itself is considered
     /// private, but its projection is accessible to callers.
     public let valueBox: BridgedStateBox<Value>?
+
+    /// The bound `@AppStorage's` bridged value box.
+    ///
+    /// This is exposed to generated code here rather than on the `AppStorage` because the property wrapper itself is considered
+    /// private, but its projection is accessible to callers.
+    public let appStorageBox: BridgedAppStorageBox<Value>?
 
     public var wrappedValue: Value {
         get {

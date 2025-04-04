@@ -3,7 +3,7 @@
 import SkipFuse
 import SkipUI
 
-let logger: Logger = Logger(subsystem: "SkipFuseUI", category: "SkipFuseUI")
+let logger: Logger = Logger(subsystem: "SkipSwiftUI", category: "SkipSwiftUI")
 
 public protocol View {
     associatedtype Body: View

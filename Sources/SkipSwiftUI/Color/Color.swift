@@ -23,7 +23,7 @@ import SkipUI
     }
 
     public var description: String {
-        return "SkipFuseUI.Color: \(String(describing: spec))"
+        return "SkipSwiftUI.Color: \(String(describing: spec))"
     }
 }
 

@@ -21,7 +21,7 @@ import CoreGraphics
         fatalError()
     }
 
-    // NOTE: These keys must be the same as those in SkipFuseUI.HorizontalAlignment
+    // NOTE: These keys must be the same as those in SkipUI.HorizontalAlignment
     public static let center: HorizontalAlignment = HorizontalAlignment(key: "center")
     public static let leading: HorizontalAlignment = HorizontalAlignment(key: "leading")
     public static let trailing: HorizontalAlignment = HorizontalAlignment(key: "trailing")

@@ -35,13 +35,13 @@ extension Button where Label == Text {
     }
 }
 
-extension Button where Label == SkipFuseUI.Label<Text, Image> {
+extension Button where Label == SkipSwiftUI.Label<Text, Image> {
     /* nonisolated */ public init(_ titleKey: LocalizedStringKey, systemImage: String, action: @escaping @MainActor () -> Void) {
-        self.init(action: action, label: { SkipFuseUI.Label(titleKey, systemImage: systemImage) })
+        self.init(action: action, label: { SkipSwiftUI.Label(titleKey, systemImage: systemImage) })
     }
 
     @_disfavoredOverload /* nonisolated */ public init<S>(_ title: S, systemImage: String, action: @escaping @MainActor () -> Void) where S : StringProtocol {
-        self.init(action: action, label: { SkipFuseUI.Label(title, systemImage: systemImage) })
+        self.init(action: action, label: { SkipSwiftUI.Label(title, systemImage: systemImage) })
     }
 }
 
@@ -76,13 +76,13 @@ extension Button where Label == Text {
     }
 }
 
-extension Button where Label == SkipFuseUI.Label<Text, Image> {
+extension Button where Label == SkipSwiftUI.Label<Text, Image> {
     /* nonisolated */ public init(_ titleKey: LocalizedStringKey, systemImage: String, role: ButtonRole?, action: @escaping @MainActor () -> Void) {
-        self.init(role: role, action: action, label: { SkipFuseUI.Label(titleKey, systemImage: systemImage) })
+        self.init(role: role, action: action, label: { SkipSwiftUI.Label(titleKey, systemImage: systemImage) })
     }
 
     @_disfavoredOverload /* nonisolated */ public init<S>(_ title: S, systemImage: String, role: ButtonRole?, action: @escaping @MainActor () -> Void) where S : StringProtocol {
-        self.init(role: role, action: action, label: { SkipFuseUI.Label(title, systemImage: systemImage) })
+        self.init(role: role, action: action, label: { SkipSwiftUI.Label(title, systemImage: systemImage) })
     }
 }
 

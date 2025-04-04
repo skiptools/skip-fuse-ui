@@ -309,11 +309,11 @@ extension Animation {
 
 extension Animation : CustomStringConvertible, CustomDebugStringConvertible, CustomReflectable {
     public var description: String {
-        return "SkipFuseUI.Animation: \(spec)"
+        return "SkipSwiftUI.Animation: \(spec)"
     }
 
     public var debugDescription: String {
-        return "SkipFuseUI.Animation: \(spec)"
+        return "SkipSwiftUI.Animation: \(spec)"
     }
 
     public var customMirror: Mirror {

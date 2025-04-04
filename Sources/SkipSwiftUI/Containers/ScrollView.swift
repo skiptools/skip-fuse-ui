@@ -118,7 +118,7 @@ public struct ScrollGeometry : Equatable /*, Sendable */ {
 
 extension ScrollGeometry : CustomDebugStringConvertible {
     public var debugDescription: String {
-        return "SkipFuseUI.ScrollGeometry: \(contentOffset)"
+        return "SkipSwiftUI.ScrollGeometry: \(contentOffset)"
     }
 }
 

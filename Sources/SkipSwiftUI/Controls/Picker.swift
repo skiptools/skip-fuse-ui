@@ -52,9 +52,9 @@ extension Picker where Label == Text {
     }
 }
 
-extension Picker where Label == SkipFuseUI.Label<Text, Image> {
+extension Picker where Label == SkipSwiftUI.Label<Text, Image> {
     /* nonisolated */ public init(_ titleKey: LocalizedStringKey, systemImage: String, selection: Binding<SelectionValue>, @ViewBuilder content: () -> Content) {
-        self.init(selection: selection, content: content, label: { SkipFuseUI.Label(titleKey, systemImage: systemImage) })
+        self.init(selection: selection, content: content, label: { SkipSwiftUI.Label(titleKey, systemImage: systemImage) })
     }
 
     @available(*, unavailable)
@@ -63,7 +63,7 @@ extension Picker where Label == SkipFuseUI.Label<Text, Image> {
     }
 
     @_disfavoredOverload /* nonisolated */ public init<S>(_ title: S, systemImage: String, selection: Binding<SelectionValue>, @ViewBuilder content: () -> Content) where S : StringProtocol {
-        self.init(selection: selection, content: content, label: { SkipFuseUI.Label(title, systemImage: systemImage) })
+        self.init(selection: selection, content: content, label: { SkipSwiftUI.Label(title, systemImage: systemImage) })
     }
 
     @available(*, unavailable)
@@ -116,7 +116,7 @@ extension Picker where Label == Text {
     }
 }
 
-extension Picker where Label == SkipFuseUI.Label<Text, Image> {
+extension Picker where Label == SkipSwiftUI.Label<Text, Image> {
     @available(*, unavailable)
     /* nonisolated */ public init(_ titleKey: LocalizedStringKey, systemImage: String, selection: Binding<SelectionValue>, @ViewBuilder content: () -> Content, @ViewBuilder currentValueLabel: () -> some View) {
         fatalError()

@@ -52,21 +52,21 @@ extension Toggle where Label == Text {
     }
 }
 
-extension Toggle where Label == SkipFuseUI.Label<Text, Image> {
+extension Toggle where Label == SkipSwiftUI.Label<Text, Image> {
     /* nonisolated */ public init(_ titleKey: LocalizedStringKey, systemImage: String, isOn: Binding<Bool>) {
-        self.init(isOn: isOn, label: { SkipFuseUI.Label(titleKey, systemImage: systemImage) })
+        self.init(isOn: isOn, label: { SkipSwiftUI.Label(titleKey, systemImage: systemImage) })
     }
 
     @_disfavoredOverload /*nonisolated */ public init<S>(_ title: S, systemImage: String, isOn: Binding<Bool>) where S : StringProtocol {
-        self.init(isOn: isOn, label: { SkipFuseUI.Label(title, systemImage: systemImage) })
+        self.init(isOn: isOn, label: { SkipSwiftUI.Label(title, systemImage: systemImage) })
     }
 
     /* nonisolated */ public init<C>(_ titleKey: LocalizedStringKey, systemImage: String, sources: C, isOn: KeyPath<C.Element, Binding<Bool>>) where C : RandomAccessCollection {
-        self.init(sources: sources, isOn: isOn, label: { SkipFuseUI.Label(titleKey, systemImage: systemImage) })
+        self.init(sources: sources, isOn: isOn, label: { SkipSwiftUI.Label(titleKey, systemImage: systemImage) })
     }
 
     @_disfavoredOverload /* nonisolated */ public init<S, C>(_ title: S, systemImage: String, sources: C, isOn: KeyPath<C.Element, Binding<Bool>>) where S : StringProtocol, C : RandomAccessCollection {
-        self.init(sources: sources, isOn: isOn, label: { SkipFuseUI.Label(title, systemImage: systemImage) })
+        self.init(sources: sources, isOn: isOn, label: { SkipSwiftUI.Label(title, systemImage: systemImage) })
     }
 }
 
