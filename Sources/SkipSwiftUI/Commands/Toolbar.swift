@@ -317,18 +317,17 @@ public struct ToolbarTitleDisplayMode {
     }
 }
 
-//~~~ TODO when Group implemented
-//extension Group : ToolbarContent where Content : ToolbarContent {
-//    /* nonisolated */ public init(@ToolbarContentBuilder content: () -> Content) {
-//        // TODO
-//    }
-//}
-//
-//extension Group : CustomizableToolbarContent where Content : CustomizableToolbarContent {
-//    public init(@ToolbarContentBuilder content: () -> Content) {
-//        // TODO
-//    }
-//}
+extension Group : ToolbarContent where Content : ToolbarContent {
+    /* nonisolated */ public init(@ToolbarContentBuilder content: () -> Content) {
+        self.content = content()
+    }
+}
+
+extension Group : CustomizableToolbarContent where Content : CustomizableToolbarContent {
+    public init(@ToolbarContentBuilder content: () -> Content) {
+        self.content = content()
+    }
+}
 
 @resultBuilder public struct ToolbarContentBuilder {
     public static func buildBlock() -> EmptyToolbarContent {

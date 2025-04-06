@@ -124,6 +124,18 @@ extension View {
 }
 
 extension View {
+    @inlinable /* nonisolated */ public func edgesIgnoringSafeArea(_ edges: Edge.Set) -> some View {
+        return ignoresSafeArea(edges: edges)
+    }
+
+    /* @inlinable nonisolated */ public func ignoresSafeArea(_ regions: SafeAreaRegions = .all, edges: Edge.Set = .all) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.ignoresSafeArea(bridgedRegions: Int(regions.rawValue), bridgedEdges: Int(edges.rawValue))
+        }
+    }
+}
+
+extension View {
     /* nonisolated */ public func foregroundColor(_ color: Color?) -> some View {
         return ModifierView(target: self) {
             $0.Java_viewOrEmpty.foregroundColor(color?.Java_view as? SkipUI.Color)
@@ -133,18 +145,6 @@ extension View {
     /* nonisolated */ public func foregroundStyle<S>(_ style: S) -> some View where S : ShapeStyle {
         return ModifierView(target: self) {
             $0.Java_viewOrEmpty.foregroundStyle(style.Java_view as? any SkipUI.ShapeStyle ?? SkipUI.Color._clear)
-        }
-    }
-}
-
-extension View {
-    @inlinable /* nonisolated */ public func edgesIgnoringSafeArea(_ edges: Edge.Set) -> some View {
-        return ignoresSafeArea(edges: edges)
-    }
-
-    /* @inlinable nonisolated */ public func ignoresSafeArea(_ regions: SafeAreaRegions = .all, edges: Edge.Set = .all) -> some View {
-        return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.ignoresSafeArea(bridgedRegions: Int(regions.rawValue), bridgedEdges: Int(edges.rawValue))
         }
     }
 }
@@ -172,6 +172,14 @@ extension View {
     /* @inlinable nonisolated */ public func hidden() -> some View {
         return ModifierView(target: self) {
             $0.Java_viewOrEmpty.hidden()
+        }
+    }
+}
+
+extension View {
+    /* @inlinable nonisolated */ public func id<ID>(_ id: ID) -> some View where ID : Hashable {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.id(Java_swiftHashable(for: id))
         }
     }
 }
