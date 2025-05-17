@@ -4,7 +4,7 @@
 import CoreGraphics
 #endif
 
-@frozen public struct StrokeStyle : Equatable /*, Sendable */ {
+@frozen public struct StrokeStyle : Equatable, Sendable {
     public var lineWidth: CGFloat
     public var lineCap: CGLineCap
     public var lineJoin: CGLineJoin

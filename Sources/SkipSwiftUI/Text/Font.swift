@@ -5,7 +5,7 @@ import CoreGraphics
 #endif
 import SkipUI
 
-/* @frozen */ public struct Font : Hashable /*, Sendable */ {
+/* @frozen */ public struct Font : Hashable, Sendable {
     let spec: FontSpec
 
     init(spec: FontSpec) {
@@ -13,7 +13,7 @@ import SkipUI
     }
 }
 
-struct FontSpec: Hashable {
+struct FontSpec: Hashable, Sendable {
     let type: FontType
     var isItalic: Bool
     var weight: Font.Weight?
@@ -52,7 +52,7 @@ struct FontSpec: Hashable {
     }
 }
 
-enum FontType : Hashable {
+enum FontType : Hashable, Sendable {
     case system(Font.TextStyle, Font.Design?, Font.Weight?)
     case systemSize(CGFloat, Font.Design?, Font.Weight?)
     case customSize(String, CGFloat)
@@ -81,7 +81,7 @@ extension Font {
         return system(style, design: design, weight: nil)
     }
 
-    public enum TextStyle : Int, CaseIterable, Hashable /*, Sendable */ {
+    public enum TextStyle : Int, CaseIterable, Hashable, Sendable {
         case largeTitle = 0 // For bridging
         case title = 1 // For bridging
         case title2 = 2 // For bridging
@@ -149,7 +149,7 @@ extension Font {
         fatalError()
     }
 
-    @frozen public struct Weight : Hashable /*, BitwiseCopyable, Sendable */ {
+    @frozen public struct Weight : Hashable, BitwiseCopyable, Sendable {
         let value: Int
 
         public static let ultraLight = Weight(value: -3) // For bridging
@@ -176,7 +176,7 @@ extension Font {
         public static let expanded = Width(1.2)
     }
 
-    public enum Leading : Hashable /*, Sendable */ {
+    public enum Leading : Hashable, Sendable {
         case standard
         case tight
         case loose
@@ -206,7 +206,7 @@ extension Font {
 
 //    public static func system(size: CGFloat, weight: Font.Weight = .regular, design: Font.Design = .default) -> Font
 
-    public enum Design : Int, Hashable /*, Sendable */ {
+    public enum Design : Int, Hashable, Sendable {
         case `default` = 0 // For bridging
         case serif = 1 // For bridging
         case rounded = 2 // For bridging

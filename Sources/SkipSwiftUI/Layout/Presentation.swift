@@ -6,7 +6,7 @@ import CoreGraphics
 import Foundation
 import SkipUI
 
-public struct PresentationAdaptation /* : Sendable */ {
+public struct PresentationAdaptation : Sendable {
     public static var automatic: PresentationAdaptation {
         return PresentationAdaptation()
     }
@@ -32,7 +32,7 @@ public struct PresentationAdaptation /* : Sendable */ {
     }
 }
 
-public struct PresentationBackgroundInteraction /* : Sendable */ {
+public struct PresentationBackgroundInteraction : Sendable {
     public static var automatic: PresentationBackgroundInteraction {
         return PresentationBackgroundInteraction()
     }
@@ -67,7 +67,7 @@ public struct PresentationContentInteraction : Equatable /*, Sendable */ {
     }
 }
 
-public struct PresentationDetent : Hashable /*, Sendable */ {
+public struct PresentationDetent : Hashable, Sendable {
     let identifier: Int // For bridging
     let value: CGFloat
 

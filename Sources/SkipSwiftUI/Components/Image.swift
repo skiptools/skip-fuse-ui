@@ -6,7 +6,7 @@ import CoreGraphics
 import Foundation
 import SkipUI
 
-/* @frozen */ public struct Image : Equatable /*, Sendable */ {
+/* @frozen */ public struct Image : Equatable, Sendable {
     let spec: ImageSpec
 
     init(spec: ImageSpec) {
@@ -19,7 +19,7 @@ import SkipUI
 }
 
 /// Define an image.
-struct ImageSpec : Equatable {
+struct ImageSpec : Equatable, Sendable {
     let type: ImageType
     var resizingMode: Image.ResizingMode?
 
@@ -29,7 +29,7 @@ struct ImageSpec : Equatable {
     }
 }
 
-enum ImageType : Equatable {
+enum ImageType : Equatable, @unchecked Sendable {
     case named(String, Bundle?, Text?)
     case system(String)
     case decorative(String, Bundle?)
@@ -64,7 +64,7 @@ extension Image : SkipUIBridging {
 }
 
 extension Image {
-    public enum ResizingMode : Int, Hashable /* , Sendable */ {
+    public enum ResizingMode : Int, Hashable, Sendable {
         case tile = 0 // For bridging
         case stretch = 1 // For bridging
     }
@@ -99,7 +99,7 @@ extension Image {
 }
 
 extension Image {
-    public enum Interpolation : Hashable /*, Sendable */ {
+    public enum Interpolation : Hashable, Sendable {
         case none
         case low
         case medium
@@ -189,7 +189,7 @@ extension Image {
 //}
 
 extension Image {
-    public struct DynamicRange : Hashable /* , Sendable */ {
+    public struct DynamicRange : Hashable, Sendable {
         public static let standard = DynamicRange()
         public static let constrainedHigh = DynamicRange()
         public static let high = DynamicRange()
@@ -208,12 +208,12 @@ extension Image {
 }
 
 extension Image {
-    public enum TemplateRenderingMode : Hashable /*, Sendable */ {
+    public enum TemplateRenderingMode : Hashable, Sendable {
         case template
         case original
     }
 
-    public enum Scale : Hashable /*, Sendable */ {
+    public enum Scale : Hashable, Sendable {
         case small
         case medium
         case large

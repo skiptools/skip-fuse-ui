@@ -5,7 +5,7 @@ import CoreGraphics
 #endif
 import SkipUI
 
-/* @MainActor */ @frozen /* @preconcurrency */ public struct VStack<Content> : View where Content : View {
+/* @MainActor */ @frozen @preconcurrency public struct VStack<Content> : View where Content : View {
     private let alignment: HorizontalAlignment
     private let spacing: CGFloat?
     private let content: Content

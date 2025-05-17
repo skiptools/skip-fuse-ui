@@ -5,7 +5,7 @@ import CoreGraphics
 #endif
 import SkipUI
 
-/* @MainActor @preconcurrency */ public struct List<SelectionValue, Content> : View where SelectionValue : Hashable, Content : View {
+/* @MainActor */ @preconcurrency public struct List<SelectionValue, Content> : View where SelectionValue : Hashable, Content : View {
     private let content: Content
 
     @available(*, unavailable)
@@ -209,7 +209,7 @@ extension List where SelectionValue == Never {
     }
 }
 
-public struct ListSectionSpacing /* : Sendable */ {
+public struct ListSectionSpacing : Sendable {
     public static let `default` = ListSectionSpacing()
 
     public static let compact = ListSectionSpacing()
@@ -219,7 +219,7 @@ public struct ListSectionSpacing /* : Sendable */ {
     }
 }
 
-public struct ListItemTint /* : Sendable */ {
+public struct ListItemTint : Sendable {
     public static func fixed(_ tint: Color) -> ListItemTint {
         return ListItemTint()
     }

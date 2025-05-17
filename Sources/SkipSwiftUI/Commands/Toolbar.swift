@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import SkipUI
 
-/* @MainActor @preconcurrency */ public protocol ToolbarContent {
+/* @MainActor */ @preconcurrency public protocol ToolbarContent {
     associatedtype Body : ToolbarContent
 
-    @ToolbarContentBuilder @MainActor /* @preconcurrency */ var body: Self.Body { get }
+    @ToolbarContentBuilder @MainActor @preconcurrency var body: Self.Body { get }
 }
 
 public protocol CustomizableToolbarContent : ToolbarContent where Self.Body : CustomizableToolbarContent {
@@ -42,7 +42,7 @@ extension EmptyToolbarContent : SkipUIBridging {
     }
 }
 
-/* @MainActor */ @frozen /* @preconcurrency */ public struct AnyToolbarContent : ToolbarContent {
+/* @MainActor */ @frozen @preconcurrency public struct AnyToolbarContent : ToolbarContent {
     private let content: any ToolbarContent
 
     /* nonisolated */ public init<C>(_ content: C) where C : ToolbarContent {
@@ -62,7 +62,7 @@ extension AnyToolbarContent : SkipUIBridging {
     }
 }
 
-/* @MainActor */ @frozen /* @preconcurrency */ public struct AnyCustomizableToolbarContent : CustomizableToolbarContent {
+/* @MainActor */ @frozen @preconcurrency public struct AnyCustomizableToolbarContent : CustomizableToolbarContent {
     private let content: any CustomizableToolbarContent
 
     /* nonisolated */ public init<C>(_ content: C) where C : CustomizableToolbarContent {
@@ -116,12 +116,12 @@ extension CustomizableToolbarContent {
     }
 }
 
-/* @MainActor @preconcurrency */ public struct ToolbarCommands : Commands {
+/* @MainActor */ @preconcurrency public struct ToolbarCommands : Commands {
     /* nonisolated */ public init() {
     }
 }
 
-public struct ToolbarCustomizationBehavior /* : Sendable */ {
+public struct ToolbarCustomizationBehavior : Sendable {
     public static var `default`: ToolbarCustomizationBehavior {
         return ToolbarCustomizationBehavior()
     }
@@ -137,7 +137,7 @@ public struct ToolbarCustomizationBehavior /* : Sendable */ {
     }
 }
 
-public struct ToolbarCustomizationOptions : OptionSet /*, Sendable */ {
+public struct ToolbarCustomizationOptions : OptionSet, Sendable {
     public static var alwaysAvailable: ToolbarCustomizationOptions {
         return ToolbarCustomizationOptions(rawValue: 1 << 0)
     }
@@ -149,13 +149,13 @@ public struct ToolbarCustomizationOptions : OptionSet /*, Sendable */ {
     }
 }
 
-public struct ToolbarDefaultItemKind {
+public struct ToolbarDefaultItemKind : Sendable {
     public static let sidebarToggle = ToolbarDefaultItemKind()
 
     public static let title = ToolbarDefaultItemKind()
 }
 
-/* @MainActor @preconcurrency */ public struct ToolbarItem<ID, Content> : ToolbarContent where Content : View {
+/* @MainActor */ @preconcurrency public struct ToolbarItem<ID, Content> : ToolbarContent where Content : View {
     private let _id: ID
     private let placement: ToolbarItemPlacement
     private let content: Content
@@ -192,12 +192,12 @@ extension ToolbarItem : SkipUIBridging {
 }
 
 extension ToolbarItem : Identifiable where ID : Hashable {
-    /* @MainActor @preconcurrency */ public var id: ID {
+    /* @MainActor */ @preconcurrency public var id: ID {
         return _id
     }
 }
 
-/* @MainActor @preconcurrency */ public struct ToolbarItemGroup<Content> : ToolbarContent where Content : View {
+/* @MainActor */ @preconcurrency public struct ToolbarItemGroup<Content> : ToolbarContent where Content : View {
     private let placement: ToolbarItemPlacement
     private let content: Content
 
@@ -222,7 +222,7 @@ extension ToolbarItemGroup {
     }
 }
 
-public struct ToolbarItemPlacement {
+public struct ToolbarItemPlacement : Sendable {
     public static let automatic = ToolbarItemPlacement(identifier: 0) // For bridging
 
     public static let principal = ToolbarItemPlacement(identifier: 1) // For bridging
@@ -260,7 +260,7 @@ public struct ToolbarItemPlacement {
     }
 }
 
-public struct ToolbarLabelStyle : /* Sendable, */ Equatable {
+public struct ToolbarLabelStyle : Sendable, Equatable {
     public static var automatic: ToolbarLabelStyle {
         return ToolbarLabelStyle()
     }
@@ -290,7 +290,7 @@ public struct ToolbarPlacement {
     }
 }
 
-public struct ToolbarRole /* : Sendable */ {
+public struct ToolbarRole : Sendable {
     public static var automatic: ToolbarRole {
         return ToolbarRole()
     }
@@ -325,7 +325,7 @@ public struct ToolbarTitleDisplayMode {
     }
 }
 
-/* @MainActor @preconcurrency */ public struct ToolbarTitleMenu<Content> : ToolbarContent, CustomizableToolbarContent where Content : View {
+/* @MainActor */ @preconcurrency public struct ToolbarTitleMenu<Content> : ToolbarContent, CustomizableToolbarContent where Content : View {
     private let content: Content
 
     /* nonisolated */ public init() where Content == EmptyView {

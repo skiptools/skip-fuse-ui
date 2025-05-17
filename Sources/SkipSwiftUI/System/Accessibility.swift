@@ -478,7 +478,7 @@ extension View {
     }
 }
 
-public struct AccessibilityActionCategory : Equatable /*, Sendable */ {
+public struct AccessibilityActionCategory : Equatable, Sendable {
     public static let `default` = AccessibilityActionCategory("_default")
 
     public static let edit = AccessibilityActionCategory("_edit")
@@ -495,7 +495,7 @@ public struct AccessibilityActionCategory : Equatable /*, Sendable */ {
     }
 }
 
-public struct AccessibilityActionKind : Equatable /*, Sendable */ {
+public struct AccessibilityActionKind : Equatable, Sendable {
     public static let `default` = AccessibilityActionKind(named: Text("_default"))
 
     public static let escape = AccessibilityActionKind(named: Text("_escape"))
@@ -506,7 +506,7 @@ public struct AccessibilityActionKind : Equatable /*, Sendable */ {
     }
 }
 
-public enum AccessibilityAdjustmentDirection : Hashable /* , Sendable */ {
+public enum AccessibilityAdjustmentDirection : Hashable, Sendable {
     case increment
     case decrement
 }
@@ -518,7 +518,7 @@ public enum AccessibilityAdjustmentDirection : Hashable /* , Sendable */ {
 //    public typealias Body = Never
 //}
 
-public struct AccessibilityChildBehavior : Hashable {
+public struct AccessibilityChildBehavior : Hashable, Sendable {
     public static let ignore = AccessibilityChildBehavior()
 
     public static let contain = AccessibilityChildBehavior()
@@ -604,15 +604,15 @@ public struct AccessibilityDirectTouchOptions : OptionSet, Sendable {
 //extension AccessibilityFocusState : Sendable where Value : Sendable {
 //}
 
-@frozen public enum AccessibilityLabeledPairRole : Hashable /*, Sendable, BitwiseCopyable */ {
+@frozen public enum AccessibilityLabeledPairRole : Hashable, Sendable, BitwiseCopyable {
     case label
     case content
 }
 
-/* @MainActor @preconcurrency */ public protocol AccessibilityRotorContent {
+/* @MainActor */ @preconcurrency public protocol AccessibilityRotorContent {
     associatedtype Body : AccessibilityRotorContent
 
-    /* @AccessibilityRotorContentBuilder */ @MainActor /* @preconcurrency */ var body: Self.Body { get }
+    /* @AccessibilityRotorContentBuilder */ @MainActor @preconcurrency var body: Self.Body { get }
 }
 //
 ///// Result builder you use to generate rotor entry content.
@@ -733,7 +733,7 @@ public struct AccessibilityRotorEntry<ID> where ID : Hashable {
 //    public typealias Body = Never
 //}
 
-public struct AccessibilitySystemRotor /* : Sendable */ {
+public struct AccessibilitySystemRotor : Sendable {
     public static func links(visited: Bool) -> AccessibilitySystemRotor {
         return AccessibilitySystemRotor()
     }
@@ -787,7 +787,7 @@ public struct AccessibilitySystemRotor /* : Sendable */ {
     }
 }
 
-public struct AccessibilityTechnologies : SetAlgebra /*, Sendable */, OptionSet /* Added OptionSet conformance */ {
+public struct AccessibilityTechnologies : SetAlgebra, Sendable, OptionSet /* Added OptionSet conformance */ {
     public static let voiceOver = AccessibilityTechnologies(rawValue: 1 << 0)
     public static let switchControl = AccessibilityTechnologies(rawValue: 1 << 1)
 
@@ -802,7 +802,7 @@ public struct AccessibilityTechnologies : SetAlgebra /*, Sendable */, OptionSet 
     }
 }
 
-public struct AccessibilityTextContentType /* : Sendable */ {
+public struct AccessibilityTextContentType : Sendable {
     public static let plain = AccessibilityTextContentType()
     public static let console = AccessibilityTextContentType()
     public static let fileSystem = AccessibilityTextContentType()
@@ -813,7 +813,7 @@ public struct AccessibilityTextContentType /* : Sendable */ {
     public static let wordProcessing = AccessibilityTextContentType()
 }
 
-public struct AccessibilityTraits : SetAlgebra, OptionSet /* Added OptionSet conformance */ /*, Sendable */ {
+public struct AccessibilityTraits : SetAlgebra, OptionSet /* Added OptionSet conformance */, Sendable {
     public let rawValue: Int
 
     public init(rawValue: Int) {
@@ -844,7 +844,7 @@ public struct AccessibilityTraits : SetAlgebra, OptionSet /* Added OptionSet con
 }
 
 public struct AccessibilityZoomGestureAction {
-    @frozen public enum Direction : Hashable /*, Sendable, BitwiseCopyable */ {
+    @frozen public enum Direction : Hashable, Sendable, BitwiseCopyable {
         case zoomIn
         case zoomOut
     }

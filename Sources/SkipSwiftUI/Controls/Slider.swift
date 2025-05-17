@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import SkipUI
 
-/* @MainActor @preconcurrency */ public struct Slider<Label, ValueLabel> : View where Label : View, ValueLabel : View {
+/* @MainActor */ @preconcurrency public struct Slider<Label, ValueLabel> : View where Label : View, ValueLabel : View {
     private let value: Binding<Double>
     private let min: Double
     private let max: Double

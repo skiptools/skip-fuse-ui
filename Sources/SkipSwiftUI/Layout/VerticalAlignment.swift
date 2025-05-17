@@ -4,7 +4,7 @@
 import CoreGraphics
 #endif
 
-@frozen public struct VerticalAlignment : Equatable /*, Sendable */ {
+@frozen public struct VerticalAlignment : Equatable, Sendable {
     let key: String
 
     init(key: String) {

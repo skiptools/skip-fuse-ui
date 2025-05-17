@@ -6,7 +6,7 @@ import CoreGraphics
 import SkipUI
 
 @frozen public struct Gradient : Hashable {
-    @frozen public struct Stop : Hashable /* , Sendable */ {
+    @frozen public struct Stop : Hashable, Sendable {
         public var color: Color
         public var location: CGFloat
     }
@@ -30,7 +30,7 @@ import SkipUI
 }
 
 extension Gradient {
-    public struct ColorSpace : Hashable /* , Sendable */ {
+    public struct ColorSpace : Hashable, Sendable {
         public static let device = ColorSpace()
         public static let perceptual = ColorSpace()
     }
@@ -40,7 +40,7 @@ extension Gradient {
     }
 }
 
-@frozen public struct AnyGradient : Hashable, ShapeStyle /*, Sendable */ {
+@frozen public struct AnyGradient : Hashable, ShapeStyle, Sendable {
     let gradient: Gradient
 
     public init(_ gradient: Gradient) {
@@ -60,7 +60,7 @@ extension AnyGradient {
     }
 }
 
-/* @MainActor */ @frozen /* @preconcurrency */ public struct LinearGradient : ShapeStyle, View /*, Sendable */ {
+/* @MainActor */ @frozen @preconcurrency public struct LinearGradient : ShapeStyle, View, Sendable {
     let gradient: Gradient
     let startPoint: UnitPoint
     let endPoint: UnitPoint
@@ -111,7 +111,7 @@ extension ShapeStyle where Self == LinearGradient {
     }
 }
 
-/* @MainActor */ @frozen /* @preconcurrency */ public struct RadialGradient : ShapeStyle, View /*, Sendable */ {
+/* @MainActor */ @frozen @preconcurrency public struct RadialGradient : ShapeStyle, View, Sendable {
     let gradient: Gradient
     let center: UnitPoint
     let startRadius: CGFloat
@@ -164,7 +164,7 @@ extension ShapeStyle where Self == RadialGradient {
     }
 }
 
-/* @MainActor */ @frozen /* @preconcurrency */ public struct EllipticalGradient : ShapeStyle, View /*, Sendable */ {
+/* @MainActor */ @frozen @preconcurrency public struct EllipticalGradient : ShapeStyle, View, Sendable {
     let gradient: Gradient
     let center: UnitPoint
     let startFraction: CGFloat
@@ -217,7 +217,7 @@ extension ShapeStyle where Self == EllipticalGradient {
     }
 }
 
-/* @MainActor */ @frozen /* @preconcurrency */ public struct AngularGradient : ShapeStyle, View /*, Sendable */ {
+/* @MainActor */ @frozen @preconcurrency public struct AngularGradient : ShapeStyle, View, Sendable {
     @available(*, unavailable)
     /* nonisolated */ public init(gradient: Gradient, center: UnitPoint, startAngle: Angle = .zero, endAngle: Angle = .zero) {
         fatalError()

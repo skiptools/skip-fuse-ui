@@ -5,7 +5,7 @@ import CoreGraphics
 #endif
 import SkipUI
 
-public protocol ShapeStyle : SkipUIBridging /*, Sendable */ {
+public protocol ShapeStyle : SkipUIBridging, Sendable {
 //    associatedtype Resolved : ShapeStyle = Never
 //    func resolve(in environment: EnvironmentValues) -> Self.Resolved
 }
@@ -82,7 +82,7 @@ extension ShapeStyle where Self == AnyShapeStyle {
     }
 }
 
-@frozen public struct BackgroundStyle : ShapeStyle /*, BitwiseCopyable */ {
+@frozen public struct BackgroundStyle : ShapeStyle, BitwiseCopyable {
     @inlinable public init() {
     }
 
@@ -105,7 +105,7 @@ extension ShapeStyle where Self == ForegroundStyle {
     }
 }
 
-@frozen public struct ForegroundStyle : ShapeStyle /*, BitwiseCopyable */ {
+@frozen public struct ForegroundStyle : ShapeStyle, BitwiseCopyable {
     @inlinable public init() {
     }
 

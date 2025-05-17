@@ -3,7 +3,7 @@
 import SkipBridge
 import SkipUI
 
-/* @MainActor @preconcurrency */ public struct Picker<Label, SelectionValue, Content> : View where Label : View, SelectionValue : Hashable, Content : View {
+/* @MainActor */ @preconcurrency public struct Picker<Label, SelectionValue, Content> : View where Label : View, SelectionValue : Hashable, Content : View {
     private let selection: Binding<SelectionValue>
     private let content: Content
     private let label: Label

@@ -30,7 +30,7 @@ extension EnvironmentValues {
 }
 
 extension EnvironmentValues {
-    static var shared = EnvironmentValues()
+    nonisolated(unsafe) static let shared = EnvironmentValues()
 
     /// Return a bridgable key to use for the given key path value.
     static func key<Value>(for keyPath: KeyPath<EnvironmentValues, Value>) -> String {
@@ -54,7 +54,8 @@ extension EnvironmentValues {
             return bridgedValue == nil ? ColorScheme.light : ColorScheme(rawValue: rawValue!) ?? .light
         case "dismiss":
             let action = (bridgedValue as? SkipUI.DismissAction)?.action ?? { }
-            return DismissAction(action: action)
+            let actionBox = UncheckedSendableBox(action)
+            return DismissAction(action: { actionBox.wrappedValue() })
         case "isSearching":
             return bridgedValue as? Bool == true
         case "layoutDirection":
@@ -64,18 +65,21 @@ extension EnvironmentValues {
             let javaAction = bridgedValue as? SkipUI.OpenURLAction
             let javaHandler = javaAction?.handler ?? { _ in SkipUI.OpenURLAction.Result(rawValue: OpenURLAction.Result.systemAction.identifier) }
             let javaSystemHandler = javaAction?.systemHandler ?? { _ in }
+            let javaHandlerBox = UncheckedSendableBox(javaHandler)
+            let javaSystemHandlerBox = UncheckedSendableBox(javaSystemHandler)
             return OpenURLAction(handler: {
-                let result = javaHandler($0)
+                let result = javaHandlerBox.wrappedValue($0)
                 return OpenURLAction.Result(identifier: result.rawValue, url: result.url)
-            }, systemHandler: javaSystemHandler)
+            }, systemHandler: { try javaSystemHandlerBox.wrappedValue($0) })
         case "refresh":
             guard let javaAction = bridgedValue as? SkipUI.RefreshAction else {
                 return nil
             }
+            let javaActionBox = UncheckedSendableBox(javaAction)
             return RefreshAction {
                 Task {
                     await withCheckedContinuation { continuation in
-                        javaAction.run { continuation.resume() }
+                        javaActionBox.wrappedValue.run { continuation.resume() }
                     }
                 }
             }
@@ -106,12 +110,22 @@ extension EnvironmentValues {
             guard let openURLAction = value as? OpenURLAction else {
                 return nil
             }
-            let javaHandler: (URL) -> SkipUI.OpenURLAction.Result = {
-                let result = openURLAction.handler($0)
+            let javaHandler: (URL) -> SkipUI.OpenURLAction.Result = { url in
+                #if compiler(>=6.0)
+                let result = MainActor.assumeIsolated { openURLAction.handler(url) }
+                #else
+                let result = openURLAction.handler(url)
+                #endif
                 return SkipUI.OpenURLAction.Result(rawValue: result.identifier, url: result.url)
             }
             if let javaSystemHandler = openURLAction.systemHandler {
-                return SkipUI.OpenURLAction(handler: javaHandler, systemHandler: javaSystemHandler)
+                return SkipUI.OpenURLAction(handler: javaHandler, systemHandler: { url in
+                    #if compiler(>=6.0)
+                    try MainActor.assumeIsolated { try javaSystemHandler(url) }
+                    #else
+                    try javaSystemHandler(url)
+                    #endif
+                })
             } else {
                 return SkipUI.OpenURLAction(handler: javaHandler)
             }
@@ -132,7 +146,7 @@ extension EnvironmentValues {
         }
     }
 
-    private static var keys: [AnyHashable: String] = {
+    nonisolated(unsafe) private static var keys: [AnyHashable: String] = {
         var keys: [AnyHashable: String] = [:]
         // Initialize builtins
         keys[\EnvironmentValues.colorScheme] = "colorScheme"
@@ -159,7 +173,7 @@ extension EnvironmentValues {
         _nextKey += 1
         return "userkey:\(String(describing: _nextKey))"
     }
-    private static var _nextKey = 0
+    nonisolated(unsafe) private static var _nextKey = 0
 }
 
 extension View {

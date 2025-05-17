@@ -3,10 +3,10 @@
 import SkipBridge
 import SkipUI
 
-public struct FocusInteractions : OptionSet /*, Sendable */ {
+public struct FocusInteractions : OptionSet, Sendable {
     public static let activate = FocusInteractions(rawValue: 1 << 0) // For bridging
     public static let edit = FocusInteractions(rawValue: 1 << 1) // For bridging
-    public static var automatic = FocusInteractions(rawValue: 1 << 2) // For bridging
+    public static let automatic = FocusInteractions(rawValue: 1 << 2) // For bridging
 
     public var rawValue: Int
 
@@ -15,7 +15,7 @@ public struct FocusInteractions : OptionSet /*, Sendable */ {
     }
 }
 
-public struct DefaultFocusEvaluationPriority /* : Sendable */ {
+public struct DefaultFocusEvaluationPriority : Sendable {
     public static let automatic = DefaultFocusEvaluationPriority()
 
     public static let userInitiated = DefaultFocusEvaluationPriority()

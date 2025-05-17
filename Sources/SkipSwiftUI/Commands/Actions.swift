@@ -2,20 +2,20 @@
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import Foundation
 
-/* @MainActor @preconcurrency */ public struct DismissAction /* : Sendable */ {
+/* @MainActor */ @preconcurrency public struct DismissAction : Sendable {
     let action: @MainActor () -> Void
 
     init(action: @escaping @MainActor () -> Void) {
         self.action = action
     }
 
-    @MainActor /* @preconcurrency */ public func callAsFunction() {
+    @MainActor @preconcurrency public func callAsFunction() {
         action()
     }
 }
 
-/* @MainActor @preconcurrency */ public struct OpenURLAction /* : Sendable */ {
-    public struct Result /* : Sendable */ {
+public struct OpenURLAction : Sendable {
+    public struct Result : Sendable {
         public static let handled = OpenURLAction.Result(identifier: 0)
 
         public static let discarded = OpenURLAction.Result(identifier: 1)
@@ -35,24 +35,24 @@ import Foundation
         }
     }
 
-    let handler: (URL) -> OpenURLAction.Result
-    let systemHandler: ((URL) throws -> Void)?
+    let handler: @MainActor (URL) -> OpenURLAction.Result
+    let systemHandler: (@MainActor (URL) throws -> Void)?
 
-    /* @MainActor @preconcurrency */ public init(handler: @escaping (URL) -> OpenURLAction.Result) {
+    /* @MainActor */ @preconcurrency public init(handler: @escaping @MainActor (URL) -> OpenURLAction.Result) {
         self.handler = handler
         self.systemHandler = nil
     }
 
-    init(handler: @escaping (URL) -> OpenURLAction.Result, systemHandler: @escaping (URL) throws -> Void) {
+    init(handler: @escaping @MainActor (URL) -> OpenURLAction.Result, systemHandler: @escaping @MainActor (URL) throws -> Void) {
         self.handler = handler
         self.systemHandler = systemHandler
     }
 
-    /* @MainActor @preconcurrency */ public func callAsFunction(_ url: URL) {
+    @MainActor @preconcurrency public func callAsFunction(_ url: URL) {
         callAsFunction(url, completion: { _ in })
     }
 
-    /* @MainActor @preconcurrency */ public func callAsFunction(_ url: URL, completion: @escaping (_ accepted: Bool) -> Void) {
+    @MainActor @preconcurrency public func callAsFunction(_ url: URL, completion: @escaping (_ accepted: Bool) -> Void) {
         let result = handler(url)
         if result.identifier == Result.handled.identifier {
             completion(true)
@@ -73,7 +73,7 @@ import Foundation
     }
 }
 
-public struct RefreshAction /* : Sendable */ {
+public struct RefreshAction : @unchecked Sendable {
     let action: () async -> Void
 
     public func callAsFunction() async {

@@ -7,7 +7,7 @@ import Foundation
 import SkipBridge
 import SkipUI
 
-/* @MainActor @preconcurrency */ public struct NavigationStack<Data, Root> : View where Root : View {
+/* @MainActor */ @preconcurrency public struct NavigationStack<Data, Root> : View where Root : View {
     private let root: Root
     private let getData: (() -> [Any /* SwiftHashable */])?
     private let setData: (([Any /* SwiftHashable */]) -> Void)?
@@ -59,7 +59,7 @@ extension NavigationStack : SkipUIBridging {
     }
 }
 
-/* @MainActor @preconcurrency */ public struct NavigationLink<Label, Destination> : View where Label : View, Destination : View {
+/* @MainActor */ @preconcurrency public struct NavigationLink<Label, Destination> : View where Label : View, Destination : View {
     private let destination: Destination?
     private let value: AnyHashable?
     private let label: Label
@@ -126,7 +126,7 @@ extension NavigationLink where Label == Text {
 
 extension NavigationLink {
     @available(*, unavailable)
-    /* @MainActor @preconcurrency */ public func isDetailLink(_ isDetailLink: Bool) -> some View {
+    /* @MainActor */ @preconcurrency public func isDetailLink(_ isDetailLink: Bool) -> some View {
         stubView()
     }
 }
@@ -222,8 +222,8 @@ extension View {
     }
 }
 
-public struct NavigationBarItem /* : Sendable */ {
-    public enum TitleDisplayMode : Int, Hashable /*, Sendable */ {
+public struct NavigationBarItem : Sendable {
+    public enum TitleDisplayMode : Int, Hashable, Sendable {
         case automatic = 0 // For bridging
         case inline = 1 // For bridging
         case large = 2 // For bridging
@@ -268,7 +268,7 @@ extension View {
     }
 }
 
-/* @MainActor @preconcurrency */ public struct NavigationSplitView<Sidebar, Content, Detail> : View where Sidebar : View, Content : View, Detail : View {
+/* @MainActor */ @preconcurrency public struct NavigationSplitView<Sidebar, Content, Detail> : View where Sidebar : View, Content : View, Detail : View {
     @available(*, unavailable)
     /* nonisolated */ public init(@ViewBuilder sidebar: () -> Sidebar, @ViewBuilder content: () -> Content, @ViewBuilder detail: () -> Detail) {
         fatalError()
@@ -314,7 +314,7 @@ extension NavigationSplitView {
     }
 }
 
-public struct NavigationSplitViewColumn : Hashable /*, Sendable */ {
+public struct NavigationSplitViewColumn : Hashable, Sendable {
     @available(*, unavailable)
     public static var sidebar: NavigationSplitViewColumn {
         fatalError()
@@ -343,10 +343,10 @@ extension View {
     }
 }
 
-/* @MainActor @preconcurrency */ public protocol NavigationSplitViewStyle {
+/* @MainActor */ @preconcurrency public protocol NavigationSplitViewStyle {
     associatedtype Body : View
 
-    @ViewBuilder @MainActor /* @preconcurrency */ func makeBody(configuration: Self.Configuration) -> Self.Body
+    @ViewBuilder @MainActor @preconcurrency func makeBody(configuration: Self.Configuration) -> Self.Body
 
     typealias Configuration = NavigationSplitViewStyleConfiguration
 }
@@ -358,50 +358,50 @@ extension View {
     }
 }
 
-/* @MainActor @preconcurrency */ public struct AutomaticNavigationSplitViewStyle : NavigationSplitViewStyle {
-    /* @MainActor @preconcurrency */ public init() {
+/* @MainActor */ @preconcurrency public struct AutomaticNavigationSplitViewStyle : NavigationSplitViewStyle {
+    /* @MainActor */ @preconcurrency public init() {
     }
 
-    @MainActor /* @preconcurrency */ public func makeBody(configuration: AutomaticNavigationSplitViewStyle.Configuration) -> some View {
+    @MainActor @preconcurrency public func makeBody(configuration: AutomaticNavigationSplitViewStyle.Configuration) -> some View {
         stubView()
     }
 }
 
 extension NavigationSplitViewStyle where Self == AutomaticNavigationSplitViewStyle {
     @available(*, unavailable)
-    /* @MainActor @preconcurrency */ public static var automatic: AutomaticNavigationSplitViewStyle {
+    /* @MainActor */ @preconcurrency public static var automatic: AutomaticNavigationSplitViewStyle {
         fatalError()
     }
 }
 
-/* @MainActor @preconcurrency */ public struct BalancedNavigationSplitViewStyle : NavigationSplitViewStyle {
-    /* @MainActor @preconcurrency */ public init() {
+/* @MainActor */ @preconcurrency public struct BalancedNavigationSplitViewStyle : NavigationSplitViewStyle {
+    /* @MainActor */ @preconcurrency public init() {
     }
 
-    @MainActor /* @preconcurrency */ public func makeBody(configuration: AutomaticNavigationSplitViewStyle.Configuration) -> some View {
+    @MainActor @preconcurrency public func makeBody(configuration: AutomaticNavigationSplitViewStyle.Configuration) -> some View {
         stubView()
     }
 }
 
 extension NavigationSplitViewStyle where Self == BalancedNavigationSplitViewStyle {
     @available(*, unavailable)
-    /* @MainActor @preconcurrency */ public static var balanced: BalancedNavigationSplitViewStyle {
+    /* @MainActor */ @preconcurrency public static var balanced: BalancedNavigationSplitViewStyle {
         fatalError()
     }
 }
 
-/* @MainActor @preconcurrency */ public struct ProminentDetailNavigationSplitViewStyle : NavigationSplitViewStyle {
-    /* @MainActor @preconcurrency */ public init() {
+/* @MainActor */ @preconcurrency public struct ProminentDetailNavigationSplitViewStyle : NavigationSplitViewStyle {
+    /* @MainActor */ @preconcurrency public init() {
     }
 
-    @MainActor /* @preconcurrency */ public func makeBody(configuration: AutomaticNavigationSplitViewStyle.Configuration) -> some View {
+    @MainActor @preconcurrency public func makeBody(configuration: AutomaticNavigationSplitViewStyle.Configuration) -> some View {
         stubView()
     }
 }
 
 extension NavigationSplitViewStyle where Self == ProminentDetailNavigationSplitViewStyle {
     @available(*, unavailable)
-    /* @MainActor @preconcurrency */ public static var prominentDetail: ProminentDetailNavigationSplitViewStyle {
+    /* @MainActor */ @preconcurrency public static var prominentDetail: ProminentDetailNavigationSplitViewStyle {
         fatalError()
     }
 }
@@ -409,7 +409,7 @@ extension NavigationSplitViewStyle where Self == ProminentDetailNavigationSplitV
 public struct NavigationSplitViewStyleConfiguration {
 }
 
-public struct NavigationSplitViewVisibility : Equatable, Codable /*, Sendable */ {
+public struct NavigationSplitViewVisibility : Equatable, Codable, Sendable {
     @available(*, unavailable)
     public static var detailOnly: NavigationSplitViewVisibility {
         fatalError()

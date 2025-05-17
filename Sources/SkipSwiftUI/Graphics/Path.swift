@@ -108,7 +108,7 @@ extension Path : Shape {
     }
 }
 
-enum PathStep : Equatable {
+enum PathStep : Equatable, Sendable {
     case move(CGPoint)
     case line(CGPoint)
     case quadCurve(CGPoint, CGPoint)
@@ -170,7 +170,7 @@ enum PathStep : Equatable {
     }
 }
 
-extension Path /* : BitwiseCopyable, Sendable */ {
+extension Path : /* BitwiseCopyable, */ Sendable {
     public mutating func move(to end: CGPoint) {
         steps.append(.move(end))
     }

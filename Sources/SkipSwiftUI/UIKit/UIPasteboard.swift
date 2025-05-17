@@ -4,7 +4,7 @@ import Foundation
 import SkipUI
 
 public class UIPasteboard {
-    public static let general = UIPasteboard()
+    nonisolated(unsafe) public static let general = UIPasteboard()
 
     private init() {
     }
@@ -332,7 +332,7 @@ public class UIPasteboard {
     }
     */
 
-    public struct OptionsKey : Hashable, Equatable, RawRepresentable /*, Sendable */ {
+    public struct OptionsKey : Hashable, Equatable, RawRepresentable, Sendable {
         @available(*, unavailable)
         public static var expirationDate: UIPasteboard.OptionsKey {
             fatalError()
@@ -350,7 +350,7 @@ public class UIPasteboard {
         }
     }
 
-    public static var changedNotification = Notification.Name(rawValue: "UIPasteboardChanged")
+    public static let changedNotification = Notification.Name(rawValue: "UIPasteboardChanged")
 
     @available(*, unavailable)
     public static var changedTypesAddedUserInfoKey: String {
@@ -392,7 +392,7 @@ public class UIPasteboard {
         fatalError()
     }
 
-    public struct Name : Hashable, Equatable, RawRepresentable /*, @unchecked Sendable */ {
+    public struct Name : Hashable, Equatable, RawRepresentable, Sendable {
         public static let general = UIPasteboard.Name(rawValue: "general")
 
         public let rawValue: String
@@ -406,7 +406,7 @@ public class UIPasteboard {
         }
     }
 
-    public struct DetectionPattern : Hashable, Equatable, RawRepresentable /*, @unchecked Sendable */ {
+    public struct DetectionPattern : Hashable, Equatable, RawRepresentable, Sendable {
         public let rawValue: String
 
         public init(rawValue: String) {

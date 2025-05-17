@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import SkipUI
 
-public struct GridItem /* : Sendable */ {
-    public enum Size /* : Sendable */ {
+public struct GridItem : Sendable {
+    public enum Size : Sendable {
         case fixed(CGFloat)
         case flexible(minimum: CGFloat = 10, maximum: CGFloat = .infinity)
         case adaptive(minimum: CGFloat, maximum: CGFloat = .infinity)

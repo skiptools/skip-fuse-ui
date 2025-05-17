@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import SkipUI
 
-/* @MainActor @preconcurrency */ public struct DisclosureGroup<Label, Content> : View where Label : View, Content : View {
+/* @MainActor */ @preconcurrency public struct DisclosureGroup<Label, Content> : View where Label : View, Content : View {
     private let isExpanded: Binding<Bool>
     private let label: Label
     private let content: Content
@@ -47,16 +47,16 @@ extension DisclosureGroup where Label == Text {
     }
 }
 
-/* @MainActor @preconcurrency */ public protocol DisclosureGroupStyle {
+/* @MainActor */ @preconcurrency public protocol DisclosureGroupStyle {
     associatedtype Body : View
 
-    @ViewBuilder @MainActor /* @preconcurrency */ func makeBody(configuration: Self.Configuration) -> Self.Body
+    @ViewBuilder @MainActor @preconcurrency func makeBody(configuration: Self.Configuration) -> Self.Body
 
     typealias Configuration = DisclosureGroupStyleConfiguration
 }
 
-/* @MainActor @preconcurrency */ public struct AutomaticDisclosureGroupStyle : DisclosureGroupStyle {
-    /* @MainActor @preconcurrency */ public init() {
+/* @MainActor */ @preconcurrency public struct AutomaticDisclosureGroupStyle : DisclosureGroupStyle {
+    /* @MainActor */ @preconcurrency public init() {
     }
 
     @MainActor @preconcurrency public func makeBody(configuration: AutomaticDisclosureGroupStyle.Configuration) -> some View {
@@ -65,19 +65,19 @@ extension DisclosureGroup where Label == Text {
 }
 
 extension DisclosureGroupStyle where Self == AutomaticDisclosureGroupStyle {
-    /* @MainActor @preconcurrency */ public static var automatic: AutomaticDisclosureGroupStyle {
+    /* @MainActor */ @preconcurrency public static var automatic: AutomaticDisclosureGroupStyle {
         return AutomaticDisclosureGroupStyle()
     }
 }
 
 public struct DisclosureGroupStyleConfiguration {
-    /* @MainActor @preconcurrency */ public struct Label : View {
+    /* @MainActor */ @preconcurrency public struct Label : View {
         public typealias Body = Never
     }
 
     public let label: DisclosureGroupStyleConfiguration.Label
 
-    /* @MainActor @preconcurrency */ public struct Content : View {
+    /* @MainActor */ @preconcurrency public struct Content : View {
         public typealias Body = Never
     }
 

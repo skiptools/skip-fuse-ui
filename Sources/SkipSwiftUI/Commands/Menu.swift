@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import SkipUI
 
-/* @MainActor @preconcurrency */ public struct Menu<Label, Content> : View where Label : View, Content : View {
+/* @MainActor */ @preconcurrency public struct Menu<Label, Content> : View where Label : View, Content : View {
     private let content: Content
     private let label: Label
     private let primaryAction: (() -> Void)?
@@ -91,7 +91,7 @@ extension Menu where Label == MenuStyleConfiguration.Label, Content == MenuStyle
     }
 }
 
-public struct MenuActionDismissBehavior : Equatable {
+public struct MenuActionDismissBehavior : Equatable, Sendable {
     public static let automatic = MenuActionDismissBehavior(identifier: 0) // For bridging
 
     public static let enabled = MenuActionDismissBehavior(identifier: 0) // For bridging
@@ -102,7 +102,7 @@ public struct MenuActionDismissBehavior : Equatable {
     let identifier: Int // For bridging
 }
 
-public struct MenuOrder : Equatable, Hashable /*, Sendable */ {
+public struct MenuOrder : Equatable, Hashable, Sendable {
     public static let automatic = MenuOrder(identifier: 0) // For bridging
 
     @available(*, unavailable)
@@ -113,10 +113,10 @@ public struct MenuOrder : Equatable, Hashable /*, Sendable */ {
     public let identifier: Int
 }
 
-/* @MainActor @preconcurrency */ public protocol MenuStyle {
+/* @MainActor */ @preconcurrency public protocol MenuStyle {
     associatedtype Body : View
 
-    @ViewBuilder @MainActor /* @preconcurrency */ func makeBody(configuration: Self.Configuration) -> Self.Body
+    @ViewBuilder @MainActor @preconcurrency func makeBody(configuration: Self.Configuration) -> Self.Body
 
     typealias Configuration = MenuStyleConfiguration
 
@@ -129,11 +129,11 @@ extension MenuStyle {
     }
 }
 
-/* @MainActor @preconcurrency */ public struct ButtonMenuStyle : MenuStyle {
-    /* @MainActor @preconcurrency */ public init() {
+/* @MainActor */ @preconcurrency public struct ButtonMenuStyle : MenuStyle {
+    /* @MainActor */ @preconcurrency public init() {
     }
 
-    @MainActor /* @preconcurrency */ public func makeBody(configuration: ButtonMenuStyle.Configuration) -> some View {
+    @MainActor @preconcurrency public func makeBody(configuration: ButtonMenuStyle.Configuration) -> some View {
         stubView()
     }
 
@@ -141,16 +141,16 @@ extension MenuStyle {
 }
 
 extension MenuStyle where Self == ButtonMenuStyle {
-    /* @MainActor @preconcurrency */ public static var button: ButtonMenuStyle {
+    /* @MainActor */ @preconcurrency public static var button: ButtonMenuStyle {
         return ButtonMenuStyle()
     }
 }
 
-/* @MainActor @preconcurrency */ public struct DefaultMenuStyle : MenuStyle {
-    /* @MainActor @preconcurrency */ public init() {
+/* @MainActor */ @preconcurrency public struct DefaultMenuStyle : MenuStyle {
+    /* @MainActor */ @preconcurrency public init() {
     }
 
-    @MainActor /* @preconcurrency */ public func makeBody(configuration: ButtonMenuStyle.Configuration) -> some View {
+    @MainActor @preconcurrency public func makeBody(configuration: ButtonMenuStyle.Configuration) -> some View {
         stubView()
     }
 
@@ -158,35 +158,35 @@ extension MenuStyle where Self == ButtonMenuStyle {
 }
 
 extension MenuStyle where Self == DefaultMenuStyle {
-    /* @MainActor @preconcurrency */ public static var automatic: DefaultMenuStyle {
+    /* @MainActor */ @preconcurrency public static var automatic: DefaultMenuStyle {
         return DefaultMenuStyle()
     }
 }
 
-/* @MainActor @preconcurrency */ public struct BorderlessButtonMenuStyle : MenuStyle {
+/* @MainActor */ @preconcurrency public struct BorderlessButtonMenuStyle : MenuStyle {
     @available(*, unavailable)
-    /* @MainActor @preconcurrency */ public init() {
+    /* @MainActor */ @preconcurrency public init() {
         fatalError()
     }
 
-    @MainActor /* @preconcurrency */ public func makeBody(configuration: ButtonMenuStyle.Configuration) -> some View {
+    @MainActor @preconcurrency public func makeBody(configuration: ButtonMenuStyle.Configuration) -> some View {
         stubView()
     }
 }
 
 extension MenuStyle where Self == BorderlessButtonMenuStyle {
     @available(*, unavailable)
-    /* @MainActor @preconcurrency */ public static var borderlessButton: BorderlessButtonMenuStyle {
+    /* @MainActor */ @preconcurrency public static var borderlessButton: BorderlessButtonMenuStyle {
         fatalError()
     }
 }
 
 public struct MenuStyleConfiguration {
-    /* @MainActor @preconcurrency */ public struct Label : View {
+    /* @MainActor */ @preconcurrency public struct Label : View {
         public typealias Body = Never
     }
 
-    /* @MainActor @preconcurrency */ public struct Content : View {
+    /* @MainActor */ @preconcurrency public struct Content : View {
         public typealias Body = Never
     }
 }

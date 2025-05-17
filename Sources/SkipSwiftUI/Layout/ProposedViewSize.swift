@@ -4,7 +4,7 @@
 import CoreGraphics
 #endif
 
-@frozen public struct ProposedViewSize : Equatable /*, BitwiseCopyable, Sendable */ {
+@frozen public struct ProposedViewSize : Equatable, BitwiseCopyable, Sendable {
     public var width: CGFloat?
     public var height: CGFloat?
 

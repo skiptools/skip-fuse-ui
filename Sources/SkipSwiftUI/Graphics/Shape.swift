@@ -5,7 +5,7 @@ import CoreGraphics
 #endif
 import SkipUI
 
-public protocol Shape : /* Sendable, */ Animatable, View, SkipUIBridging /*, _RemoveGlobalActorIsolation */ where Body == Never {
+public protocol Shape : Sendable, Animatable, View, SkipUIBridging /*, _RemoveGlobalActorIsolation */ where Body == Never {
     /* nonisolated */ func path(in rect: CGRect) -> Path
 
     /* nonisolated */ static var role: ShapeRole { get }
@@ -223,7 +223,7 @@ extension Shape where Self == Capsule {
     }
 }
 
-@frozen public struct Ellipse : Shape /*, BitwiseCopyable */ {
+@frozen public struct Ellipse : Shape, BitwiseCopyable {
     /* nonisolated */ public func path(in rect: CGRect) -> Path {
         return Path(ellipseIn: rect)
     }
@@ -252,7 +252,7 @@ extension Shape where Self == Ellipse {
     }
 }
 
-@frozen public struct Circle : Shape /*, BitwiseCopyable */ {
+@frozen public struct Circle : Shape, BitwiseCopyable {
     /* nonisolated */ public func path(in rect: CGRect) -> Path {
         let dim = min(rect.width, rect.height)
         let x = rect.minX + (rect.width - dim) / 2.0
@@ -288,7 +288,7 @@ extension Shape where Self == Circle {
     }
 }
 
-@frozen public struct ContainerRelativeShape : Shape /*, BitwiseCopyable */ {
+@frozen public struct ContainerRelativeShape : Shape, BitwiseCopyable {
     /* nonisolated */ public func path(in rect: CGRect) -> Path {
         return Path(rect)
     }
@@ -320,7 +320,7 @@ extension Shape where Self == ContainerRelativeShape {
     }
 }
 
-@frozen public struct AnyShape : Shape /*, @unchecked Sendable */ {
+@frozen public struct AnyShape : Shape, @unchecked Sendable {
     private let shape: any Shape
 
     nonisolated public init<S>(_ shape: S) where S : Shape {
@@ -465,7 +465,7 @@ extension Shape {
     }
 }
 
-public enum ShapeRole : Hashable /*, Sendable */ {
+public enum ShapeRole : Hashable, Sendable {
     case fill
     case stroke
     case separator
@@ -788,11 +788,11 @@ extension _ShapeView : SkipUIBridging {
     }
 }
 
-/* @MainActor */ @frozen /* @preconcurrency */ public struct FillShapeView<Content, Style, Background> : ShapeView where Content : Shape, Style : ShapeStyle, Background : View {
-    /* @MainActor @preconcurrency */ public var shape: Content
-    /* @MainActor @preconcurrency */ public var style: Style
-    /* @MainActor @preconcurrency */ public var fillStyle: FillStyle
-    /* @MainActor @preconcurrency */ public var background: Background
+/* @MainActor */ @frozen @preconcurrency public struct FillShapeView<Content, Style, Background> : ShapeView where Content : Shape, Style : ShapeStyle, Background : View {
+    /* @MainActor */ @preconcurrency public var shape: Content
+    /* @MainActor */ @preconcurrency public var style: Style
+    /* @MainActor */ @preconcurrency public var fillStyle: FillStyle
+    /* @MainActor */ @preconcurrency public var background: Background
 
     /* nonisolated */ public init(shape: Content, style: Style, fillStyle: FillStyle, background: Background) {
         self.shape = shape
@@ -827,12 +827,12 @@ extension FillShapeView : SkipUIBridging {
     }
 }
 
-/* @MainActor */ @frozen /* @preconcurrency */ public struct StrokeShapeView<Content, Style, Background> : ShapeView where Content : Shape, Style : ShapeStyle, Background : View {
-    /* @MainActor @preconcurrency */ public var shape: Content
-    /* @MainActor @preconcurrency */ public var style: Style
-    /* @MainActor @preconcurrency */ public var strokeStyle: StrokeStyle
-    /* @MainActor @preconcurrency */ public var isAntialiased: Bool
-    /* @MainActor @preconcurrency */ public var background: Background
+/* @MainActor */ @frozen @preconcurrency public struct StrokeShapeView<Content, Style, Background> : ShapeView where Content : Shape, Style : ShapeStyle, Background : View {
+    /* @MainActor */ @preconcurrency public var shape: Content
+    /* @MainActor */ @preconcurrency public var style: Style
+    /* @MainActor */ @preconcurrency public var strokeStyle: StrokeStyle
+    /* @MainActor */ @preconcurrency public var isAntialiased: Bool
+    /* @MainActor */ @preconcurrency public var background: Background
 
     /* nonisolated */ public init(shape: Content, style: Style, strokeStyle: StrokeStyle, isAntialiased: Bool, background: Background) {
         self.shape = shape
@@ -868,12 +868,12 @@ extension StrokeShapeView : SkipUIBridging {
     }
 }
 
-/* @MainActor */ @frozen /* @preconcurrency */ public struct StrokeBorderShapeView<Content, Style, Background> : ShapeView where Content : InsettableShape, Style : ShapeStyle, Background : View {
-    /* @MainActor @preconcurrency */ public var shape: Content
-    /* @MainActor @preconcurrency */ public var style: Style
-    /* @MainActor @preconcurrency */ public var strokeStyle: StrokeStyle
-    /* @MainActor @preconcurrency */ public var isAntialiased: Bool
-    /* @MainActor @preconcurrency */ public var background: Background
+/* @MainActor */ @frozen @preconcurrency public struct StrokeBorderShapeView<Content, Style, Background> : ShapeView where Content : InsettableShape, Style : ShapeStyle, Background : View {
+    /* @MainActor */ @preconcurrency public var shape: Content
+    /* @MainActor */ @preconcurrency public var style: Style
+    /* @MainActor */ @preconcurrency public var strokeStyle: StrokeStyle
+    /* @MainActor */ @preconcurrency public var isAntialiased: Bool
+    /* @MainActor */ @preconcurrency public var background: Background
 
     /* nonisolated */ public init(shape: Content, style: Style, strokeStyle: StrokeStyle, isAntialiased: Bool, background: Background) {
         self.shape = shape

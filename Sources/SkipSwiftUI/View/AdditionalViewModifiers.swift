@@ -397,11 +397,11 @@ extension View {
 }
 
 extension View {
-    @inlinable /* nonisolated */ public func task(priority: TaskPriority = .userInitiated, _ action: @escaping /* @Sendable */ () async -> Void) -> some View {
+    @inlinable /* nonisolated */ public func task(priority: TaskPriority = .userInitiated, _ action: @escaping @Sendable () async -> Void) -> some View {
         return task(id: 0, priority: priority, action)
     }
 
-    /* @inlinable nonisolated */ public func task<T>(id value: T, priority: TaskPriority = .userInitiated, _ action: @escaping /* @Sendable */ () async -> Void) -> some View where T : Equatable {
+    /* @inlinable nonisolated */ public func task<T>(id value: T, priority: TaskPriority = .userInitiated, _ action: @escaping @Sendable () async -> Void) -> some View where T : Equatable {
         return ModifierView(target: self) {
             return $0.Java_viewOrEmpty.task(id: Java_swiftEquatable(for: value), bridgedAction: { completionHandler in
                 let task = Task(priority: priority) {

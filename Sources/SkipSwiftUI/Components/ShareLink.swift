@@ -3,7 +3,7 @@
 import Foundation
 import SkipUI
 
-/* @MainActor @preconcurrency */ public struct ShareLink<Data, PreviewImage, PreviewIcon, Label> : View where Data : RandomAccessCollection, /* PreviewImage : Transferable, PreviewIcon : Transferable, */ Label : View /*, Data.Element : Transferable */ {
+/* @MainActor */ @preconcurrency public struct ShareLink<Data, PreviewImage, PreviewIcon, Label> : View where Data : RandomAccessCollection, /* PreviewImage : Transferable, PreviewIcon : Transferable, */ Label : View /*, Data.Element : Transferable */ {
     private let data: String
     private let subject: Text?
     private let message: Text?

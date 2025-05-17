@@ -3,7 +3,7 @@
 import Foundation
 import SkipUI
 
-public struct Spring : Hashable /*, Sendable */ {
+public struct Spring : Hashable, Sendable {
     private let spec: SpringSpec
 }
 

@@ -1,7 +1,7 @@
 // Copyright 2025 Skip
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 
-public struct SubmitLabel /* : Sendable */ {
+public struct SubmitLabel : Sendable {
     let identifier: Int
 
     public static var done: SubmitLabel {
@@ -41,7 +41,7 @@ public struct SubmitLabel /* : Sendable */ {
     }
 }
 
-public struct SubmitTriggers : OptionSet /*, Sendable */ {
+public struct SubmitTriggers : OptionSet, Sendable {
     public typealias RawValue = Int
 
     public let rawValue: SubmitTriggers.RawValue

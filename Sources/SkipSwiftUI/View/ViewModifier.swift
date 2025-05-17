@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import SkipUI
 
-/* @MainActor @preconcurrency */ public protocol ViewModifier {
+/* @MainActor */ @preconcurrency public protocol ViewModifier {
     associatedtype Body : View
 
-    @ViewBuilder @MainActor /* @preconcurrency */ func body(content: Self.Content) -> Self.Body
+    @ViewBuilder @MainActor @preconcurrency func body(content: Self.Content) -> Self.Body
 
     typealias Content = JavaBackedView
 
@@ -19,7 +19,7 @@ extension ViewModifier {
 }
 
 extension ViewModifier where Self.Body == Never {
-    @MainActor /* @preconcurrency */ public func body(content: Self.Content) -> Self.Body {
+    @MainActor @preconcurrency public func body(content: Self.Content) -> Self.Body {
         fatalError()
     }
 }
@@ -38,7 +38,7 @@ extension ViewModifier {
     }
 
     @available(*, unavailable)
-    @MainActor /* @inlinable @preconcurrency */ public func animation(_ animation: Animation?) -> some ViewModifier {
+    @MainActor /* @inlinable */ @preconcurrency public func animation(_ animation: Animation?) -> some ViewModifier {
         stubViewModifier()
     }
 }

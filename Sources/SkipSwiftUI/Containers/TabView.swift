@@ -3,7 +3,7 @@
 import SkipBridge
 import SkipUI
 
-/* @MainActor @preconcurrency */ public struct TabView<SelectionValue, Content> : View where SelectionValue : Hashable, Content : View {
+/* @MainActor */ @preconcurrency public struct TabView<SelectionValue, Content> : View where SelectionValue : Hashable, Content : View {
     private let selection: Binding<SelectionValue>?
     private let content: Content
 
@@ -58,7 +58,7 @@ extension View {
     }
 }
 
-/* @MainActor @preconcurrency */ public protocol TabViewStyle {
+/* @MainActor */ @preconcurrency public protocol TabViewStyle {
     var identifier: Int { get } // For bridging
 }
 
@@ -68,7 +68,7 @@ extension TabViewStyle {
     }
 }
 
-/* @MainActor @preconcurrency */ public struct SidebarAdaptableTabViewStyle : TabViewStyle {
+/* @MainActor */ @preconcurrency public struct SidebarAdaptableTabViewStyle : TabViewStyle {
     @available(*, unavailable)
     /* nonisolated */ public init() {
     }
@@ -76,12 +76,12 @@ extension TabViewStyle {
 
 extension TabViewStyle where Self == SidebarAdaptableTabViewStyle {
     @available(*, unavailable)
-    /* @MainActor @preconcurrency */ public static var sidebarAdaptable: SidebarAdaptableTabViewStyle {
+    /* @MainActor */ @preconcurrency public static var sidebarAdaptable: SidebarAdaptableTabViewStyle {
         fatalError()
     }
 }
 
-/* @MainActor @preconcurrency */ public struct TabBarOnlyTabViewStyle : TabViewStyle {
+/* @MainActor */ @preconcurrency public struct TabBarOnlyTabViewStyle : TabViewStyle {
     /* nonisolated */ public init() {
     }
 
@@ -89,12 +89,12 @@ extension TabViewStyle where Self == SidebarAdaptableTabViewStyle {
 }
 
 extension TabViewStyle where Self == TabBarOnlyTabViewStyle {
-    /* @MainActor @preconcurrency */ public static var tabBarOnly: TabBarOnlyTabViewStyle {
+    /* @MainActor */ @preconcurrency public static var tabBarOnly: TabBarOnlyTabViewStyle {
         return TabBarOnlyTabViewStyle()
     }
 }
 
-/* @MainActor @preconcurrency */ public struct DefaultTabViewStyle : TabViewStyle {
+/* @MainActor */ @preconcurrency public struct DefaultTabViewStyle : TabViewStyle {
     /* nonisolated */ public init() {
     }
 
@@ -102,12 +102,12 @@ extension TabViewStyle where Self == TabBarOnlyTabViewStyle {
 }
 
 extension TabViewStyle where Self == DefaultTabViewStyle {
-    /* @MainActor @preconcurrency */ public static var automatic: DefaultTabViewStyle {
+    /* @MainActor */ @preconcurrency public static var automatic: DefaultTabViewStyle {
         return DefaultTabViewStyle()
     }
 }
 
-/* @MainActor @preconcurrency */ public struct GroupedTabViewStyle : TabViewStyle {
+/* @MainActor */ @preconcurrency public struct GroupedTabViewStyle : TabViewStyle {
     @available(*, unavailable)
     /* nonisolated */ public init() {
     }
@@ -115,15 +115,15 @@ extension TabViewStyle where Self == DefaultTabViewStyle {
 
 extension TabViewStyle where Self == GroupedTabViewStyle {
     @available(*, unavailable)
-    /* @MainActor @preconcurrency */ public static var grouped: GroupedTabViewStyle {
+    /* @MainActor */ @preconcurrency public static var grouped: GroupedTabViewStyle {
         fatalError()
     }
 }
 
-/* @MainActor @preconcurrency */ public struct PageTabViewStyle: TabViewStyle {
+/* @MainActor */ @preconcurrency public struct PageTabViewStyle: TabViewStyle, Sendable {
     public let indexDisplayMode: PageTabViewStyle.IndexDisplayMode
 
-    public struct IndexDisplayMode : RawRepresentable, Equatable {
+    public struct IndexDisplayMode : RawRepresentable, Equatable, Sendable {
         public let rawValue: Int
 
         public init(rawValue: Int) {
@@ -143,11 +143,11 @@ extension TabViewStyle where Self == GroupedTabViewStyle {
 }
 
 extension TabViewStyle where Self == PageTabViewStyle {
-    /* @MainActor @preconcurrency */ public static var page: PageTabViewStyle {
+    /* @MainActor */ @preconcurrency public static var page: PageTabViewStyle {
         return PageTabViewStyle()
     }
 
-    /* @MainActor @preconcurrency */ public static func page(indexDisplayMode: PageTabViewStyle.IndexDisplayMode) -> PageTabViewStyle {
+    /* @MainActor */ @preconcurrency public static func page(indexDisplayMode: PageTabViewStyle.IndexDisplayMode) -> PageTabViewStyle {
         return PageTabViewStyle(indexDisplayMode: indexDisplayMode)
     }
 }

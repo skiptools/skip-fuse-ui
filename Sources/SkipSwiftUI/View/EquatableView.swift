@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import SkipUI
 
-/* @MainActor */ @frozen /* @preconcurrency */ public struct EquatableView<Content> : View where Content : Equatable, Content : View {
-    /* @MainActor @preconcurrency */ public var content: Content
+/* @MainActor */ @frozen @preconcurrency public struct EquatableView<Content> : View where Content : Equatable, Content : View {
+    /* @MainActor */ @preconcurrency public var content: Content
 
     @inlinable /* nonisolated */ public init(content: Content) {
         self.content = content

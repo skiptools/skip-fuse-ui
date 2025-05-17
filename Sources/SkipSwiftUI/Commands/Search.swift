@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import SkipUI
 
-public struct SearchFieldPlacement /* : Sendable */ {
+public struct SearchFieldPlacement : Sendable {
     public static let automatic = SearchFieldPlacement()
 
     @available(*, unavailable)
@@ -39,7 +39,7 @@ public struct SearchScopeActivation {
     }
 }
 
-public struct SearchSuggestionsPlacement : Equatable /*, Sendable */ {
+public struct SearchSuggestionsPlacement : Equatable, Sendable {
     public static var automatic: SearchSuggestionsPlacement {
         return SearchSuggestionsPlacement()
     }
@@ -54,7 +54,7 @@ public struct SearchSuggestionsPlacement : Equatable /*, Sendable */ {
         fatalError()
     }
 
-    public struct Set : OptionSet /*, Sendable */ {
+    public struct Set : OptionSet, Sendable {
         public var rawValue: Int
 
         public static var menu: SearchSuggestionsPlacement.Set {
@@ -73,17 +73,17 @@ public struct SearchSuggestionsPlacement : Equatable /*, Sendable */ {
 
 public struct SearchUnavailableContent {
     @available(*, unavailable)
-    /* @MainActor @preconcurrency */ public struct Label : View {
+    /* @MainActor */ @preconcurrency public struct Label : View {
         public typealias Body = Never
     }
 
     @available(*, unavailable)
-    /* @MainActor @preconcurrency */ public struct Description : View {
+    /* @MainActor */ @preconcurrency public struct Description : View {
         public typealias Body = Never
     }
 
     @available(*, unavailable)
-    /* @MainActor @preconcurrency */ public struct Actions : View {
+    /* @MainActor */ @preconcurrency public struct Actions : View {
         public typealias Body = Never
     }
 }

@@ -4,7 +4,7 @@
 import CoreGraphics
 #endif
 
-@frozen public struct EdgeInsets : Equatable /*, BitwiseCopyable, Sendable */ {
+@frozen public struct EdgeInsets : Equatable, BitwiseCopyable, Sendable {
     public var top: CGFloat = 0.0
     public var leading: CGFloat = 0.0
     public var bottom: CGFloat = 0.0

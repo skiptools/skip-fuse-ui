@@ -7,14 +7,14 @@ import SkipUI
     let get: () -> Value
     let set: (Value) -> Void
 
-    /* @preconcurrency */ public init(valueBox: BridgedStateBox<Value>? = nil, get: @escaping /* @isolated(any) @Sendable */ () -> Value, set: @escaping /* @isolated(any) @Sendable */ (Value) -> Void) {
+    @preconcurrency public init(valueBox: BridgedStateBox<Value>? = nil, get: @escaping /* @isolated(any) @Sendable */ () -> Value, set: @escaping /* @isolated(any) @Sendable */ (Value) -> Void) {
         self.valueBox = valueBox
         self.appStorageBox = nil
         self.get = get
         self.set = set
     }
 
-    /* @preconcurrency */ public init(appStorageBox: BridgedAppStorageBox<Value>, get: @escaping /* @isolated(any) @Sendable */ () -> Value, set: @escaping /* @isolated(any) @Sendable */ (Value) -> Void) {
+    @preconcurrency public init(appStorageBox: BridgedAppStorageBox<Value>, get: @escaping /* @isolated(any) @Sendable */ () -> Value, set: @escaping /* @isolated(any) @Sendable */ (Value) -> Void) {
         self.appStorageBox = appStorageBox
         self.valueBox = nil
         self.get = get

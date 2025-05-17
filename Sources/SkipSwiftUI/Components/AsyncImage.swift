@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import SkipUI
 
-/* @MainActor @preconcurrency */ public struct AsyncImage<Content> : View where Content : View {
+/* @MainActor */ @preconcurrency public struct AsyncImage<Content> : View where Content : View {
     private let url: URL?
     private let scale: CGFloat
     private let content: ((AsyncImagePhase) -> Content)?
@@ -56,7 +56,7 @@ extension AsyncImage : SkipUIBridging {
     }
 }
 
-public enum AsyncImagePhase /* : Sendable */ {
+public enum AsyncImagePhase : Sendable {
     case empty
     case success(Image)
     case failure(any Error)

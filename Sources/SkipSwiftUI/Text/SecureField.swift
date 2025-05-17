@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import SkipUI
 
-/* @MainActor @preconcurrency */ public struct SecureField<Label> : View where Label : View {
+/* @MainActor */ @preconcurrency public struct SecureField<Label> : View where Label : View {
     private let text: Binding<String>
     private let prompt: Text?
     private let label: Label

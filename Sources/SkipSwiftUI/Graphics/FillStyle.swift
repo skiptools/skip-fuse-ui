@@ -1,7 +1,7 @@
 // Copyright 2025 Skip
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 
-@frozen public struct FillStyle : Equatable /*, BitwiseCopyable, Sendable */ {
+@frozen public struct FillStyle : Equatable, BitwiseCopyable, Sendable {
     public var isEOFilled: Bool
     public var isAntialiased: Bool
 

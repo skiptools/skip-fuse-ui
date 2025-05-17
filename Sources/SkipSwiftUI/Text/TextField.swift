@@ -3,7 +3,7 @@
 import Foundation
 import SkipUI
 
-/* @MainActor @preconcurrency */ public struct TextField<Label> : View where Label : View {
+/* @MainActor */ @preconcurrency public struct TextField<Label> : View where Label : View {
     private let text: Binding<String>
     private let prompt: Text?
     private let label: Label

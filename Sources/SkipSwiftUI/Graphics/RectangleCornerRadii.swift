@@ -4,7 +4,7 @@
 import CoreGraphics
 #endif
 
-@frozen public struct RectangleCornerRadii : Equatable, Animatable /*, BitwiseCopyable, Sendable */ {
+@frozen public struct RectangleCornerRadii : Equatable, Animatable, BitwiseCopyable, Sendable {
     public var topLeading: CGFloat
     public var bottomLeading: CGFloat
     public var bottomTrailing: CGFloat

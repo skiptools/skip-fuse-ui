@@ -1,11 +1,11 @@
 // Copyright 2025 Skip
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 
-@frozen public enum HorizontalEdge : Int8, Hashable, CaseIterable /*, BitwiseCopyable, Sendable */ {
+@frozen public enum HorizontalEdge : Int8, Hashable, CaseIterable, BitwiseCopyable, Sendable {
     case leading = 1 // For bridging
     case trailing = 2 // For bridging
 
-    @frozen public struct Set : OptionSet /*, BitwiseCopyable, Sendable */ {
+    @frozen public struct Set : OptionSet, BitwiseCopyable, Sendable {
         public let rawValue: Int8
 
         public init(rawValue: Int8) {

@@ -8,7 +8,7 @@ import SkipUI
     open class var shared: UIApplication {
         return _shared
     }
-    private static let _shared = UIApplication()
+    nonisolated(unsafe) private static let _shared = UIApplication()
 
     private let application: SkipUI.UIApplication
 
@@ -176,7 +176,7 @@ import SkipUI
 
 extension UIApplication {
     @available(*, unavailable)
-    /* @MainActor @preconcurrency */ public func activateSceneSession(for request: Any /* UISceneSessionActivationRequest */, errorHandler: ((any Error) -> Void)? = nil) {
+    /* @MainActor */ @preconcurrency public func activateSceneSession(for request: Any /* UISceneSessionActivationRequest */, errorHandler: ((any Error) -> Void)? = nil) {
         fatalError()
     }
 }
@@ -365,7 +365,7 @@ extension UIApplication {
         fatalError()
     }
 
-    public enum State : Int /*, @unchecked Sendable */ {
+    public enum State : Int, Sendable {
         case active = 0
         case inactive = 1
         case background = 2
@@ -381,7 +381,7 @@ extension UIApplication {
         fatalError()
     }
 
-    public struct OpenExternalURLOptionsKey : Hashable, Equatable, RawRepresentable /*, @unchecked Sendable */ {
+    public struct OpenExternalURLOptionsKey : Hashable, Equatable, RawRepresentable, Sendable {
         public let rawValue: String
 
         public init(rawValue: String) {

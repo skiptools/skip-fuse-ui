@@ -3,7 +3,7 @@
 import SkipBridge
 import SkipUI
 
-public struct SensoryFeedback : Equatable /*, Sendable */ {
+public struct SensoryFeedback : Equatable, Sendable {
     let identifier: Int // For bridging
 
     public static let success = SensoryFeedback(identifier: 1) // For bridging
@@ -39,7 +39,7 @@ public struct SensoryFeedback : Equatable /*, Sendable */ {
         return .impact
     }
 
-    public struct Weight : Equatable /*, Sendable */ {
+    public struct Weight : Equatable, Sendable {
         public static let light = SensoryFeedback.Weight()
 
         public static let medium = SensoryFeedback.Weight()
@@ -47,7 +47,7 @@ public struct SensoryFeedback : Equatable /*, Sendable */ {
         public static let heavy = SensoryFeedback.Weight()
     }
 
-    public struct Flexibility : Equatable /*, Sendable */ {
+    public struct Flexibility : Equatable, Sendable {
         public static let rigid = SensoryFeedback.Flexibility()
 
         public static let solid = SensoryFeedback.Flexibility()

@@ -1,7 +1,7 @@
 // Copyright 2025 Skip
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 
-public struct EditActions<Data> : OptionSet /*, Sendable */ {
+public struct EditActions<Data> : OptionSet, Sendable {
     public let rawValue: Int
 
     public init(rawValue: Int) {

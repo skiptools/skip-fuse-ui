@@ -6,9 +6,9 @@ import CoreGraphics
 import Foundation
 import SkipUI
 
-/* @frozen */ public struct Text : Equatable /*, Sendable */ {
+/* @frozen */ public struct Text : Equatable, Sendable {
     let spec: TextSpec
-    var modifierChain: [(any View) -> any View] = []
+    var modifierChain: [@Sendable (any View) -> any View] = []
 
     init(spec: TextSpec) {
         self.spec = spec
@@ -28,7 +28,7 @@ import SkipUI
 }
 
 /// Define text content.
-struct TextSpec : Equatable {
+struct TextSpec : Equatable, @unchecked Sendable {
     var verbatim: String?
     var key: LocalizedStringKey?
     var tableName: String?
@@ -78,11 +78,11 @@ extension Text {
 //}
 
 extension Text {
-    public struct LineStyle : Hashable /* , Sendable */ {
+    public struct LineStyle : Hashable, Sendable {
         public init(pattern: Text.LineStyle.Pattern = .solid, color: Color? = nil) {
         }
 
-        public struct Pattern /* : Sendable */ {
+        public struct Pattern : Sendable {
             public static let solid = Text.LineStyle.Pattern()
             public static let dot = Text.LineStyle.Pattern()
             public static let dash = Text.LineStyle.Pattern()
@@ -131,7 +131,7 @@ extension Text {
 }
 
 extension Text {
-    public struct DateStyle : Equatable /*, Sendable */ {
+    public struct DateStyle : Equatable, Sendable {
         public static let time: DateStyle = {
             let formatter = DateFormatter()
             formatter.timeStyle = .medium
@@ -164,9 +164,9 @@ extension Text {
         }
 
         private let identifier: Int
-        let format: (Date) -> String
+        let format: @Sendable (Date) -> String
 
-        private init(identifier: Int, format: @escaping (Date) -> String) {
+        private init(identifier: Int, format: @escaping @Sendable (Date) -> String) {
             self.identifier = identifier
             self.format = format
         }
@@ -219,13 +219,13 @@ extension Text {
 }
 
 extension Text {
-    public enum TruncationMode : Hashable /* : Sendable */ {
+    public enum TruncationMode : Hashable, Sendable {
         case head
         case tail
         case middle
     }
 
-    public enum Case : Int, Hashable /* : Sendable */ {
+    public enum Case : Int, Hashable, Sendable {
         case uppercase = 0 // For bridging
         case lowercase = 1 // For bridging
     }
@@ -595,7 +595,7 @@ extension View {
 }
 
 extension Text {
-    public struct Scale : /* Sendable, */ Hashable {
+    public struct Scale : Sendable, Hashable {
         public static let `default` = Text.Scale()
         public static let secondary = Text.Scale()
     }
@@ -1442,7 +1442,7 @@ extension TextSelectability where Self == DisabledTextSelectability {
 public protocol TextVariantPreference {
 }
 
-public struct FixedTextVariant : TextVariantPreference /* , Sendable */ {
+public struct FixedTextVariant : TextVariantPreference, Sendable {
 }
 
 extension TextVariantPreference where Self == FixedTextVariant {
@@ -1451,7 +1451,7 @@ extension TextVariantPreference where Self == FixedTextVariant {
     }
 }
 
-public struct SizeDependentTextVariant : TextVariantPreference /*, Sendable */ {
+public struct SizeDependentTextVariant : TextVariantPreference, Sendable {
 }
 
 extension TextVariantPreference where Self == SizeDependentTextVariant {

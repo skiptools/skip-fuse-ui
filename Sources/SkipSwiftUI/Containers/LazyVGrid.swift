@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import SkipUI
 
-/* @MainActor @preconcurrency */ public struct LazyVGrid<Content> : View where Content : View {
+/* @MainActor */ @preconcurrency public struct LazyVGrid<Content> : View where Content : View {
     private let columns: [GridItem]
     private let alignment: HorizontalAlignment
     private let spacing: CGFloat?

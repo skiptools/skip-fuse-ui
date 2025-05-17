@@ -3,7 +3,7 @@
 import Foundation
 import SkipUI
 
-/* @frozen */ public struct Color : Hashable, CustomStringConvertible /* , Sendable */ {
+/* @frozen */ public struct Color : Hashable, CustomStringConvertible, Sendable {
     let spec: ColorSpec
 
     init(spec: ColorSpec) {
@@ -141,7 +141,7 @@ extension Color {
 }
 
 extension Color {
-    @frozen public struct Resolved : Hashable /*, BitwiseCopyable */ {
+    @frozen public struct Resolved : Hashable, BitwiseCopyable {
         public var linearRed: Float
         public var linearGreen: Float
         public var linearBlue: Float
@@ -154,7 +154,7 @@ extension Color {
 }
 
 extension Color {
-    public enum RGBColorSpace : Hashable /*, Sendable */ {
+    public enum RGBColorSpace : Hashable, Sendable {
         case sRGB
         case sRGBLinear
         case displayP3

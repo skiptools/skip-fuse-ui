@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import SkipUI
 
-/* @MainActor @preconcurrency */ public struct Toggle<Label> : View where Label : View {
+/* @MainActor */ @preconcurrency public struct Toggle<Label> : View where Label : View {
     private let isOn: Binding<Bool>
     private let label: Label
 
@@ -80,64 +80,64 @@ extension Toggle where Label == SkipSwiftUI.Label<Text, Image> {
 //    nonisolated public init<S, C>(_ title: S, image: ImageResource, sources: C, isOn: KeyPath<C.Element, Binding<Bool>>) where S : StringProtocol, C : RandomAccessCollection
 //}
 
-/* @MainActor @preconcurrency */ public protocol ToggleStyle {
+/* @MainActor */ @preconcurrency public protocol ToggleStyle {
     associatedtype Body : View
 
-    @ViewBuilder @MainActor /* @preconcurrency */ func makeBody(configuration: Self.Configuration) -> Self.Body
+    @ViewBuilder @MainActor @preconcurrency func makeBody(configuration: Self.Configuration) -> Self.Body
 
     typealias Configuration = ToggleStyleConfiguration
 }
 
-/* @MainActor @preconcurrency */ public struct ButtonToggleStyle : ToggleStyle {
+/* @MainActor */ @preconcurrency public struct ButtonToggleStyle : ToggleStyle {
     @available(*, unavailable)
-    /* @MainActor @preconcurrency */ public init() {
+    /* @MainActor */ @preconcurrency public init() {
         fatalError()
     }
 
-    @MainActor /* @preconcurrency */ public func makeBody(configuration: ButtonToggleStyle.Configuration) -> some View {
+    @MainActor @preconcurrency public func makeBody(configuration: ButtonToggleStyle.Configuration) -> some View {
         stubView()
     }
 }
 
 extension ToggleStyle where Self == ButtonToggleStyle {
     @available(*, unavailable)
-    /* @MainActor @preconcurrency */ public static var button: ButtonToggleStyle {
+    /* @MainActor */ @preconcurrency public static var button: ButtonToggleStyle {
         fatalError()
     }
 }
 
-/* @MainActor @preconcurrency */ public struct DefaultToggleStyle : ToggleStyle {
-    /* @MainActor @preconcurrency */ public init() {
+/* @MainActor */ @preconcurrency public struct DefaultToggleStyle : ToggleStyle {
+    /* @MainActor */ @preconcurrency public init() {
     }
 
-    @MainActor /* @preconcurrency */ public func makeBody(configuration: ButtonToggleStyle.Configuration) -> some View {
+    @MainActor @preconcurrency public func makeBody(configuration: ButtonToggleStyle.Configuration) -> some View {
         stubView()
     }
 }
 
 extension ToggleStyle where Self == DefaultToggleStyle {
-    /* @MainActor @preconcurrency */ public static var automatic: DefaultToggleStyle {
+    /* @MainActor */ @preconcurrency public static var automatic: DefaultToggleStyle {
         return DefaultToggleStyle()
     }
 }
 
-/* @MainActor @preconcurrency */ public struct SwitchToggleStyle : ToggleStyle {
-    /* @MainActor @preconcurrency */ public init() {
+/* @MainActor */ @preconcurrency public struct SwitchToggleStyle : ToggleStyle {
+    /* @MainActor */ @preconcurrency public init() {
     }
 
-    @MainActor /* @preconcurrency */ public func makeBody(configuration: ButtonToggleStyle.Configuration) -> some View {
+    @MainActor @preconcurrency public func makeBody(configuration: ButtonToggleStyle.Configuration) -> some View {
         stubView()
     }
 }
 
 extension ToggleStyle where Self == SwitchToggleStyle {
-    /* @MainActor @preconcurrency */ public static var `switch`: SwitchToggleStyle {
+    /* @MainActor */ @preconcurrency public static var `switch`: SwitchToggleStyle {
         return SwitchToggleStyle()
     }
 }
 
 public struct ToggleStyleConfiguration {
-    /* @MainActor @preconcurrency */ public struct Label : View {
+    /* @MainActor */ @preconcurrency public struct Label : View {
         public typealias Body = Never
     }
 

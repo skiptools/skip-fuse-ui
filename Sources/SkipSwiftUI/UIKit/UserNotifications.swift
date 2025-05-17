@@ -1,0 +1,441 @@
+// Copyright 2023–2025 Skip
+// SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
+/*
+import Foundation
+import SkipUI
+
+public final class UNUserNotificationCenter {
+    nonisolated(unsafe) private static let shared = UNUserNotificationCenter()
+
+    private init() {
+    }
+
+    public static func current() -> UNUserNotificationCenter {
+        return shared
+    }
+
+    @available(*, unavailable)
+    public func getNotificationSettings() async -> Any /* UNNotificationSettings */ {
+        fatalError()
+    }
+
+    @available(*, unavailable)
+    public func setBadgeCount(_ count: Int) async throws {
+    }
+
+    public func requestAuthorization(options: UNAuthorizationOptions) async throws -> Bool {
+        return try await SkipUI.UNUserNotificationCenter.current().requestAuthorization(bridgedOptions: options.rawValue)
+    }
+
+    //~~~ Don't require delegate to be bridgable - build custom box
+    public var delegate: (any UNUserNotificationCenterDelegate)? {
+        get {
+            return SkipUI.UNUserNotificationCenter.current().delegate as? UNUserNotificationCenterDelegate
+        }
+        set {
+            SkipUI.UNUserNotificationCenter.current().delegate = newValue
+        }
+    }
+
+    @available(*, unavailable)
+    public var supportsContentExtensions: Bool {
+        fatalError()
+    }
+
+    @MainActor
+    public func add(_ request: UNNotificationRequest) async throws {
+        try await SkipUI.UNUserNotificationCenter.current().add(request.Java_request)
+    }
+
+    @available(*, unavailable)
+    public func getPendingNotificationRequests() async -> [Any /* UNNotificationRequest */] {
+        fatalError()
+    }
+
+    @available(*, unavailable)
+    public func removePendingNotificationRequests(withIdentifiers: [String]) {
+    }
+
+    @available(*, unavailable)
+    public func removeAllPendingNotificationRequests() {
+    }
+
+    @available(*, unavailable)
+    public func getDeliveredNotifications() async -> [Any /* UNNotification */] {
+        fatalError()
+    }
+
+    @available(*, unavailable)
+    public func removeDeliveredNotifications(withIdentifiers: [String]) {
+    }
+
+    @available(*, unavailable)
+    public func removeAllDeliveredNotifications() {
+    }
+
+    @available(*, unavailable)
+    public func setNotificationCategories(_ categories: Set<AnyHashable /* UNNotificationCategory */>) {
+    }
+
+    @available(*, unavailable)
+    public func getNotificationCategories() async -> Set<AnyHashable /* UNNotificationCategory */> {
+        fatalError()
+    }
+}
+
+@MainActor
+public protocol UNUserNotificationCenterDelegate : SkipUI.UNUserNotificationCenterDelegate {
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive notification: UNNotificationResponse) async
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter, openSettingsFor notification: UNNotification?)
+}
+
+extension UNUserNotificationCenterDelegate {
+    public func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive notification: UNNotificationResponse) async {
+    }
+
+    public func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
+        return []
+    }
+
+    public func userNotificationCenter(_ center: UNUserNotificationCenter, openSettingsFor notification: UNNotification?) {
+    }
+
+    public func userNotificationCenter(_ center: SkipUI.UNUserNotificationCenter, didReceive notification: SkipUI.UNNotificationResponse) async {
+        await self.userNotificationCenter(UNUserNotificationCenter.current(), didReceive: UNNotificationResponse(Java_response: notification))
+    }
+
+    public func userNotificationCenter(_ center: SkipUI.UNUserNotificationCenter, willPresent notification: SkipUI.UNNotification) async -> SkipUI.UNNotificationPresentationOptions {
+        let options = await self.userNotificationCenter(UNUserNotificationCenter.current(), willPresent: UNNotification(Java_notification: notification))
+        return SkipUI.UNNotificationPresentationOptions(rawValue: options.rawValue)
+    }
+
+    public func userNotificationCenter(_ center: SkipUI.UNUserNotificationCenter, openSettingsFor notification: SkipUI.UNNotification?) {
+        self.userNotificationCenter(UNUserNotificationCenter.current(), openSettingsFor: notification == nil ? nil : UNNotification(Java_notification: notification!))
+    }
+}
+
+public struct UNAuthorizationOptions : OptionSet, Sendable {
+    public let rawValue: Int
+
+    public init(rawValue: Int) {
+        self.rawValue = rawValue
+    }
+
+    public static let badge = UNAuthorizationOptions(rawValue: 1 << 0) // For bridging
+    public static let sound = UNAuthorizationOptions(rawValue: 1 << 1) // For bridging
+    public static let alert = UNAuthorizationOptions(rawValue: 1 << 2) // For bridging
+    public static let carPlay = UNAuthorizationOptions(rawValue: 1 << 3) // For bridging
+    public static let criticalAlert = UNAuthorizationOptions(rawValue: 1 << 4) // For bridging
+    public static let providesAppNotificationSettings = UNAuthorizationOptions(rawValue: 1 << 5) // For bridging
+    public static let provisional = UNAuthorizationOptions(rawValue: 1 << 6) // For bridging
+}
+
+public final class UNNotification {
+    public let request: UNNotificationRequest
+    public let date: Date
+
+    public init(request: UNNotificationRequest, date: Date) {
+        self.request = request
+        self.date = date
+    }
+
+    init(Java_notification: SkipUI.UNNotification) {
+        self.request = UNNotificationRequest(Java_request: Java_notification.request)
+        self.date = Java_notification.date
+    }
+}
+
+public final class UNNotificationRequest {
+    public let identifier: String
+    public let content: UNNotificationContent
+    public let trigger: UNNotificationTrigger?
+
+    public init(identifier: String, content: UNNotificationContent, trigger: UNNotificationTrigger?) {
+        self.identifier = identifier
+        self.content = content
+        self.trigger = trigger
+    }
+
+    init(Java_request: SkipUI.UNNotificationRequest) {
+        self.identifier = Java_request.identifier
+        self.content = UNNotificationContent(Java_content: Java_request.content)
+        self.trigger = UNPushNotificationTrigger(repeats: false)
+    }
+
+    var Java_request: SkipUI.UNNotificationRequest {
+        return SkipUI.UNNotificationRequest(identifier: identifier, content: content.Java_content)
+    }
+}
+
+public let UNNotificationDefaultActionIdentifier = "UNNotificationDefaultActionIdentifier" // For bridging
+public let UNNotificationDismissActionIdentifier = "UNNotificationDismissActionIdentifier" // For bridging
+
+public final class UNNotificationResponse {
+    public let actionIdentifier: String
+    public let notification: UNNotification
+
+    @available(*, unavailable)
+    public var targetScene: Any? /* UIScene? */ {
+        fatalError()
+    }
+
+    public init(actionIdentifier: String = UNNotificationDefaultActionIdentifier, notification: UNNotification) {
+        self.actionIdentifier = actionIdentifier
+        self.notification = notification
+    }
+
+    init(Java_response: SkipUI.UNNotificationResponse) {
+        self.actionIdentifier = Java_response.actionIdentifier
+        self.notification = UNNotification(Java_notification: Java_response.notification)
+    }
+}
+
+public struct UNNotificationPresentationOptions : OptionSet, Sendable {
+    public let rawValue: Int
+
+    public init(rawValue: Int) {
+        self.rawValue = rawValue
+    }
+
+    public static let badge = UNNotificationPresentationOptions(rawValue: 1 << 0) // For bridging
+    public static let banner = UNNotificationPresentationOptions(rawValue: 1 << 1) // For bridging
+    public static let list = UNNotificationPresentationOptions(rawValue: 1 << 2) // For bridging
+    public static let sound = UNNotificationPresentationOptions(rawValue: 1 << 3) // For bridging
+    public static let alert = UNNotificationPresentationOptions(rawValue: 1 << 4) // For bridging
+}
+
+public class UNNotificationContent {
+    public internal(set) var title: String
+    public internal(set) var subtitle: String
+    public internal(set) var body: String
+    public internal(set) var badge: Int?
+    public internal(set) var sound: UNNotificationSound?
+    public internal(set) var launchImageName: String
+    public internal(set) var userInfo: [AnyHashable: Any]
+    public internal(set) var attachments: [UNNotificationAttachment]
+    public internal(set) var categoryIdentifier: String
+    public internal(set) var threadIdentifier: String
+    public internal(set) var targetContentIdentifier: String?
+    public internal(set) var summaryArgument: String
+    public internal(set) var summaryArgumentCount: Int
+    public internal(set) var filterCriteria: String?
+
+    public init(title: String = "", subtitle: String = "", body: String = "", badge: Int? = nil, sound: UNNotificationSound? = UNNotificationSound.default, launchImageName: String = "", userInfo: [AnyHashable: Any] = [:], attachments: [UNNotificationAttachment] = [], categoryIdentifier: String = "", threadIdentifier: String = "", targetContentIdentifier: String? = nil, summaryArgument: String = "", summaryArgumentCount: Int = 0, filterCriteria: String? = nil) {
+        self.title = title
+        self.subtitle = subtitle
+        self.body = body
+        self.badge = badge
+        self.sound = sound
+        self.launchImageName = launchImageName
+        self.userInfo = userInfo
+        self.attachments = attachments
+        self.categoryIdentifier = categoryIdentifier
+        self.threadIdentifier = threadIdentifier
+        self.targetContentIdentifier = targetContentIdentifier
+        self.summaryArgument = summaryArgument
+        self.summaryArgumentCount = summaryArgumentCount
+        self.filterCriteria = filterCriteria
+    }
+
+    init(Java_content: SkipUI.UNNotificationContent) {
+        self.title = Java_content.title
+        self.subtitle = Java_content.subtitle
+        self.body = Java_content.body
+        self.badge = Java_content.bridgedBadge
+        self.sound = Java_content.sound == nil ? nil : UNNotificationSound(Java_sound: Java_content.sound!)
+        self.launchImageName = Java_content.launchImageName
+        self.userInfo = Java_content.userInfo
+        self.attachments = Java_content.attachments.map { UNNotificationAttachment(Java_attachment: $0) }
+        self.categoryIdentifier = Java_content.categoryIdentifier
+        self.threadIdentifier = Java_content.threadIdentifier
+        self.targetContentIdentifier = Java_content.targetContentIdentifier
+        self.summaryArgument = Java_content.summaryArgument
+        self.summaryArgumentCount = Java_content.summaryArgumentCount
+        self.filterCriteria = Java_content.filterCriteria
+    }
+
+    var Java_content: SkipUI.UNNotificationContent {
+        return SkipUI.UNNotificationContent.bridgedContent(title: title, subtitle: subtitle, body: body, badge: badge, sound: sound?.Java_sound, launchImageName: launchImageName, userInfo: userInfo, attachments: attachments.map(\.Java_attachment), categoryIdentifier: categoryIdentifier, threadIdentifier: threadIdentifier, targetContentIdentifier: targetContentIdentifier, summaryArgument: summaryArgument, summaryArgumentCount: summaryArgumentCount, filterCriteria: filterCriteria)
+    }
+}
+
+public final class UNMutableNotificationContent : UNNotificationContent {
+    public override var title: String {
+        get { super.title }
+        set { super.title = newValue }
+    }
+    public override var subtitle: String {
+        get { super.subtitle }
+        set { super.subtitle = newValue }
+    }
+    public override var body: String {
+        get { super.body }
+        set { super.body = newValue }
+    }
+    public override var badge: Int? {
+        get { super.badge }
+        set { super.badge = newValue }
+    }
+    public override var sound: UNNotificationSound? {
+        get { super.sound }
+        set { super.sound = newValue }
+    }
+    public override var launchImageName: String {
+        get { super.launchImageName }
+        set { super.launchImageName = newValue }
+    }
+    public override var userInfo: [AnyHashable: Any] {
+        get { super.userInfo }
+        set { super.userInfo = newValue }
+    }
+    public override var attachments: [UNNotificationAttachment] {
+        get { super.attachments }
+        set { super.attachments = newValue }
+    }
+    public override var categoryIdentifier: String {
+        get { super.categoryIdentifier }
+        set { super.categoryIdentifier = newValue }
+    }
+    public override var threadIdentifier: String {
+        get { super.threadIdentifier }
+        set { super.threadIdentifier = newValue }
+    }
+    public override var targetContentIdentifier: String? {
+        get { super.targetContentIdentifier }
+        set { super.targetContentIdentifier = newValue }
+    }
+    public override var summaryArgument: String {
+        get { super.summaryArgument }
+        set { super.summaryArgument = newValue }
+    }
+    public override var summaryArgumentCount: Int {
+        get { super.summaryArgumentCount }
+        set { super.summaryArgumentCount = newValue }
+    }
+    public override var filterCriteria: String? {
+        get { super.filterCriteria }
+        set { super.filterCriteria = newValue }
+    }
+}
+
+public final class UNNotificationSound {
+    public let name: UNNotificationSoundName
+    public let volume: Float
+
+    public static var `default`: UNNotificationSound {
+        return UNNotificationSound(named: UNNotificationSoundName(rawValue: "default"))
+    }
+
+    public static var defaultCriticalSound: UNNotificationSound {
+        return UNNotificationSound(named: UNNotificationSoundName(rawValue: "default_critical"))
+    }
+
+    public static func defaultCriticalSound(withAudioVolume volume: Float) -> UNNotificationSound {
+        return UNNotificationSound(named: UNNotificationSoundName(rawValue: "default_critical"), volume: volume)
+    }
+
+    public init(named name: UNNotificationSoundName, volume: Float = Float(0.0)) {
+        self.name = name
+        self.volume = volume
+    }
+
+    public static func soundNamed(_ name: UNNotificationSoundName) -> UNNotificationSound {
+        return UNNotificationSound(named: name)
+    }
+
+    init(Java_sound: SkipUI.UNNotificationSound) {
+        self.name = UNNotificationSoundName(rawValue: Java_sound.bridgedName)
+        self.volume = Java_sound.volume
+    }
+
+    var Java_sound: SkipUI.UNNotificationSound {
+        return SkipUI.UNNotificationSound(named: name.rawValue, volume: volume)
+    }
+}
+
+public struct UNNotificationSoundName: RawRepresentable, Hashable {
+    public let rawValue: String
+
+    public init(rawValue: String) {
+        self.rawValue = rawValue
+    }
+}
+
+public let UNNotificationAttachmentOptionsTypeHintKey = "UNNotificationAttachmentOptionsTypeHintKey"
+public let UNNotificationAttachmentOptionsThumbnailHiddenKey = "UNNotificationAttachmentOptionsThumbnailHiddenKey"
+public let UNNotificationAttachmentOptionsThumbnailClippingRectKey = "UNNotificationAttachmentOptionsThumbnailClippingRectKey"
+public let UNNotificationAttachmentOptionsThumbnailTimeKey = "UNNotificationAttachmentOptionsThumbnailTimeKey"
+
+public class UNNotificationAttachment {
+    public let identifier: String
+    public let url: URL
+    public let type: String
+    public let timeShift: TimeInterval
+
+    public init(identifier: String, url: URL, type: String = "public.data", timeShift: TimeInterval = 0) {
+        self.identifier = identifier
+        self.url = url
+        self.type = type
+        self.timeShift = timeShift
+    }
+
+    public static func attachment(withIdentifier identifier: String, url: URL, options: [AnyHashable: Any]? = nil) throws -> UNNotificationAttachment {
+        return UNNotificationAttachment(identifier: identifier, url: url, type: "public.data")
+    }
+
+    init(Java_attachment: SkipUI.UNNotificationAttachment) {
+        self.identifier = Java_attachment.identifier
+        self.url = Java_attachment.url
+        self.type = Java_attachment.type
+        self.timeShift = Java_attachment.timeShift
+    }
+
+    var Java_attachment: SkipUI.UNNotificationAttachment {
+        return SkipUI.UNNotificationAttachment(identifier: identifier, url: url, type: type, timeShift: timeShift)
+    }
+}
+
+public class UNNotificationTrigger {
+    public let repeats: Bool
+
+    public init(repeats: Bool) {
+        self.repeats = repeats
+    }
+}
+
+public final class UNTimeIntervalNotificationTrigger: UNNotificationTrigger {
+    public let timeInterval: TimeInterval
+
+    public init(timeInterval: TimeInterval, repeats: Bool) {
+        self.timeInterval = timeInterval
+        super.init(repeats: repeats)
+    }
+}
+
+public final class UNCalendarNotificationTrigger: UNNotificationTrigger {
+    public let dateComponents: DateComponents
+
+    public init(dateComponents: DateComponents, repeats: Bool) {
+        self.dateComponents = dateComponents
+        super.init(repeats: repeats)
+    }
+}
+
+public final class UNLocationNotificationTrigger: UNNotificationTrigger {
+    public let region: Any /* CLRegion */
+
+    public init(region: Any /* CLRegion */, repeats: Bool) {
+        self.region = region
+        super.init(repeats: repeats)
+    }
+}
+
+public final class UNPushNotificationTrigger: UNNotificationTrigger {
+    public override init(repeats: Bool) {
+        super.init(repeats: repeats)
+    }
+}
+*/

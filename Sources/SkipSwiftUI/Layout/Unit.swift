@@ -4,7 +4,7 @@
 import CoreGraphics
 #endif
 
-public struct UnitCurve : Hashable /*, Sendable */ {
+public struct UnitCurve : Hashable, Sendable {
     let startControlPoint: UnitPoint
     let endControlPoint: UnitPoint
 
@@ -57,7 +57,7 @@ extension UnitCurve {
     public static let linear = UnitCurve(startControlPoint: UnitPoint(x: 0, y: 0), endControlPoint: UnitPoint(x: 1, y: 1))
 }
 
-@frozen public struct UnitPoint : Hashable /*, BitwiseCopyable, Sendable */ {
+@frozen public struct UnitPoint : Hashable, BitwiseCopyable, Sendable {
     public var x: CGFloat
     public var y: CGFloat
 

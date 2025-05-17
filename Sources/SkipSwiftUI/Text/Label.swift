@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import SkipUI
 
-/* @MainActor @preconcurrency */ public struct Label<Title, Icon> : View where Title : View, Icon : View {
+/* @MainActor */ @preconcurrency public struct Label<Title, Icon> : View where Title : View, Icon : View {
     private let title: Title
     private let icon: Icon
 
@@ -55,10 +55,10 @@ extension Label where Title == LabelStyleConfiguration.Title, Icon == LabelStyle
     }
 }
 
-/* @MainActor @preconcurrency */ public protocol LabelStyle {
+/* @MainActor */ @preconcurrency public protocol LabelStyle {
     associatedtype Body : View
 
-    @ViewBuilder @MainActor /* @preconcurrency */ func makeBody(configuration: Self.Configuration) -> Self.Body
+    @ViewBuilder @MainActor @preconcurrency func makeBody(configuration: Self.Configuration) -> Self.Body
 
     typealias Configuration = LabelStyleConfiguration
 
@@ -71,11 +71,11 @@ extension LabelStyle {
     }
 }
 
-/* @MainActor @preconcurrency */ public struct DefaultLabelStyle : LabelStyle {
-    /* @MainActor @preconcurrency */ public init() {
+/* @MainActor */ @preconcurrency public struct DefaultLabelStyle : LabelStyle {
+    /* @MainActor */ @preconcurrency public init() {
     }
 
-    @MainActor /* @preconcurrency */ public func makeBody(configuration: DefaultLabelStyle.Configuration) -> some View {
+    @MainActor @preconcurrency public func makeBody(configuration: DefaultLabelStyle.Configuration) -> some View {
         stubView()
     }
 
@@ -83,16 +83,16 @@ extension LabelStyle {
 }
 
 extension LabelStyle where Self == DefaultLabelStyle {
-    /* @MainActor @preconcurrency */ public static var automatic: DefaultLabelStyle {
+    /* @MainActor */ @preconcurrency public static var automatic: DefaultLabelStyle {
         return DefaultLabelStyle()
     }
 }
 
-/* @MainActor @preconcurrency */ public struct IconOnlyLabelStyle : LabelStyle {
-    /* @MainActor @preconcurrency */ public init() {
+/* @MainActor */ @preconcurrency public struct IconOnlyLabelStyle : LabelStyle {
+    /* @MainActor */ @preconcurrency public init() {
     }
 
-    @MainActor /* @preconcurrency */ public func makeBody(configuration: IconOnlyLabelStyle.Configuration) -> some View {
+    @MainActor @preconcurrency public func makeBody(configuration: IconOnlyLabelStyle.Configuration) -> some View {
         stubView()
     }
 
@@ -100,16 +100,16 @@ extension LabelStyle where Self == DefaultLabelStyle {
 }
 
 extension LabelStyle where Self == IconOnlyLabelStyle {
-    /* @MainActor @preconcurrency */ public static var iconOnly: IconOnlyLabelStyle {
+    /* @MainActor */ @preconcurrency public static var iconOnly: IconOnlyLabelStyle {
         return IconOnlyLabelStyle()
     }
 }
 
-/* @MainActor @preconcurrency */ public struct TitleAndIconLabelStyle : LabelStyle {
-    /* @MainActor @preconcurrency */ public init() {
+/* @MainActor */ @preconcurrency public struct TitleAndIconLabelStyle : LabelStyle {
+    /* @MainActor */ @preconcurrency public init() {
     }
 
-    @MainActor /* @preconcurrency */ public func makeBody(configuration: TitleAndIconLabelStyle.Configuration) -> some View {
+    @MainActor @preconcurrency public func makeBody(configuration: TitleAndIconLabelStyle.Configuration) -> some View {
         stubView()
     }
 
@@ -117,16 +117,16 @@ extension LabelStyle where Self == IconOnlyLabelStyle {
 }
 
 extension LabelStyle where Self == TitleAndIconLabelStyle {
-    /* @MainActor @preconcurrency */ public static var titleAndIcon: TitleAndIconLabelStyle {
+    /* @MainActor */ @preconcurrency public static var titleAndIcon: TitleAndIconLabelStyle {
         return TitleAndIconLabelStyle()
     }
 }
 
-/* @MainActor @preconcurrency */ public struct TitleOnlyLabelStyle : LabelStyle {
-    /* @MainActor @preconcurrency */ public init() {
+/* @MainActor */ @preconcurrency public struct TitleOnlyLabelStyle : LabelStyle {
+    /* @MainActor */ @preconcurrency public init() {
     }
 
-    @MainActor /* @preconcurrency */ public func makeBody(configuration: TitleOnlyLabelStyle.Configuration) -> some View {
+    @MainActor @preconcurrency public func makeBody(configuration: TitleOnlyLabelStyle.Configuration) -> some View {
         stubView()
     }
 
@@ -134,17 +134,17 @@ extension LabelStyle where Self == TitleAndIconLabelStyle {
 }
 
 extension LabelStyle where Self == TitleOnlyLabelStyle {
-    /* @MainActor @preconcurrency */ public static var titleOnly: TitleOnlyLabelStyle {
+    /* @MainActor */ @preconcurrency public static var titleOnly: TitleOnlyLabelStyle {
         return TitleOnlyLabelStyle()
     }
 }
 
 public struct LabelStyleConfiguration {
-    /* @MainActor @preconcurrency */ public struct Title : View {
+    /* @MainActor */ @preconcurrency public struct Title : View {
         public typealias Body = Never
     }
 
-    /* @MainActor @preconcurrency */ public struct Icon : View {
+    /* @MainActor */ @preconcurrency public struct Icon : View {
         public typealias Body = Never
     }
 

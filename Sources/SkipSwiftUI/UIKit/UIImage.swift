@@ -7,7 +7,7 @@ import Foundation
 import SkipUI
 
 extension UIImage {
-    public enum Orientation : Int /*, @unchecked Sendable */ {
+    public enum Orientation : Int, @unchecked Sendable {
         case up = 0
         case down = 1
         case left = 2
@@ -18,12 +18,12 @@ extension UIImage {
         case rightMirrored = 7
     }
 
-    public enum ResizingMode : Int /*, @unchecked Sendable */ {
+    public enum ResizingMode : Int, @unchecked Sendable {
         case tile = 0
         case stretch = 1
     }
 
-    public enum RenderingMode : Int /*, @unchecked Sendable */ {
+    public enum RenderingMode : Int, @unchecked Sendable {
         case automatic = 0
         case alwaysOriginal = 1
         case alwaysTemplate = 2
@@ -43,7 +43,7 @@ extension UIImage {
     }
 }
 
-open class UIImage : NSObject /*, NSSecureCoding, @unchecked Sendable */ {
+open class UIImage : NSObject /*, NSSecureCoding */, @unchecked Sendable {
     let uiImage: SkipUI.UIImage
 
     @available(*, unavailable)

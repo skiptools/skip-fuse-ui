@@ -5,7 +5,7 @@ import CoreGraphics
 #endif
 import SkipUI
 
-/* @MainActor @preconcurrency */ public struct LazyHStack<Content> : View where Content : View {
+/* @MainActor */ @preconcurrency public struct LazyHStack<Content> : View where Content : View {
     private let alignment: VerticalAlignment
     private let spacing: CGFloat?
     private let pinnedViews: PinnedScrollableViews

@@ -3,7 +3,7 @@
 import Foundation
 import SkipUI
 
-/* @MainActor @preconcurrency */ public struct Link<Label> : View where Label : View {
+/* @MainActor */ @preconcurrency public struct Link<Label> : View where Label : View {
     private let destination: URL
     private let label: Label
 

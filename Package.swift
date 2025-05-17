@@ -1,4 +1,4 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 6.1
 import PackageDescription
 
 let package = Package(
@@ -8,7 +8,7 @@ let package = Package(
         .library(name: "SkipFuseUI", type: .dynamic, targets: ["SkipFuseUI"]),
         .library(name: "SkipSwiftUI", type: .dynamic, targets: ["SkipSwiftUI"]),
     ],
-    dependencies: [ 
+    dependencies: [
         .package(url: "https://source.skip.tools/skip.git", from: "1.2.21"),
         .package(url: "https://source.skip.tools/skip-fuse.git", from: "1.0.0"),
         .package(url: "https://source.skip.tools/skip-bridge.git", "0.0.0"..<"2.0.0"),

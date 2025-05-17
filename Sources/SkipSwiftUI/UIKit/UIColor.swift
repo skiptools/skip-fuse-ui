@@ -6,7 +6,7 @@ import CoreGraphics
 import Foundation
 import SkipUI
 
-open class UIColor : NSObject /*, NSSecureCoding, NSCopying, @unchecked Sendable */ {
+open class UIColor : NSObject /*, NSSecureCoding, NSCopying */, @unchecked Sendable {
     let uiColor: SkipUI.UIColor
 
     @available(*, unavailable)
