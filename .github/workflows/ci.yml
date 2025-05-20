@@ -16,4 +16,7 @@ jobs:
     uses: skiptools/actions/.github/workflows/skip-framework.yml@v1
     with:
       #runs-on: "['macos-13', 'macos-14', 'macos-15']"
-      runs-on: "['macos-15']"
+      #runs-on: "['macos-15']"
+      # cannot run local tests on macos-13 because they require macos-14+
+      run-local-tests: false
+
