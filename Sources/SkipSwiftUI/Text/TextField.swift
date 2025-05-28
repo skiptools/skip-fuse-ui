@@ -371,9 +371,10 @@ extension View {
 }
 
 extension View {
-    @available(*, unavailable)
     /* @inlinable */ nonisolated public func textContentType(_ textContentType: UITextContentType?) -> some View {
-        stubView()
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.textContentType(bridgedContentType: textContentType?.rawValue ?? -1)
+        }
     }
 }
 
