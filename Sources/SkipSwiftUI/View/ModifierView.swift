@@ -2,16 +2,17 @@
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import SkipUI
 
-struct ModifierView<Target> : View where Target : View {
+/// A SwiftUI modifier.
+public struct ModifierView<Target> : View where Target : View {
     private let target: Target
     private let modifier: (Target) -> any SkipUI.View
 
-    init(target: Target, modifier: @escaping (Target) -> any SkipUI.View) {
+    public init(target: Target, modifier: @escaping (Target) -> any SkipUI.View) {
         self.target = target
         self.modifier = modifier
     }
 
-    typealias Body = Never
+    public typealias Body = Never
 }
 
 extension ModifierView : SkipUIBridging {
@@ -21,7 +22,7 @@ extension ModifierView : SkipUIBridging {
 }
 
 extension ModifierView : DynamicViewContent where Target : DynamicViewContent {
-    var data: Target.Data {
+    public var data: Target.Data {
         return target.data
     }
 }

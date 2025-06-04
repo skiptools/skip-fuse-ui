@@ -18,7 +18,7 @@ public protocol SkipUIBridging {
 
 extension View {
     /// Return the bridging view if this view is `SkipUIBridging`, else `SkipUI.EmptyView`.
-    var Java_viewOrEmpty: any SkipUI.View {
+    public var Java_viewOrEmpty: any SkipUI.View {
         return (self as? SkipUIBridging)?.Java_view ?? SkipUI.EmptyView()
     }
 }
@@ -29,12 +29,15 @@ public struct JavaBackedView : View, SkipUI.View, JObjectConvertible, SkipUIBrid
 
     let ptr: JavaObjectPointer
 
-    public init(_ ptr: JavaObjectPointer) {
+    public init?(_ ptr: JavaObjectPointer?) {
+        guard let ptr else {
+            return nil
+        }
         self.ptr = ptr
     }
 
     public static func fromJavaObject(_ obj: JavaObjectPointer?, options: JConvertibleOptions) -> Self {
-        return JavaBackedView(obj!)
+        return JavaBackedView(obj)!
     }
 
     public func toJavaObject(options: JConvertibleOptions) -> JavaObjectPointer? {
