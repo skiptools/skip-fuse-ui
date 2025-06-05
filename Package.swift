@@ -6,6 +6,7 @@ let package = Package(
     platforms: [.iOS(.v16), .macOS(.v13), .tvOS(.v16), .watchOS(.v9), .macCatalyst(.v16)],
     products: [
         .library(name: "SkipFuseUI", type: .dynamic, targets: ["SkipFuseUI"]),
+        .library(name: "SwiftUI", type: .dynamic, targets: ["SwiftUI"]),
         .library(name: "SkipSwiftUI", type: .dynamic, targets: ["SkipSwiftUI"]),
     ],
     dependencies: [
@@ -16,6 +17,7 @@ let package = Package(
         .package(url: "https://source.skip.tools/skip-ui.git", from: "1.29.3")
     ],
     targets: [
+        .target(name: "SwiftUI", dependencies: ["SkipFuseUI"]),
         .target(name: "SkipFuseUI", dependencies: ["SkipSwiftUI"]),
         .target(name: "SkipSwiftUI", dependencies: [
             .product(name: "SkipFuse", package: "skip-fuse"),
