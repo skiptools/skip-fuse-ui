@@ -13,7 +13,7 @@ import SkipUI
         self.content = nil
     }
 
-    nonisolated public init<I, P>(url: URL?, scale: CGFloat = 1, @ViewBuilder content: @escaping (Image) -> I, @ViewBuilder placeholder: @escaping () -> P) where Content == TupleView /* _ConditionalContent<I, P> */, I : View, P : View {
+    nonisolated public init<I, P>(url: URL?, scale: CGFloat = 1, @ViewBuilder content: @escaping (Image) -> I, @ViewBuilder placeholder: @escaping () -> P) where Content == AnyView /* _ConditionalContent<I, P> */, I : View, P : View {
         self.init(url: url, scale: scale, transaction: Transaction()) { phase in
             switch phase {
             case .empty, .failure:
