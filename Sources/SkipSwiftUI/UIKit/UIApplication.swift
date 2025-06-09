@@ -176,7 +176,7 @@ import SkipUI
 
 extension UIApplication {
     @available(*, unavailable)
-    /* @MainActor */ @preconcurrency public func activateSceneSession(for request: Any /* UISceneSessionActivationRequest */, errorHandler: ((any Error) -> Void)? = nil) {
+    @MainActor @preconcurrency public func activateSceneSession(for request: Any /* UISceneSessionActivationRequest */, errorHandler: ((any Error) -> Void)? = nil) {
         fatalError()
     }
 }
@@ -271,7 +271,7 @@ extension UIApplication {
 }
 
 extension UIApplication {
-    public struct LaunchOptionsKey : Hashable, Equatable, RawRepresentable /*, @unchecked Sendable */ {
+    public struct LaunchOptionsKey : Hashable, Equatable, RawRepresentable, @unchecked Sendable {
         public let rawValue: String
 
         public init(rawValue: String) {
@@ -279,7 +279,7 @@ extension UIApplication {
         }
     }
 
-    public struct OpenURLOptionsKey : Hashable, Equatable, RawRepresentable /*, @unchecked Sendable */ {
+    public struct OpenURLOptionsKey : Hashable, Equatable, RawRepresentable, @unchecked Sendable {
         public let rawValue: String
 
         public init(rawValue: String) {
@@ -287,7 +287,7 @@ extension UIApplication {
         }
     }
 
-    public struct ExtensionPointIdentifier : Hashable, Equatable, RawRepresentable /*, @unchecked Sendable */ {
+    public struct ExtensionPointIdentifier : Hashable, Equatable, RawRepresentable, @unchecked Sendable {
         public let rawValue: String
 
         public init(rawValue: String) {

@@ -609,7 +609,7 @@ public struct AccessibilityDirectTouchOptions : OptionSet, Sendable {
     case content
 }
 
-/* @MainActor */ @preconcurrency public protocol AccessibilityRotorContent {
+@MainActor @preconcurrency public protocol AccessibilityRotorContent {
     associatedtype Body : AccessibilityRotorContent
 
     /* @AccessibilityRotorContentBuilder */ @MainActor @preconcurrency var body: Self.Body { get }

@@ -2,19 +2,19 @@
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import SkipUI
 
-/* @MainActor */ @preconcurrency public struct Slider<Label, ValueLabel> : View where Label : View, ValueLabel : View {
+@MainActor @preconcurrency public struct Slider<Label, ValueLabel> : View where Label : View, ValueLabel : View {
     private let value: Binding<Double>
     private let min: Double
     private let max: Double
     private let step: Double?
-    private let label: Label?
+    private let label: UncheckedSendableBox<Label>?
 
     public typealias Body = Never
 }
 
 extension Slider : SkipUIBridging {
     public var Java_view: any SkipUI.View {
-        return SkipUI.Slider(getValue: { value.wrappedValue }, setValue: { value.wrappedValue = $0 }, min: min, max: max, step: step, bridgedLabel: label?.Java_viewOrEmpty)
+        return SkipUI.Slider(getValue: { value.wrappedValue }, setValue: { value.wrappedValue = $0 }, min: min, max: max, step: step, bridgedLabel: label?.wrappedValue.Java_viewOrEmpty)
     }
 }
 
@@ -41,7 +41,7 @@ extension Slider where ValueLabel == EmptyView {
         self.min = Double(bounds.lowerBound)
         self.max = Double(bounds.upperBound)
         self.step = nil
-        self.label = label()
+        self.label = UncheckedSendableBox(label())
     }
 
     @available(*, unavailable)
@@ -54,7 +54,7 @@ extension Slider where ValueLabel == EmptyView {
         self.min = Double(bounds.lowerBound)
         self.max = Double(bounds.upperBound)
         self.step = Double(step)
-        self.label = label()
+        self.label = UncheckedSendableBox(label())
     }
 }
 

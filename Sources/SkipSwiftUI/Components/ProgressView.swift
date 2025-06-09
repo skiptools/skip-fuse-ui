@@ -3,17 +3,17 @@
 import Foundation
 import SkipUI
 
-/* @MainActor */ @preconcurrency public struct ProgressView<Label, CurrentValueLabel> : View where Label : View, CurrentValueLabel : View {
+@MainActor @preconcurrency public struct ProgressView<Label, CurrentValueLabel> : View where Label : View, CurrentValueLabel : View {
     private let value: Double?
     private let total: Double?
-    private let label: Label?
+    private let label: UncheckedSendableBox<Label>?
 
     public typealias Body = Never
 }
 
 extension ProgressView : SkipUIBridging {
     public var Java_view: any SkipUI.View {
-        return SkipUI.ProgressView(value: value, total: total, bridgedLabel: label?.Java_viewOrEmpty)
+        return SkipUI.ProgressView(value: value, total: total, bridgedLabel: label?.wrappedValue.Java_viewOrEmpty)
     }
 }
 
@@ -48,7 +48,7 @@ extension ProgressView where CurrentValueLabel == EmptyView {
     nonisolated public init(@ViewBuilder label: () -> Label) {
         self.value = nil
         self.total = nil
-        self.label = label()
+        self.label = UncheckedSendableBox(label())
     }
 
     nonisolated public init(_ titleKey: LocalizedStringKey) where Label == Text {
@@ -70,7 +70,7 @@ extension ProgressView {
     nonisolated public init<V>(value: V?, total: V = 1.0, @ViewBuilder label: () -> Label) where CurrentValueLabel == EmptyView, V : BinaryFloatingPoint {
         self.value = value == nil ? nil : Double(value!)
         self.total = Double(total)
-        self.label = label()
+        self.label = UncheckedSendableBox(label())
     }
 
     @available(*, unavailable)
@@ -102,28 +102,28 @@ extension ProgressView {
     }
 }
 
-/* @MainActor */ @preconcurrency public protocol ProgressViewStyle {
+@MainActor @preconcurrency public protocol ProgressViewStyle {
     associatedtype Body : View
 
     @ViewBuilder @MainActor @preconcurrency func makeBody(configuration: Self.Configuration) -> Self.Body
 
     typealias Configuration = ProgressViewStyleConfiguration
 
-    var identifier: Int { get } // For bridging
+    nonisolated var identifier: Int { get } // For bridging
 }
 
 extension ProgressViewStyle {
-    public var identifier: Int {
+    nonisolated public var identifier: Int {
         return -1
     }
 }
 
-/* @MainActor */ @preconcurrency public struct LinearProgressViewStyle : ProgressViewStyle {
-    /* @MainActor */ @preconcurrency public init() {
+@MainActor @preconcurrency public struct LinearProgressViewStyle : ProgressViewStyle {
+    @MainActor @preconcurrency public init() {
     }
 
     @available(*, unavailable)
-    /* @MainActor */ @preconcurrency public init(tint: Color) {
+    @MainActor @preconcurrency public init(tint: Color) {
         fatalError()
     }
 
@@ -135,17 +135,17 @@ extension ProgressViewStyle {
 }
 
 extension ProgressViewStyle where Self == LinearProgressViewStyle {
-    /* @MainActor */ @preconcurrency public static var linear: LinearProgressViewStyle {
+    @MainActor @preconcurrency public static var linear: LinearProgressViewStyle {
         return LinearProgressViewStyle()
     }
 }
 
-/* @MainActor */ @preconcurrency public struct CircularProgressViewStyle : ProgressViewStyle {
-    /* @MainActor */ @preconcurrency public init() {
+@MainActor @preconcurrency public struct CircularProgressViewStyle : ProgressViewStyle {
+    @MainActor @preconcurrency public init() {
     }
 
     @available(*, unavailable)
-    /* @MainActor */ @preconcurrency public init(tint: Color) {
+    @MainActor @preconcurrency public init(tint: Color) {
         fatalError()
     }
 
@@ -157,16 +157,16 @@ extension ProgressViewStyle where Self == LinearProgressViewStyle {
 }
 
 extension ProgressViewStyle where Self == CircularProgressViewStyle {
-    /* @MainActor */ @preconcurrency public static var circular: CircularProgressViewStyle {
+    @MainActor @preconcurrency public static var circular: CircularProgressViewStyle {
         return CircularProgressViewStyle()
     }
 }
 
-/* @MainActor */ @preconcurrency public struct DefaultProgressViewStyle : ProgressViewStyle {
-    /* @MainActor */ @preconcurrency public init() {
+@MainActor @preconcurrency public struct DefaultProgressViewStyle : ProgressViewStyle {
+    @MainActor @preconcurrency public init() {
     }
 
-    /* @MainActor */ @preconcurrency public func makeBody(configuration: DefaultProgressViewStyle.Configuration) -> some View {
+    @MainActor @preconcurrency public func makeBody(configuration: DefaultProgressViewStyle.Configuration) -> some View {
         stubView()
     }
 
@@ -174,17 +174,17 @@ extension ProgressViewStyle where Self == CircularProgressViewStyle {
 }
 
 extension ProgressViewStyle where Self == DefaultProgressViewStyle {
-    /* @MainActor */ @preconcurrency public static var automatic: DefaultProgressViewStyle {
+    @MainActor @preconcurrency public static var automatic: DefaultProgressViewStyle {
         return DefaultProgressViewStyle()
     }
 }
 
 public struct ProgressViewStyleConfiguration {
-    /* @MainActor */ @preconcurrency public struct Label : View {
+    @MainActor @preconcurrency public struct Label : View {
         public typealias Body = Never
     }
 
-    /* @MainActor */ @preconcurrency public struct CurrentValueLabel : View {
+    @MainActor @preconcurrency public struct CurrentValueLabel : View {
         public typealias Body = Never
     }
 
@@ -193,7 +193,7 @@ public struct ProgressViewStyleConfiguration {
     public var currentValueLabel: ProgressViewStyleConfiguration.CurrentValueLabel?
 }
 
-/* @MainActor */ @preconcurrency public struct DefaultDateProgressLabel : View {
+@MainActor @preconcurrency public struct DefaultDateProgressLabel : View {
     public typealias Body = Never
 }
 

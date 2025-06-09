@@ -47,11 +47,19 @@ extension GeometryProxy {
     }
 }
 
-/* @MainActor */ @frozen @preconcurrency public struct GeometryReader<Content> : View where Content : View {
-    /* @MainActor */ @preconcurrency public var content: (GeometryProxy) -> Content
+@MainActor @frozen @preconcurrency public struct GeometryReader<Content> : View where Content : View {
+    @MainActor @preconcurrency public var content: (GeometryProxy) -> Content {
+        get {
+            return _content.wrappedValue
+        }
+        set {
+            _content = UncheckedSendableBox(newValue)
+        }
+    }
+    private var _content: UncheckedSendableBox<(GeometryProxy) -> Content>
 
-    @inlinable nonisolated public init(@ViewBuilder content: @escaping (GeometryProxy) -> Content) {
-        self.content = content
+    /* @inlinable */nonisolated public init(@ViewBuilder content: @escaping (GeometryProxy) -> Content) {
+        _content = UncheckedSendableBox(content)
     }
 
     public typealias Body = Never
@@ -60,7 +68,7 @@ extension GeometryProxy {
 extension GeometryReader : SkipUIBridging {
     public var Java_view: any SkipUI.View {
         return SkipUI.GeometryReader(content: { javaProxy in
-            content(GeometryProxy(javaProxy: javaProxy)).Java_viewOrEmpty
+            _content.wrappedValue(GeometryProxy(javaProxy: javaProxy)).Java_viewOrEmpty
         })
     }
 }

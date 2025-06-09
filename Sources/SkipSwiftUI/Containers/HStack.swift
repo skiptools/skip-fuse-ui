@@ -3,17 +3,18 @@
 #if !ROBOLECTRIC && canImport(CoreGraphics)
 import CoreGraphics
 #endif
+import SkipBridge
 import SkipUI
 
-/* @MainActor */ @frozen @preconcurrency public struct HStack<Content> : View where Content : View {
+@MainActor @frozen @preconcurrency public struct HStack<Content> : View where Content : View {
     private let alignment: VerticalAlignment
     private let spacing: CGFloat?
-    private let content: Content
+    private let content: UncheckedSendableBox<Content>
 
     /* @inlinable */ nonisolated public init(alignment: VerticalAlignment = .center, spacing: CGFloat? = nil, @ViewBuilder content: () -> Content) {
         self.alignment = alignment
         self.spacing = spacing
-        self.content = content()
+        self.content = UncheckedSendableBox(content())
     }
 
     public typealias Body = Never
@@ -21,7 +22,7 @@ import SkipUI
 
 extension HStack : SkipUIBridging {
     public var Java_view: any SkipUI.View {
-        return SkipUI.HStack(alignmentKey: alignment.key, spacing: spacing, bridgedContent: content.Java_viewOrEmpty)
+        return SkipUI.HStack(alignmentKey: alignment.key, spacing: spacing, bridgedContent: content.wrappedValue.Java_viewOrEmpty)
     }
 }
 

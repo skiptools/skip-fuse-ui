@@ -1,7 +1,7 @@
 // Copyright 2025 Skip
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 
-/* @MainActor */ @preconcurrency public protocol Commands {
+@MainActor @preconcurrency public protocol Commands {
 //    associatedtype Body : Commands
 //
 //    @CommandsBuilder @MainActor @preconcurrency var body: Self.Body { get }
@@ -11,12 +11,12 @@ func stubCommands() -> EmptyCommands {
     return EmptyCommands()
 }
 
-/* @MainActor */ @preconcurrency public struct EmptyCommands : Commands {
+@MainActor @preconcurrency public struct EmptyCommands : Commands {
     nonisolated public init() {
     }
 }
 
-/* @MainActor */ @preconcurrency public struct CommandGroup<Content> : Commands where Content : View {
+@MainActor @preconcurrency public struct CommandGroup<Content> : Commands where Content : View {
     @available(*, unavailable)
     nonisolated public init(before group: CommandGroupPlacement, @ViewBuilder addition: () -> Content) {
         fatalError()
@@ -75,7 +75,7 @@ public struct CommandGroupPlacement : Sendable {
     public static let help = CommandGroupPlacement()
 }
 
-/* @MainActor */ @preconcurrency public struct CommandMenu<Content> : Commands where Content : View {
+@MainActor @preconcurrency public struct CommandMenu<Content> : Commands where Content : View {
     @available(*, unavailable)
     nonisolated public init(_ nameKey: LocalizedStringKey, @ViewBuilder content: () -> Content) {
         fatalError()
@@ -135,9 +135,9 @@ extension CommandsBuilder {
 }
 
 public struct TupleCommands : Commands {
-    private let commands: [any Commands]
+    private let commands: UncheckedSendableBox<[any Commands]>
 
-    public init(_ commands: [any Commands]) {
-        self.commands = commands
+    nonisolated public init(_ commands: [any Commands]) {
+        self.commands = UncheckedSendableBox(commands)
     }
 }

@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import Foundation
 
-/* @MainActor */ @preconcurrency public struct DismissAction : Sendable {
+@MainActor @preconcurrency public struct DismissAction : Sendable {
     let action: @MainActor () -> Void
 
-    init(action: @escaping @MainActor () -> Void) {
+    nonisolated init(action: @escaping @MainActor () -> Void) {
         self.action = action
     }
 
@@ -38,7 +38,7 @@ public struct OpenURLAction : Sendable {
     let handler: @MainActor (URL) -> OpenURLAction.Result
     let systemHandler: (@MainActor (URL) throws -> Void)?
 
-    /* @MainActor */ @preconcurrency public init(handler: @escaping @MainActor (URL) -> OpenURLAction.Result) {
+    @MainActor @preconcurrency public init(handler: @escaping @MainActor (URL) -> OpenURLAction.Result) {
         self.handler = handler
         self.systemHandler = nil
     }

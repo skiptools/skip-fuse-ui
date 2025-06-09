@@ -13,12 +13,12 @@ import SkipBridge
 /// The base protocol for compiled `Views` to bridge to their corresponding `skip.ui.View` implementations.
 public protocol SkipUIBridging {
     /// The composable SkipUI version of this view.
-    var Java_view: any SkipUI.View { get }
+    nonisolated var Java_view: any SkipUI.View { get }
 }
 
 extension View {
     /// Return the bridging view if this view is `SkipUIBridging`, else `SkipUI.EmptyView`.
-    public var Java_viewOrEmpty: any SkipUI.View {
+    nonisolated public var Java_viewOrEmpty: any SkipUI.View {
         return (self as? SkipUIBridging)?.Java_view ?? SkipUI.EmptyView()
     }
 }
@@ -27,21 +27,21 @@ extension View {
 public struct JavaBackedView : View, SkipUI.View, JObjectConvertible, SkipUIBridging, @unchecked Sendable {
     public typealias Body = Never
 
-    let ptr: JavaObjectPointer
+    private let ptr: UncheckedSendableBox<JavaObjectPointer>
 
-    public init?(_ ptr: JavaObjectPointer?) {
+    nonisolated public init?(_ ptr: JavaObjectPointer?) {
         guard let ptr else {
             return nil
         }
-        self.ptr = ptr
+        self.ptr = UncheckedSendableBox(ptr)
     }
 
-    public static func fromJavaObject(_ obj: JavaObjectPointer?, options: JConvertibleOptions) -> Self {
+    nonisolated public static func fromJavaObject(_ obj: JavaObjectPointer?, options: JConvertibleOptions) -> Self {
         return JavaBackedView(obj)!
     }
 
-    public func toJavaObject(options: JConvertibleOptions) -> JavaObjectPointer? {
-        return ptr
+    nonisolated public func toJavaObject(options: JConvertibleOptions) -> JavaObjectPointer? {
+        return ptr.wrappedValue
     }
 
     public var Java_view: any SkipUI.View {

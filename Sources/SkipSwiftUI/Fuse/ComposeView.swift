@@ -5,11 +5,11 @@ import SkipUI
 
 /// Embed Compose content in the SwiftUI view tree.
 public struct ComposeView : View {
-    private let content: any JConvertible
+    private let content: UncheckedSendableBox<any JConvertible>
 
     /// Supply a block that returns a `SkipUI.ContentComposer`.
-    public init(content: () -> any JConvertible) {
-        self.content = content()
+    nonisolated public init(content: () -> any JConvertible) {
+        self.content = UncheckedSendableBox(content())
     }
 
     public typealias Body = Never
@@ -17,7 +17,7 @@ public struct ComposeView : View {
 
 extension ComposeView : SkipUIBridging {
     public var Java_view: any SkipUI.View {
-        return SkipUI.ComposeView(bridgedContent: content)
+        return SkipUI.ComposeView(bridgedContent: content.wrappedValue)
     }
 }
 
@@ -29,12 +29,12 @@ extension View {
 }
 
 struct ComposeModifierView<V> : View where V : View {
-    private let target: V
-    private let content: any JConvertible
+    private let target: UncheckedSendableBox<V>
+    private let content: UncheckedSendableBox<any JConvertible>
 
-    init(target: V, content: any JConvertible) {
-        self.target = target
-        self.content = content
+    nonisolated init(target: V, content: any JConvertible) {
+        self.target = UncheckedSendableBox(target)
+        self.content = UncheckedSendableBox(content)
     }
 
     public typealias Body = Never
@@ -42,6 +42,6 @@ struct ComposeModifierView<V> : View where V : View {
 
 extension ComposeModifierView : SkipUIBridging {
     public var Java_view: any SkipUI.View {
-        return target.Java_viewOrEmpty.applyContentModifier(bridgedContent: content)
+        return target.wrappedValue.Java_viewOrEmpty.applyContentModifier(bridgedContent: content.wrappedValue)
     }
 }

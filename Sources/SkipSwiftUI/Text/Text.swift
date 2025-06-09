@@ -363,13 +363,13 @@ extension Text {
 }
 
 extension View {
-    @_disfavoredOverload public func font(_ font: Font?) -> some View {
+    @_disfavoredOverload nonisolated public func font(_ font: Font?) -> some View {
         return ModifierView(target: self) {
             $0.Java_viewOrEmpty.font(font?.spec.Java_font)
         }
     }
 
-    @_disfavoredOverload public func fontWeight(_ weight: Font.Weight?) -> some View {
+    @_disfavoredOverload nonisolated public func fontWeight(_ weight: Font.Weight?) -> some View {
         return ModifierView(target: self) {
             $0.Java_viewOrEmpty.fontWeight(bridgedWeight: weight?.value)
         }

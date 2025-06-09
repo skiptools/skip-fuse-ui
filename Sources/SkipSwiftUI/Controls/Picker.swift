@@ -3,19 +3,19 @@
 import SkipBridge
 import SkipUI
 
-/* @MainActor */ @preconcurrency public struct Picker<Label, SelectionValue, Content> : View where Label : View, SelectionValue : Hashable, Content : View {
-    private let selection: Binding<SelectionValue>
-    private let content: Content
-    private let label: Label
+@MainActor @preconcurrency public struct Picker<Label, SelectionValue, Content> : View where Label : View, SelectionValue : Hashable, Content : View {
+    private let selection: UncheckedSendableBox<Binding<SelectionValue>>
+    private let content: UncheckedSendableBox<Content>
+    private let label: UncheckedSendableBox<Label>
 
     public typealias Body = Never
 }
 
 extension Picker : SkipUIBridging {
     public var Java_view: any SkipUI.View {
-        let getSelection: () -> SwiftHashable = { Java_swiftHashable(for: selection.wrappedValue) }
-        let setSelection: (SwiftHashable) -> Void = { selection.wrappedValue = $0.base as! SelectionValue }
-        return SkipUI.Picker(getSelection: getSelection, setSelection: setSelection, bridgedContent: content.Java_viewOrEmpty, bridgedLabel: label.Java_viewOrEmpty)
+        let getSelection: () -> SwiftHashable = { Java_swiftHashable(for: selection.wrappedValue.wrappedValue) }
+        let setSelection: (SwiftHashable) -> Void = { selection.wrappedValue.wrappedValue = $0.base as! SelectionValue }
+        return SkipUI.Picker(getSelection: getSelection, setSelection: setSelection, bridgedContent: content.wrappedValue.Java_viewOrEmpty, bridgedLabel: label.wrappedValue.Java_viewOrEmpty)
     }
 }
 
@@ -26,9 +26,9 @@ extension Picker {
     }
 
     nonisolated public init(selection: Binding<SelectionValue>, @ViewBuilder content: () -> Content, @ViewBuilder label: () -> Label) {
-        self.selection = selection
-        self.content = content()
-        self.label = label()
+        self.selection = UncheckedSendableBox(selection)
+        self.content = UncheckedSendableBox(content())
+        self.label = UncheckedSendableBox(label())
     }
 }
 
@@ -155,11 +155,11 @@ extension Picker {
 }
 
 public protocol PickerStyle {
-    var identifier: Int { get } // For bridging
+    nonisolated var identifier: Int { get } // For bridging
 }
 
 extension PickerStyle {
-    public var identifier: Int {
+    nonisolated public var identifier: Int {
         return -1
     }
 }

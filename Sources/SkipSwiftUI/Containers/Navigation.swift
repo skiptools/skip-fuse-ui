@@ -7,42 +7,42 @@ import Foundation
 import SkipBridge
 import SkipUI
 
-/* @MainActor */ @preconcurrency public struct NavigationStack<Data, Root> : View where Root : View {
-    private let root: Root
-    private let getData: (() -> [Any /* SwiftHashable */])?
-    private let setData: (([Any /* SwiftHashable */]) -> Void)?
+@MainActor @preconcurrency public struct NavigationStack<Data, Root> : View where Root : View {
+    private let root: UncheckedSendableBox<Root>
+    private let getData: UncheckedSendableBox<() -> [Any /* SwiftHashable */]>?
+    private let setData: UncheckedSendableBox<([Any /* SwiftHashable */]) -> Void>?
 
     nonisolated public init(@ViewBuilder root: () -> Root) where Data == NavigationPath {
-        self.root = root()
+        self.root = UncheckedSendableBox(root())
         getData = nil
         setData = nil
     }
 
     nonisolated public init(path: Binding<NavigationPath>, @ViewBuilder root: () -> Root) where Data == NavigationPath {
-        self.root = root()
-        self.getData = {
+        self.root = UncheckedSendableBox(root())
+        self.getData = UncheckedSendableBox({
             let boundPath = path.wrappedValue
             return (0..<boundPath.count).map {
                 Java_swiftHashable(for: boundPath[$0])
             }
-        }
-        self.setData = { array in
+        })
+        self.setData = UncheckedSendableBox({ array in
             var boundPath = NavigationPath()
             array.forEach { boundPath.append(($0 as! SwiftHashable).base as! AnyHashable) }
             path.wrappedValue = boundPath
-        }
+        })
     }
 
     nonisolated public init(path: Binding<Data>, @ViewBuilder root: () -> Root) where Data : MutableCollection, Data : RandomAccessCollection, Data : RangeReplaceableCollection, Data.Element : Hashable {
-        self.root = root()
-        self.getData = {
+        self.root = UncheckedSendableBox(root())
+        self.getData = UncheckedSendableBox({
             return path.wrappedValue.map { Java_swiftHashable(for: $0) }
-        }
-        self.setData = { array in
+        })
+        self.setData = UncheckedSendableBox({ array in
             var boundPath = path.wrappedValue
             boundPath.replaceSubrange(boundPath.startIndex..<boundPath.endIndex, with: array.map { ($0 as! SwiftHashable).base as! Data.Element })
             path.wrappedValue = boundPath
-        }
+        })
     }
 
     public typealias Body = Never
@@ -55,19 +55,19 @@ extension NavigationStack : SkipUIBridging {
             let value = ($0 as! SwiftHashable).base
             return String(describing: type(of: value))
         }
-        return SkipUI.NavigationStack(getData: getData, setData: setData, bridgedRoot: root.Java_viewOrEmpty, destinationKeyTransformer: destinationKeyTransformer)
+        return SkipUI.NavigationStack(getData: getData?.wrappedValue, setData: setData?.wrappedValue, bridgedRoot: root.wrappedValue.Java_viewOrEmpty, destinationKeyTransformer: destinationKeyTransformer)
     }
 }
 
-/* @MainActor */ @preconcurrency public struct NavigationLink<Label, Destination> : View where Label : View, Destination : View {
-    private let destination: Destination?
-    private let value: AnyHashable?
-    private let label: Label
+@MainActor @preconcurrency public struct NavigationLink<Label, Destination> : View where Label : View, Destination : View {
+    private let destination: UncheckedSendableBox<Destination>?
+    private let value: UncheckedSendableBox<AnyHashable>?
+    private let label: UncheckedSendableBox<Label>
 
     nonisolated public init(@ViewBuilder destination: () -> Destination, @ViewBuilder label: () -> Label) {
-        self.destination = destination()
+        self.destination = UncheckedSendableBox(destination())
         self.value = nil
-        self.label = label()
+        self.label = UncheckedSendableBox(label())
     }
 
     nonisolated public init(destination: Destination, @ViewBuilder label: () -> Label) {
@@ -79,15 +79,15 @@ extension NavigationStack : SkipUIBridging {
 
 extension NavigationLink : SkipUIBridging {
     public var Java_view: any SkipUI.View {
-        let bridgedValue = value == nil ? nil : Java_swiftHashable(for: value!)
-        return SkipUI.NavigationLink(bridgedDestination: destination?.Java_viewOrEmpty, value: bridgedValue, bridgedLabel: label.Java_viewOrEmpty)
+        let bridgedValue = value == nil ? nil : Java_swiftHashable(for: value!.wrappedValue)
+        return SkipUI.NavigationLink(bridgedDestination: destination?.wrappedValue.Java_viewOrEmpty, value: bridgedValue, bridgedLabel: label.wrappedValue.Java_viewOrEmpty)
     }
 }
 
 extension NavigationLink where Destination == Never {
     nonisolated public init<P>(value: P?, @ViewBuilder label: () -> Label) where P : Hashable {
-        self.value = value
-        self.label = label()
+        self.value = value == nil ? nil : UncheckedSendableBox(value!)
+        self.label = UncheckedSendableBox(label())
         self.destination = nil
     }
 
@@ -126,7 +126,7 @@ extension NavigationLink where Label == Text {
 
 extension NavigationLink {
     @available(*, unavailable)
-    /* @MainActor */ @preconcurrency public func isDetailLink(_ isDetailLink: Bool) -> some View {
+    @MainActor @preconcurrency public func isDetailLink(_ isDetailLink: Bool) -> some View {
         stubView()
     }
 }
@@ -268,7 +268,7 @@ extension View {
     }
 }
 
-/* @MainActor */ @preconcurrency public struct NavigationSplitView<Sidebar, Content, Detail> : View where Sidebar : View, Content : View, Detail : View {
+@MainActor @preconcurrency public struct NavigationSplitView<Sidebar, Content, Detail> : View where Sidebar : View, Content : View, Detail : View {
     @available(*, unavailable)
     nonisolated public init(@ViewBuilder sidebar: () -> Sidebar, @ViewBuilder content: () -> Content, @ViewBuilder detail: () -> Detail) {
         fatalError()
@@ -343,7 +343,7 @@ extension View {
     }
 }
 
-/* @MainActor */ @preconcurrency public protocol NavigationSplitViewStyle {
+@MainActor @preconcurrency public protocol NavigationSplitViewStyle {
     associatedtype Body : View
 
     @ViewBuilder @MainActor @preconcurrency func makeBody(configuration: Self.Configuration) -> Self.Body
@@ -358,8 +358,8 @@ extension View {
     }
 }
 
-/* @MainActor */ @preconcurrency public struct AutomaticNavigationSplitViewStyle : NavigationSplitViewStyle {
-    /* @MainActor */ @preconcurrency public init() {
+@MainActor @preconcurrency public struct AutomaticNavigationSplitViewStyle : NavigationSplitViewStyle {
+    @MainActor @preconcurrency public init() {
     }
 
     @MainActor @preconcurrency public func makeBody(configuration: AutomaticNavigationSplitViewStyle.Configuration) -> some View {
@@ -369,13 +369,13 @@ extension View {
 
 extension NavigationSplitViewStyle where Self == AutomaticNavigationSplitViewStyle {
     @available(*, unavailable)
-    /* @MainActor */ @preconcurrency public static var automatic: AutomaticNavigationSplitViewStyle {
+    @MainActor @preconcurrency public static var automatic: AutomaticNavigationSplitViewStyle {
         fatalError()
     }
 }
 
-/* @MainActor */ @preconcurrency public struct BalancedNavigationSplitViewStyle : NavigationSplitViewStyle {
-    /* @MainActor */ @preconcurrency public init() {
+@MainActor @preconcurrency public struct BalancedNavigationSplitViewStyle : NavigationSplitViewStyle {
+    @MainActor @preconcurrency public init() {
     }
 
     @MainActor @preconcurrency public func makeBody(configuration: AutomaticNavigationSplitViewStyle.Configuration) -> some View {
@@ -385,13 +385,13 @@ extension NavigationSplitViewStyle where Self == AutomaticNavigationSplitViewSty
 
 extension NavigationSplitViewStyle where Self == BalancedNavigationSplitViewStyle {
     @available(*, unavailable)
-    /* @MainActor */ @preconcurrency public static var balanced: BalancedNavigationSplitViewStyle {
+    @MainActor @preconcurrency public static var balanced: BalancedNavigationSplitViewStyle {
         fatalError()
     }
 }
 
-/* @MainActor */ @preconcurrency public struct ProminentDetailNavigationSplitViewStyle : NavigationSplitViewStyle {
-    /* @MainActor */ @preconcurrency public init() {
+@MainActor @preconcurrency public struct ProminentDetailNavigationSplitViewStyle : NavigationSplitViewStyle {
+    @MainActor @preconcurrency public init() {
     }
 
     @MainActor @preconcurrency public func makeBody(configuration: AutomaticNavigationSplitViewStyle.Configuration) -> some View {
@@ -401,7 +401,7 @@ extension NavigationSplitViewStyle where Self == BalancedNavigationSplitViewStyl
 
 extension NavigationSplitViewStyle where Self == ProminentDetailNavigationSplitViewStyle {
     @available(*, unavailable)
-    /* @MainActor */ @preconcurrency public static var prominentDetail: ProminentDetailNavigationSplitViewStyle {
+    @MainActor @preconcurrency public static var prominentDetail: ProminentDetailNavigationSplitViewStyle {
         fatalError()
     }
 }

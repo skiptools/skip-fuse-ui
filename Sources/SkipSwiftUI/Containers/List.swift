@@ -3,10 +3,11 @@
 #if !ROBOLECTRIC && canImport(CoreGraphics)
 import CoreGraphics
 #endif
+import SkipBridge
 import SkipUI
 
-/* @MainActor */ @preconcurrency public struct List<SelectionValue, Content> : View where SelectionValue : Hashable, Content : View {
-    private let content: Content
+@MainActor @preconcurrency public struct List<SelectionValue, Content> : View where SelectionValue : Hashable, Content : View {
+    private let content: UncheckedSendableBox<Content>
 
     @available(*, unavailable)
     nonisolated public init(selection: Binding<Set<SelectionValue>>?, @ViewBuilder content: () -> Content) {
@@ -23,7 +24,7 @@ import SkipUI
 
 extension List : SkipUIBridging {
     public var Java_view: any SkipUI.View {
-        return SkipUI.List(bridgedContent: content.Java_viewOrEmpty)
+        return SkipUI.List(bridgedContent: content.wrappedValue.Java_viewOrEmpty)
     }
 }
 
@@ -81,11 +82,11 @@ extension List {
 
 extension List where SelectionValue == Never {
     nonisolated public init(@ViewBuilder content: () -> Content) {
-        self.content = content()
+        self.content = UncheckedSendableBox(content())
     }
 
     nonisolated public init<Data, RowContent>(_ data: Data, @ViewBuilder rowContent: @escaping (Data.Element) -> RowContent) where Content == ForEach<Data, Data.Element.ID, RowContent>, Data : RandomAccessCollection, RowContent : View, Data.Element : Identifiable {
-        self.content = ForEach(data, content: rowContent)
+        self.content = UncheckedSendableBox(ForEach(data, content: rowContent))
     }
 
     @available(*, unavailable)
@@ -94,7 +95,7 @@ extension List where SelectionValue == Never {
     }
 
     nonisolated public init<Data, ID, RowContent>(_ data: Data, id: KeyPath<Data.Element, ID>, @ViewBuilder rowContent: @escaping (Data.Element) -> RowContent) where Content == ForEach<Data, ID, RowContent>, Data : RandomAccessCollection, ID : Hashable, RowContent : View {
-        self.content = ForEach(data, id: id, content: rowContent)
+        self.content = UncheckedSendableBox(ForEach(data, id: id, content: rowContent))
     }
 
     @available(*, unavailable)
@@ -103,7 +104,7 @@ extension List where SelectionValue == Never {
     }
 
     nonisolated public init<RowContent>(_ data: Range<Int>, @ViewBuilder rowContent: @escaping (Int) -> RowContent) where Content == ForEach<Range<Int>, Int, RowContent>, RowContent : View {
-        self.content = ForEach(data, content: rowContent)
+        self.content = UncheckedSendableBox(ForEach(data, content: rowContent))
     }
 }
 
@@ -131,11 +132,11 @@ extension List {
 
 extension List where SelectionValue == Never {
     nonisolated public init<Data, RowContent>(_ data: Binding<Data>, @ViewBuilder rowContent: @escaping (Binding<Data.Element>) -> RowContent) where Content == ForEach<LazyMapSequence<Data.Indices, (Data.Index, Data.Element.ID)>, Data.Element.ID, RowContent>, Data : MutableCollection, Data : RandomAccessCollection, RowContent : View, Data.Element : Identifiable, Data.Index : Hashable {
-        self.content = ForEach(data, content: rowContent)
+        self.content = UncheckedSendableBox(ForEach(data, content: rowContent))
     }
 
     nonisolated public init<Data, ID, RowContent>(_ data: Binding<Data>, id: KeyPath<Data.Element, ID>, @ViewBuilder rowContent: @escaping (Binding<Data.Element>) -> RowContent) where Content == ForEach<LazyMapSequence<Data.Indices, (Data.Index, ID)>, ID, RowContent>, Data : MutableCollection, Data : RandomAccessCollection, ID : Hashable, RowContent : View, Data.Index : Hashable {
-        self.content = ForEach(data, id: id, content: rowContent)
+        self.content = UncheckedSendableBox(ForEach(data, id: id, content: rowContent))
     }
 }
 
@@ -200,12 +201,12 @@ extension List {
 extension List where SelectionValue == Never {
 //    nonisolated public init<Data, RowContent>(_ data: Binding<Data>, editActions: EditActions<Data>, @ViewBuilder rowContent: @escaping (Binding<Data.Element>) -> RowContent) where Content == ForEach<IndexedIdentifierCollection<Data, Data.Element.ID>, Data.Element.ID, EditableCollectionContent<RowContent, Data>>, Data : MutableCollection, Data : RandomAccessCollection, RowContent : View, Data.Element : Identifiable, Data.Index : Hashable
     nonisolated public init<Data, RowContent>(_ data: Binding<Data>, editActions: EditActions<Data>, @ViewBuilder rowContent: @escaping (Binding<Data.Element>) -> RowContent) where Content == ForEach<IndexedIdentifierCollection<Data, Data.Element.ID>, Data.Element.ID, RowContent>, Data : MutableCollection, Data : RandomAccessCollection, Data : RangeReplaceableCollection, RowContent : View, Data.Element : Identifiable, Data.Index : Hashable {
-        self.content = ForEach(data, editActions: editActions, content: rowContent)
+        self.content = UncheckedSendableBox(ForEach(data, editActions: editActions, content: rowContent))
     }
 
 //    nonisolated public init<Data, ID, RowContent>(_ data: Binding<Data>, id: KeyPath<Data.Element, ID>, editActions: EditActions<Data>, @ViewBuilder rowContent: @escaping (Binding<Data.Element>) -> RowContent) where Content == ForEach<IndexedIdentifierCollection<Data, ID>, ID, EditableCollectionContent<RowContent, Data>>, Data : MutableCollection, Data : RandomAccessCollection, ID : Hashable, RowContent : View, Data.Index : Hashable
     nonisolated public init<Data, ID, RowContent>(_ data: Binding<Data>, id: KeyPath<Data.Element, ID>, editActions: EditActions<Data>, @ViewBuilder rowContent: @escaping (Binding<Data.Element>) -> RowContent) where Content == ForEach<IndexedIdentifierCollection<Data, ID>, ID, RowContent>, Data : MutableCollection, Data : RandomAccessCollection, Data : RangeReplaceableCollection, RowContent : View, Data.Index : Hashable {
-        self.content = ForEach(data, id: id, editActions: editActions, content: rowContent)
+        self.content = UncheckedSendableBox(ForEach(data, id: id, editActions: editActions, content: rowContent))
     }
 }
 
@@ -232,11 +233,11 @@ public struct ListItemTint : Sendable {
 }
 
 public protocol ListStyle {
-    var identifier: Int { get } // For bridging
+    nonisolated var identifier: Int { get } // For bridging
 }
 
 extension ListStyle {
-    public var identifier: Int {
+    nonisolated public var identifier: Int {
         return -1
     }
 }

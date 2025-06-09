@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import SkipUI
 
-/* @MainActor */ @frozen @preconcurrency public struct EmptyView : View {
+@MainActor @frozen @preconcurrency public struct EmptyView : View {
     @inlinable nonisolated public init() {
     }
 

@@ -60,7 +60,7 @@ extension AnyGradient {
     }
 }
 
-/* @MainActor */ @frozen @preconcurrency public struct LinearGradient : ShapeStyle, View, Sendable {
+@MainActor @frozen @preconcurrency public struct LinearGradient : ShapeStyle, View, Sendable {
     let gradient: Gradient
     let startPoint: UnitPoint
     let endPoint: UnitPoint
@@ -111,7 +111,7 @@ extension ShapeStyle where Self == LinearGradient {
     }
 }
 
-/* @MainActor */ @frozen @preconcurrency public struct RadialGradient : ShapeStyle, View, Sendable {
+@MainActor @frozen @preconcurrency public struct RadialGradient : ShapeStyle, View, Sendable {
     let gradient: Gradient
     let center: UnitPoint
     let startRadius: CGFloat
@@ -164,7 +164,7 @@ extension ShapeStyle where Self == RadialGradient {
     }
 }
 
-/* @MainActor */ @frozen @preconcurrency public struct EllipticalGradient : ShapeStyle, View, Sendable {
+@MainActor @frozen @preconcurrency public struct EllipticalGradient : ShapeStyle, View, Sendable {
     let gradient: Gradient
     let center: UnitPoint
     let startFraction: CGFloat
@@ -217,7 +217,7 @@ extension ShapeStyle where Self == EllipticalGradient {
     }
 }
 
-/* @MainActor */ @frozen @preconcurrency public struct AngularGradient : ShapeStyle, View, Sendable {
+@MainActor @frozen @preconcurrency public struct AngularGradient : ShapeStyle, View, Sendable {
     @available(*, unavailable)
     nonisolated public init(gradient: Gradient, center: UnitPoint, startAngle: Angle = .zero, endAngle: Angle = .zero) {
         fatalError()

@@ -5,7 +5,7 @@ import SkipUI
 
 let logger: Logger = Logger(subsystem: "SkipSwiftUI", category: "SkipSwiftUI")
 
-public protocol View {
+@MainActor @preconcurrency public protocol View {
     associatedtype Body : View
     @ViewBuilder @MainActor var body: Body { get }
 }

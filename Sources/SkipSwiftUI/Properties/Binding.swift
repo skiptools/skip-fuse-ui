@@ -88,8 +88,8 @@ extension Binding {
     }
 }
 
-//extension Binding : @unchecked Sendable where Value : Sendable {
-//}
+extension Binding : @unchecked Sendable where Value : Sendable {
+}
 
 extension Binding : DynamicProperty {
 }

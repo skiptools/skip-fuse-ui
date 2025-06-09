@@ -3,22 +3,22 @@
 import Foundation
 import SkipUI
 
-/* @MainActor */ @preconcurrency public struct TextField<Label> : View where Label : View {
+@MainActor @preconcurrency public struct TextField<Label> : View where Label : View {
     private let text: Binding<String>
     private let prompt: Text?
-    private let label: Label
+    private let label: UncheckedSendableBox<Label>
 
     public typealias Body = Never
 }
 
 extension TextField : SkipUIBridging {
     public var Java_view: any SkipUI.View {
-        return SkipUI.TextField(getText: { text.wrappedValue }, setText: { text.wrappedValue = $0 }, prompt: prompt?.Java_view as? SkipUI.Text, isSecure: false, bridgedLabel: label.Java_viewOrEmpty)
+        return SkipUI.TextField(getText: { text.wrappedValue }, setText: { text.wrappedValue = $0 }, prompt: prompt?.Java_view as? SkipUI.Text, isSecure: false, bridgedLabel: label.wrappedValue.Java_viewOrEmpty)
     }
 }
 
 extension TextField {
-    private static func text<F>(from value: Binding<F.FormatInput?>, format: F) -> Binding<String> where F : ParseableFormatStyle, F.FormatOutput == String {
+    nonisolated private static func text<F>(from value: Binding<F.FormatInput?>, format: F) -> Binding<String> where F : ParseableFormatStyle, F.FormatOutput == String {
         let getText: (F.FormatInput?) -> String = {
             guard let input = $0 else {
                 return ""
@@ -34,7 +34,7 @@ extension TextField {
         return Binding<String>(get: { getText(value.wrappedValue) }, set: { value.wrappedValue = setText($0) })
     }
 
-    private static func text<F>(from value: Binding<F.FormatInput>, format: F) -> Binding<String> where F : ParseableFormatStyle, F.FormatOutput == String {
+    nonisolated private static func text<F>(from value: Binding<F.FormatInput>, format: F) -> Binding<String> where F : ParseableFormatStyle, F.FormatOutput == String {
         let getText: (F.FormatInput) -> String = { format.format($0) }
         let setText: (String) -> F.FormatInput = { try! format.parseStrategy.parse($0) }
         return Binding<String>(get: { getText(value.wrappedValue) }, set: { value.wrappedValue = setText($0) })
@@ -58,25 +58,25 @@ extension TextField {
 extension TextField where Label == Text {
     nonisolated public init<F>(_ titleKey: LocalizedStringKey, value: Binding<F.FormatInput?>, format: F, prompt: Text? = nil) where F : ParseableFormatStyle, F.FormatOutput == String {
         self.text = Self.text(from: value, format: format)
-        self.label = Text(titleKey)
+        self.label = UncheckedSendableBox(Text(titleKey))
         self.prompt = prompt
     }
 
     @_disfavoredOverload nonisolated public init<S, F>(_ title: S, value: Binding<F.FormatInput?>, format: F, prompt: Text? = nil) where S : StringProtocol, F : ParseableFormatStyle, F.FormatOutput == String {
         self.text = Self.text(from: value, format: format)
-        self.label = Text(title)
+        self.label = UncheckedSendableBox(Text(title))
         self.prompt = prompt
     }
 
     nonisolated public init<F>(_ titleKey: LocalizedStringKey, value: Binding<F.FormatInput>, format: F, prompt: Text? = nil) where F : ParseableFormatStyle, F.FormatOutput == String {
         self.text = Self.text(from: value, format: format)
-        self.label = Text(titleKey)
+        self.label = UncheckedSendableBox(Text(titleKey))
         self.prompt = prompt
     }
 
     @_disfavoredOverload nonisolated public init<S, F>(_ title: S, value: Binding<F.FormatInput>, format: F, prompt: Text? = nil) where S : StringProtocol, F : ParseableFormatStyle, F.FormatOutput == String {
         self.text = Self.text(from: value, format: format)
-        self.label = Text(title)
+        self.label = UncheckedSendableBox(Text(title))
         self.prompt = prompt
     }
 }
@@ -84,13 +84,13 @@ extension TextField where Label == Text {
 extension TextField {
     nonisolated public init<F>(value: Binding<F.FormatInput?>, format: F, prompt: Text? = nil, @ViewBuilder label: () -> Label) where F : ParseableFormatStyle, F.FormatOutput == String {
         self.text = Self.text(from: value, format: format)
-        self.label = label()
+        self.label = UncheckedSendableBox(label())
         self.prompt = prompt
     }
 
     nonisolated public init<F>(value: Binding<F.FormatInput>, format: F, prompt: Text? = nil, @ViewBuilder label: () -> Label) where F : ParseableFormatStyle, F.FormatOutput == String {
         self.text = Self.text(from: value, format: format)
-        self.label = label()
+        self.label = UncheckedSendableBox(label())
         self.prompt = prompt
     }
 }
@@ -205,13 +205,13 @@ extension TextField {
 extension TextField where Label == Text {
     nonisolated public init(_ titleKey: LocalizedStringKey, text: Binding<String>, prompt: Text?) {
         self.text = text
-        self.label = Text(titleKey)
+        self.label = UncheckedSendableBox(Text(titleKey))
         self.prompt = prompt
     }
 
     @_disfavoredOverload nonisolated public init<S>(_ title: S, text: Binding<String>, prompt: Text?) where S : StringProtocol {
         self.text = text
-        self.label = Text(title)
+        self.label = UncheckedSendableBox(Text(title))
         self.prompt = prompt
     }
 }
@@ -219,7 +219,7 @@ extension TextField where Label == Text {
 extension TextField {
     nonisolated public init(text: Binding<String>, prompt: Text? = nil, @ViewBuilder label: () -> Label) {
         self.text = text
-        self.label = label()
+        self.label = UncheckedSendableBox(label())
         self.prompt = prompt
     }
 }
@@ -241,13 +241,13 @@ extension TextField where Label == Text {
 extension TextField where Label == Text {
     nonisolated public init(_ titleKey: LocalizedStringKey, text: Binding<String>) {
         self.text = text
-        self.label = Text(titleKey)
+        self.label = UncheckedSendableBox(Text(titleKey))
         self.prompt = nil
     }
 
     @_disfavoredOverload nonisolated public init<S>(_ title: S, text: Binding<String>) where S : StringProtocol {
         self.text = text
-        self.label = Text(title)
+        self.label = UncheckedSendableBox(Text(title))
         self.prompt = nil
     }
 }
@@ -285,11 +285,11 @@ extension TextField where Label == Text {
 }
 
 public protocol TextFieldStyle {
-    var identifier: Int { get } // For bridging
+    nonisolated var identifier: Int { get } // For bridging
 }
 
 extension TextFieldStyle {
-    public var identifier: Int {
+    nonisolated public var identifier: Int {
         return -1
     }
 }

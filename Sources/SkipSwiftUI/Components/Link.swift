@@ -3,13 +3,13 @@
 import Foundation
 import SkipUI
 
-/* @MainActor */ @preconcurrency public struct Link<Label> : View where Label : View {
+@MainActor @preconcurrency public struct Link<Label> : View where Label : View {
     private let destination: URL
-    private let label: Label
+    private let label: UncheckedSendableBox<Label>
 
     nonisolated public init(destination: URL, @ViewBuilder label: () -> Label) {
         self.destination = destination
-        self.label = label()
+        self.label = UncheckedSendableBox(label())
     }
 
     public typealias Body = Never
@@ -17,7 +17,7 @@ import SkipUI
 
 extension Link : SkipUIBridging {
     public var Java_view: any SkipUI.View {
-        return SkipUI.Link(destination: destination, bridgedLabel: label.Java_viewOrEmpty)
+        return SkipUI.Link(destination: destination, bridgedLabel: label.wrappedValue.Java_viewOrEmpty)
     }
 }
 

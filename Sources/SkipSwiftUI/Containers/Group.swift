@@ -3,19 +3,19 @@
 import SkipUI
 
 @frozen public struct Group<Content> {
-    let content: Content
+    let content: UncheckedSendableBox<Content>
 
     public typealias Body = Never
 }
 
 extension Group : View where Content : View {
     /* @inlinable */ nonisolated public init(@ViewBuilder content: () -> Content) {
-        self.content = content()
+        self.content = UncheckedSendableBox(content())
     }
 }
 
 extension Group : SkipUIBridging {
     public var Java_view: any SkipUI.View {
-        return SkipUI.Group(bridgedContent: (content as? any SkipUIBridging)?.Java_view ?? SkipUI.EmptyView())
+        return SkipUI.Group(bridgedContent: (content.wrappedValue as? any SkipUIBridging)?.Java_view ?? SkipUI.EmptyView())
     }
 }

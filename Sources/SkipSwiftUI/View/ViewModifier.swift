@@ -2,18 +2,18 @@
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import SkipUI
 
-/* @MainActor */ @preconcurrency public protocol ViewModifier {
+@MainActor @preconcurrency public protocol ViewModifier {
     associatedtype Body : View
 
     @ViewBuilder @MainActor @preconcurrency func body(content: Self.Content) -> Self.Body
 
     typealias Content = JavaBackedView
 
-    var Java_modifier: any SkipUI.ViewModifier { get }
+    nonisolated var Java_modifier: any SkipUI.ViewModifier { get }
 }
 
 extension ViewModifier {
-    public var Java_modifier: any SkipUI.ViewModifier {
+    nonisolated public var Java_modifier: any SkipUI.ViewModifier {
         return SkipUI.EmptyModifier()
     }
 }

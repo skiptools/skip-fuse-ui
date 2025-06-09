@@ -1,13 +1,14 @@
 // Copyright 2025 Skip
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import Foundation
+import SkipBridge
 import SkipUI
 
-/* @MainActor */ @preconcurrency public struct ShareLink<Data, PreviewImage, PreviewIcon, Label> : View where Data : RandomAccessCollection, /* PreviewImage : Transferable, PreviewIcon : Transferable, */ Label : View /*, Data.Element : Transferable */ {
+@MainActor @preconcurrency public struct ShareLink<Data, PreviewImage, PreviewIcon, Label> : View where Data : RandomAccessCollection, /* PreviewImage : Transferable, PreviewIcon : Transferable, */ Label : View /*, Data.Element : Transferable */ {
     private let data: String
     private let subject: Text?
     private let message: Text?
-    private let label: Label?
+    private let label: UncheckedSendableBox<Label>?
 
     @available(*, unavailable)
     nonisolated public init(items: Data, subject: Text? = nil, message: Text? = nil, preview: @escaping (Data.Element) -> Any /* SharePreview<PreviewImage, PreviewIcon> */, @ViewBuilder label: () -> Label) {
@@ -19,7 +20,7 @@ import SkipUI
 
 extension ShareLink : SkipUIBridging {
     public var Java_view: any SkipUI.View {
-        let javaLabel = label == nil ? nil : label!.Java_viewOrEmpty
+        let javaLabel = label == nil ? nil : label!.wrappedValue.Java_viewOrEmpty
         return SkipUI.ShareLink(text: data, subject: subject?.Java_view as? SkipUI.Text, message: message?.Java_view as? SkipUI.Text, bridgedLabel: javaLabel)
     }
 }
@@ -50,14 +51,14 @@ extension ShareLink where PreviewImage == Never, PreviewIcon == Never {
         self.data = item.absoluteString
         self.subject = subject
         self.message = message
-        self.label = label()
+        self.label = UncheckedSendableBox(label())
     }
 
     nonisolated public init(item: String, subject: Text? = nil, message: Text? = nil, @ViewBuilder label: () -> Label) where Data == CollectionOfOne<String> {
         self.data = item
         self.subject = subject
         self.message = message
-        self.label = label()
+        self.label = UncheckedSendableBox(label())
     }
 }
 
@@ -168,41 +169,41 @@ extension ShareLink where PreviewImage == Never, PreviewIcon == Never, Label == 
         self.data = item.absoluteString
         self.subject = subject
         self.message = message
-        self.label = Text(titleKey)
+        self.label = UncheckedSendableBox(Text(titleKey))
     }
 
     nonisolated public init(_ titleKey: LocalizedStringKey, item: String, subject: Text? = nil, message: Text? = nil) where Data == CollectionOfOne<String> {
         self.data = item
         self.subject = subject
         self.message = message
-        self.label = Text(titleKey)
+        self.label = UncheckedSendableBox(Text(titleKey))
     }
 
     @_disfavoredOverload nonisolated public init<S>(_ title: S, item: URL, subject: Text? = nil, message: Text? = nil) where Data == CollectionOfOne<URL>, S : StringProtocol {
         self.data = item.absoluteString
         self.subject = subject
         self.message = message
-        self.label = Text(title)
+        self.label = UncheckedSendableBox(Text(title))
     }
 
     @_disfavoredOverload nonisolated public init<S>(_ title: S, item: String, subject: Text? = nil, message: Text? = nil) where Data == CollectionOfOne<String>, S : StringProtocol {
         self.data = item
         self.subject = subject
         self.message = message
-        self.label = Text(title)
+        self.label = UncheckedSendableBox(Text(title))
     }
 
     nonisolated public init(_ title: Text, item: URL, subject: Text? = nil, message: Text? = nil) where Data == CollectionOfOne<URL> {
         self.data = item.absoluteString
         self.subject = subject
         self.message = message
-        self.label = title
+        self.label = UncheckedSendableBox(title)
     }
 
     nonisolated public init(_ title: Text, item: String, subject: Text? = nil, message: Text? = nil) where Data == CollectionOfOne<String> {
         self.data = item
         self.subject = subject
         self.message = message
-        self.label = title
+        self.label = UncheckedSendableBox(title)
     }
 }

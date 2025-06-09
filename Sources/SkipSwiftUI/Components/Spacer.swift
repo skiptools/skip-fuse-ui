@@ -5,10 +5,10 @@ import CoreGraphics
 #endif
 import SkipUI
 
-/* @MainActor */ @frozen @preconcurrency public struct Spacer : View, BitwiseCopyable, Sendable {
-    /* @MainActor */ @preconcurrency public var minLength: CGFloat?
+@MainActor @frozen @preconcurrency public struct Spacer : View, BitwiseCopyable, Sendable {
+    @MainActor @preconcurrency public var minLength: CGFloat?
 
-    /* @MainActor */ @inlinable @preconcurrency public init(minLength: CGFloat? = nil) {
+    @MainActor @inlinable @preconcurrency public init(minLength: CGFloat? = nil) {
         self.minLength = minLength
     }
 

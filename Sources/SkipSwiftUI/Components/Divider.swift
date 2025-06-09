@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import SkipUI
 
-/* @MainActor */ @preconcurrency public struct Divider : View {
+@MainActor @preconcurrency public struct Divider : View {
     nonisolated public init() {
     }
 

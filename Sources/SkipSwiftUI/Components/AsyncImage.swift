@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import SkipUI
 
-/* @MainActor */ @preconcurrency public struct AsyncImage<Content> : View where Content : View {
+@MainActor @preconcurrency public struct AsyncImage<Content> : View where Content : View {
     private let url: URL?
     private let scale: CGFloat
-    private let content: ((AsyncImagePhase) -> Content)?
+    private let content: UncheckedSendableBox<(AsyncImagePhase) -> Content>?
 
     nonisolated public init(url: URL?, scale: CGFloat = 1) where Content == Image {
         self.url = url
@@ -27,7 +27,7 @@ import SkipUI
     nonisolated public init(url: URL?, scale: CGFloat = 1, transaction: Transaction = Transaction(), @ViewBuilder content: @escaping (AsyncImagePhase) -> Content) {
         self.url = url
         self.scale = scale
-        self.content = content
+        self.content = UncheckedSendableBox(content)
     }
 
     public typealias Body = Never
@@ -46,7 +46,7 @@ extension AsyncImage : SkipUIBridging {
                 } else {
                     phase = .success(Image(spec: .init(.java(image!))))
                 }
-                let result = content(phase)
+                let result = content.wrappedValue(phase)
                 return result.Java_viewOrEmpty
             }
         } else {

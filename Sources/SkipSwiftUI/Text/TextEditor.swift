@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import SkipUI
 
-/* @MainActor */ @preconcurrency public struct TextEditor : View {
+@MainActor @preconcurrency public struct TextEditor : View {
     private let text: Binding<String>
 
     nonisolated public init(text: Binding<String>) {
@@ -25,31 +25,31 @@ extension TextEditor : SkipUIBridging {
     }
 }
 
-/* @MainActor */ @preconcurrency public protocol TextEditorStyle {
+@MainActor @preconcurrency public protocol TextEditorStyle {
     associatedtype Body : View
 
     @ViewBuilder @MainActor @preconcurrency func makeBody(configuration: Self.Configuration) -> Self.Body
 
     typealias Configuration = TextEditorStyleConfiguration
 
-    var identifier: Int { get } // For bridging
+    nonisolated var identifier: Int { get } // For bridging
 }
 
 extension TextEditorStyle {
-    public var identifier: Int {
+    nonisolated public var identifier: Int {
         return -1
     }
 }
 
-/* @MainActor */ @preconcurrency public struct AutomaticTextEditorStyle : TextEditorStyle {
+@MainActor @preconcurrency public struct AutomaticTextEditorStyle : TextEditorStyle {
     @MainActor @preconcurrency public func makeBody(configuration: AutomaticTextEditorStyle.Configuration) ->     AutomaticTextEditorStyle.Body {
         Body()
     }
 
-    /* @MainActor */ @preconcurrency public init() {
+    @MainActor @preconcurrency public init() {
     }
 
-    /* @MainActor */ @preconcurrency public struct Body : View {
+    @MainActor @preconcurrency public struct Body : View {
         public typealias Body = Never
     }
 
@@ -57,24 +57,24 @@ extension TextEditorStyle {
 }
 
 extension TextEditorStyle where Self == AutomaticTextEditorStyle {
-    /* @MainActor */ @preconcurrency public static var automatic: AutomaticTextEditorStyle {
+    @MainActor @preconcurrency public static var automatic: AutomaticTextEditorStyle {
         return AutomaticTextEditorStyle()
     }
 }
 
-/* @MainActor */ @preconcurrency public struct PlainTextEditorStyle : TextEditorStyle {
-    /* @MainActor */ @preconcurrency public func makeBody(configuration: PlainTextEditorStyle.Configuration) -> some View {
+@MainActor @preconcurrency public struct PlainTextEditorStyle : TextEditorStyle {
+    @MainActor @preconcurrency public func makeBody(configuration: PlainTextEditorStyle.Configuration) -> some View {
         stubView()
     }
 
-    /* @MainActor */ @preconcurrency public init() {
+    @MainActor @preconcurrency public init() {
     }
 
     public let identifier = 1 // For bridging
 }
 
 extension TextEditorStyle where Self == PlainTextEditorStyle {
-    /* @MainActor */ @preconcurrency public static var plain: PlainTextEditorStyle {
+    @MainActor @preconcurrency public static var plain: PlainTextEditorStyle {
         return PlainTextEditorStyle()
     }
 }

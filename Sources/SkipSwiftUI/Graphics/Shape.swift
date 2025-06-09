@@ -3,6 +3,7 @@
 #if !ROBOLECTRIC && canImport(CoreGraphics)
 import CoreGraphics
 #endif
+import SkipBridge
 import SkipUI
 
 public protocol Shape : Sendable, Animatable, View, SkipUIBridging /*, _RemoveGlobalActorIsolation */ where Body == Never {
@@ -16,7 +17,7 @@ public protocol Shape : Sendable, Animatable, View, SkipUIBridging /*, _RemoveGl
 }
 
 extension Shape {
-    public var Java_view: any SkipUI.View {
+    nonisolated public var Java_view: any SkipUI.View {
         // Default implementation designed for user's custom views, which will implement a `path(in:)`
         let pathBlock: (CGFloat, CGFloat, CGFloat, CGFloat) -> SkipUI.Path = { x, y, width, height in
             let p = self.path(in: CGRect(x: x, y: y, width: width, height: height))
@@ -25,7 +26,7 @@ extension Shape {
         return SkipUI.BridgedCustomShape(pathBlock)
     }
 
-    public var Java_shape: any SkipUI.Shape {
+    nonisolated public var Java_shape: any SkipUI.Shape {
         return Java_view as? any SkipUI.Shape ?? SkipUI.Rectangle()
     }
 }
@@ -35,11 +36,11 @@ func stubShape() -> Rectangle {
 }
 
 extension Shape {
-    public static var role: ShapeRole {
+    nonisolated public static var role: ShapeRole {
         return .fill
     }
 
-    public var layoutDirectionBehavior: LayoutDirectionBehavior {
+    nonisolated public var layoutDirectionBehavior: LayoutDirectionBehavior {
         return .mirrors
     }
 
@@ -70,7 +71,7 @@ extension Shape {
 }
 
 extension Rectangle {
-    public var Java_view: any SkipUI.View {
+    nonisolated public var Java_view: any SkipUI.View {
         return SkipUI.Rectangle()
     }
 }
@@ -110,7 +111,7 @@ extension Shape where Self == Rectangle {
 }
 
 extension RoundedRectangle {
-    public var Java_view: any SkipUI.View {
+    nonisolated public var Java_view: any SkipUI.View {
         return SkipUI.RoundedRectangle(cornerWidth: cornerSize.width, cornerHeight: cornerSize.height, bridgedStyle: style.rawValue)
     }
 }
@@ -153,7 +154,7 @@ extension Shape where Self == RoundedRectangle {
 }
 
 extension UnevenRoundedRectangle {
-    public var Java_view: any SkipUI.View {
+    nonisolated public var Java_view: any SkipUI.View {
         return SkipUI.UnevenRoundedRectangle(topLeadingRadius: cornerRadii.topLeading, bottomLeadingRadius: cornerRadii.bottomLeading, bottomTrailingRadius: cornerRadii.bottomTrailing, topTrailingRadius: cornerRadii.topTrailing, bridgedStyle: style.rawValue)
     }
 }
@@ -202,7 +203,7 @@ extension Shape where Self == UnevenRoundedRectangle {
 }
 
 extension Capsule {
-    public var Java_view: any SkipUI.View {
+    nonisolated public var Java_view: any SkipUI.View {
         return SkipUI.Capsule(bridgedStyle: style.rawValue)
     }
 }
@@ -235,7 +236,7 @@ extension Shape where Self == Capsule {
 }
 
 extension Ellipse {
-    public var Java_view: any SkipUI.View {
+    nonisolated public var Java_view: any SkipUI.View {
         return SkipUI.Ellipse()
     }
 }
@@ -271,7 +272,7 @@ extension Shape where Self == Ellipse {
 //}
 
 extension Circle {
-    public var Java_view: any SkipUI.View {
+    nonisolated public var Java_view: any SkipUI.View {
         return SkipUI.Circle()
     }
 }
@@ -302,7 +303,7 @@ extension Shape where Self == Circle {
 }
 
 extension ContainerRelativeShape {
-    public var Java_view: any SkipUI.View {
+    nonisolated public var Java_view: any SkipUI.View {
         return SkipUI.Rectangle()
     }
 }
@@ -340,7 +341,7 @@ extension Shape where Self == ContainerRelativeShape {
 }
 
 extension AnyShape {
-    public var Java_view: any SkipUI.View {
+    nonisolated public var Java_view: any SkipUI.View {
         return shape.Java_view
     }
 }
@@ -537,7 +538,7 @@ extension OffsetShape : InsettableShape where Content : InsettableShape {
 }
 
 extension OffsetShape {
-    public var Java_view: any SkipUI.View {
+    nonisolated public var Java_view: any SkipUI.View {
         return shape.Java_shape.offset(x: offset.width, y: offset.height)
     }
 }
@@ -570,7 +571,7 @@ extension OffsetShape {
 }
 
 extension ScaledShape {
-    public var Java_view: any SkipUI.View {
+    nonisolated public var Java_view: any SkipUI.View {
         return shape.Java_shape.scale(width: scale.width, height: scale.height, anchorX: anchor.x, anchorY: anchor.y)
     }
 }
@@ -609,7 +610,7 @@ extension RotatedShape : InsettableShape where Content : InsettableShape {
 }
 
 extension RotatedShape {
-    public var Java_view: any SkipUI.View {
+    nonisolated public var Java_view: any SkipUI.View {
         return shape.Java_shape.rotation(bridgedAngle: angle.radians, anchorX: anchor.x, anchorY: anchor.y)
     }
 }
@@ -641,7 +642,7 @@ extension RotatedShape {
 }
 
 extension TransformedShape {
-    public var Java_view: any SkipUI.View {
+    nonisolated public var Java_view: any SkipUI.View {
         return shape.Java_view
     }
 }
@@ -650,7 +651,7 @@ public struct _InsetShape<Content> : InsettableShape where Content : InsettableS
     public let shape: Content
     public let inset: CGFloat
 
-    public init(shape: Content, inset: CGFloat) {
+    nonisolated public init(shape: Content, inset: CGFloat) {
         self.shape = shape
         self.inset = inset
     }
@@ -678,7 +679,7 @@ extension _InsetShape {
 }
 
 extension _InsetShape {
-    public var Java_view: any SkipUI.View {
+    nonisolated public var Java_view: any SkipUI.View {
         return shape.Java_shape.inset(by: inset)
     }
 }
@@ -687,12 +688,12 @@ public struct _StrokeShape<Content> : Shape where Content : Shape {
     public let shape: Content
     public let style: StrokeStyle
 
-    public init(shape: Content, style: StrokeStyle) {
+    nonisolated public init(shape: Content, style: StrokeStyle) {
         self.shape = shape
         self.style = style
     }
 
-    public func path(in rect: CGRect) -> Path {
+    nonisolated public func path(in rect: CGRect) -> Path {
         return shape.path(in: rect)
     }
 
@@ -715,7 +716,7 @@ extension _StrokeShape : InsettableShape where Content : InsettableShape {
 }
 
 extension _StrokeShape {
-    public var Java_view: any SkipUI.View {
+    nonisolated public var Java_view: any SkipUI.View {
         return shape.Java_shape.stroke(ForegroundStyle().Java_view as? any SkipUI.ShapeStyle ?? SkipUI.ForegroundStyle(), lineWidth: style.lineWidth, bridgedLineCap: Int(style.lineCap.rawValue), bridgedLineJoin: Int(style.lineJoin.rawValue), miterLmit: style.miterLimit, dash: style.dash, dashPhase: style.dashPhase, antialiased: true)
     }
 }
@@ -723,7 +724,7 @@ extension _StrokeShape {
 public protocol ShapeView<Content> : View {
     associatedtype Content : Shape
 
-    var shape: Self.Content { get }
+    nonisolated /* Added nonisolated */ var shape: Self.Content { get }
 }
 
 extension ShapeView {
@@ -739,7 +740,7 @@ extension ShapeView {
         return stroke(content, style: .init(lineWidth: lineWidth), antialiased: antialiased)
     }
 
-    public var Java_shape: any SkipUI.Shape {
+    nonisolated public var Java_shape: any SkipUI.Shape {
         return (self as? SkipUIBridging)?.Java_view as? any SkipUI.Shape ?? SkipUI.Rectangle()
     }
 }
@@ -759,7 +760,7 @@ public struct _ShapeView<Content, Style> : ShapeView where Content : Shape, Styl
     public var style: Style
     public var fillStyle: FillStyle
 
-    public init(shape: Content, style: Style, fillStyle: FillStyle) {
+    nonisolated public init(shape: Content, style: Style, fillStyle: FillStyle) {
         self.shape = shape
         self.style = style
         self.fillStyle = fillStyle
@@ -788,17 +789,25 @@ extension _ShapeView : SkipUIBridging {
     }
 }
 
-/* @MainActor */ @frozen @preconcurrency public struct FillShapeView<Content, Style, Background> : ShapeView where Content : Shape, Style : ShapeStyle, Background : View {
-    /* @MainActor */ @preconcurrency public var shape: Content
-    /* @MainActor */ @preconcurrency public var style: Style
-    /* @MainActor */ @preconcurrency public var fillStyle: FillStyle
-    /* @MainActor */ @preconcurrency public var background: Background
+@MainActor @frozen @preconcurrency public struct FillShapeView<Content, Style, Background> : ShapeView where Content : Shape, Style : ShapeStyle, Background : View {
+    /* @MainActor @preconcurrency */ public var shape: Content
+    @MainActor @preconcurrency public var style: Style
+    @MainActor @preconcurrency public var fillStyle: FillStyle
+    @MainActor @preconcurrency public var background: Background {
+        get {
+            return _background.wrappedValue
+        }
+        set {
+            _background = UncheckedSendableBox(newValue)
+        }
+    }
+    private var _background: UncheckedSendableBox<Background>
 
     nonisolated public init(shape: Content, style: Style, fillStyle: FillStyle, background: Background) {
         self.shape = shape
         self.style = style
         self.fillStyle = fillStyle
-        self.background = background
+        _background = UncheckedSendableBox(background)
     }
 
     public func path(in rect: CGRect) -> Path {
@@ -823,23 +832,31 @@ extension FillShapeView : SkipUIBridging {
         // If this view is produced by another shape view, it will be captured in `background`. Maybe the official SwiftUI
         // implementation applies it as a background, but we instead need to build on its shape in order to support e.g.
         // fill + stroke or multiple strokes
-        return ((background as? any ShapeView)?.Java_shape ?? shape.Java_shape).fill(style.Java_view as? any SkipUI.ShapeStyle ?? SkipUI.ForegroundStyle(), eoFill: fillStyle.isEOFilled, antialiased: fillStyle.isAntialiased)
+        return ((_background.wrappedValue as? any ShapeView)?.Java_shape ?? shape.Java_shape).fill(style.Java_view as? any SkipUI.ShapeStyle ?? SkipUI.ForegroundStyle(), eoFill: fillStyle.isEOFilled, antialiased: fillStyle.isAntialiased)
     }
 }
 
-/* @MainActor */ @frozen @preconcurrency public struct StrokeShapeView<Content, Style, Background> : ShapeView where Content : Shape, Style : ShapeStyle, Background : View {
-    /* @MainActor */ @preconcurrency public var shape: Content
-    /* @MainActor */ @preconcurrency public var style: Style
-    /* @MainActor */ @preconcurrency public var strokeStyle: StrokeStyle
-    /* @MainActor */ @preconcurrency public var isAntialiased: Bool
-    /* @MainActor */ @preconcurrency public var background: Background
+@MainActor @frozen @preconcurrency public struct StrokeShapeView<Content, Style, Background> : ShapeView where Content : Shape, Style : ShapeStyle, Background : View {
+    /* @MainActor @preconcurrency */ public var shape: Content
+    @MainActor @preconcurrency public var style: Style
+    @MainActor @preconcurrency public var strokeStyle: StrokeStyle
+    @MainActor @preconcurrency public var isAntialiased: Bool
+    @MainActor @preconcurrency public var background: Background {
+        get {
+            return _background.wrappedValue
+        }
+        set {
+            _background = UncheckedSendableBox(newValue)
+        }
+    }
+    private var _background: UncheckedSendableBox<Background>
 
     nonisolated public init(shape: Content, style: Style, strokeStyle: StrokeStyle, isAntialiased: Bool, background: Background) {
         self.shape = shape
         self.style = style
         self.strokeStyle = strokeStyle
         self.isAntialiased = isAntialiased
-        self.background = background
+        _background = UncheckedSendableBox(background)
     }
 
     public func path(in rect: CGRect) -> Path {
@@ -864,23 +881,31 @@ extension StrokeShapeView : SkipUIBridging {
         // If this view is produced by another shape view, it will be captured in `background`. Maybe the official SwiftUI
         // implementation applies it as a background, but we instead need to build on its shape in order to support e.g.
         // fill + stroke or multiple strokes
-        return ((background as? any ShapeView)?.Java_shape ?? shape.Java_shape).stroke(style.Java_view as? any SkipUI.ShapeStyle ?? SkipUI.ForegroundStyle(), lineWidth: strokeStyle.lineWidth, bridgedLineCap: Int(strokeStyle.lineCap.rawValue), bridgedLineJoin: Int(strokeStyle.lineJoin.rawValue), miterLmit: strokeStyle.miterLimit, dash: strokeStyle.dash, dashPhase: strokeStyle.dashPhase, antialiased: isAntialiased)
+        return ((_background.wrappedValue as? any ShapeView)?.Java_shape ?? shape.Java_shape).stroke(style.Java_view as? any SkipUI.ShapeStyle ?? SkipUI.ForegroundStyle(), lineWidth: strokeStyle.lineWidth, bridgedLineCap: Int(strokeStyle.lineCap.rawValue), bridgedLineJoin: Int(strokeStyle.lineJoin.rawValue), miterLmit: strokeStyle.miterLimit, dash: strokeStyle.dash, dashPhase: strokeStyle.dashPhase, antialiased: isAntialiased)
     }
 }
 
-/* @MainActor */ @frozen @preconcurrency public struct StrokeBorderShapeView<Content, Style, Background> : ShapeView where Content : InsettableShape, Style : ShapeStyle, Background : View {
-    /* @MainActor */ @preconcurrency public var shape: Content
-    /* @MainActor */ @preconcurrency public var style: Style
-    /* @MainActor */ @preconcurrency public var strokeStyle: StrokeStyle
-    /* @MainActor */ @preconcurrency public var isAntialiased: Bool
-    /* @MainActor */ @preconcurrency public var background: Background
+@MainActor @frozen @preconcurrency public struct StrokeBorderShapeView<Content, Style, Background> : ShapeView where Content : InsettableShape, Style : ShapeStyle, Background : View {
+    /* @MainActor @preconcurrency */ public var shape: Content
+    @MainActor @preconcurrency public var style: Style
+    @MainActor @preconcurrency public var strokeStyle: StrokeStyle
+    @MainActor @preconcurrency public var isAntialiased: Bool
+    @MainActor @preconcurrency public var background: Background {
+        get {
+            return _background.wrappedValue
+        }
+        set {
+            _background = UncheckedSendableBox(newValue)
+        }
+    }
+    private var _background: UncheckedSendableBox<Background>
 
     nonisolated public init(shape: Content, style: Style, strokeStyle: StrokeStyle, isAntialiased: Bool, background: Background) {
         self.shape = shape
         self.style = style
         self.strokeStyle = strokeStyle
         self.isAntialiased = isAntialiased
-        self.background = background
+        _background = UncheckedSendableBox(background)
     }
 }
 
@@ -889,6 +914,6 @@ extension StrokeBorderShapeView : SkipUIBridging {
         // If this view is produced by another shape view, it will be captured in `background`. Maybe the official SwiftUI
         // implementation applies it as a background, but we instead need to build on its shape in order to support e.g.
         // fill + stroke or multiple strokes
-        return ((background as? any ShapeView)?.Java_shape ?? shape.Java_shape).strokeBorder(style.Java_view as? any SkipUI.ShapeStyle ?? SkipUI.ForegroundStyle(), lineWidth: strokeStyle.lineWidth, bridgedLineCap: Int(strokeStyle.lineCap.rawValue), bridgedLineJoin: Int(strokeStyle.lineJoin.rawValue), miterLmit: strokeStyle.miterLimit, dash: strokeStyle.dash, dashPhase: strokeStyle.dashPhase, antialiased: isAntialiased)
+        return ((_background.wrappedValue as? any ShapeView)?.Java_shape ?? shape.Java_shape).strokeBorder(style.Java_view as? any SkipUI.ShapeStyle ?? SkipUI.ForegroundStyle(), lineWidth: strokeStyle.lineWidth, bridgedLineCap: Int(strokeStyle.lineCap.rawValue), bridgedLineJoin: Int(strokeStyle.lineJoin.rawValue), miterLmit: strokeStyle.miterLimit, dash: strokeStyle.dash, dashPhase: strokeStyle.dashPhase, antialiased: isAntialiased)
     }
 }

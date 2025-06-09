@@ -3,102 +3,103 @@
 #if !ROBOLECTRIC && canImport(CoreGraphics)
 import CoreGraphics
 #endif
+import SkipBridge
 import SkipUI
 
-/* @MainActor */ @preconcurrency public protocol Transition {
+@MainActor @preconcurrency public protocol Transition {
     associatedtype Body : View
 
     @ViewBuilder @MainActor @preconcurrency func body(content: Any /* Self.Content */, phase: TransitionPhase) -> Self.Body
 
-    /* @MainActor */ @preconcurrency static var properties: TransitionProperties { get }
+    @MainActor @preconcurrency static var properties: TransitionProperties { get }
 
 //    typealias Content = PlaceholderContentView<Self>
 
-    var Java_transition: any SkipUI.Transition { get }
+    nonisolated var Java_transition: any SkipUI.Transition { get }
 }
 
 extension Transition where Self == OffsetTransition {
-    /* @MainActor */ @preconcurrency public static func offset(_ offset: CGSize) -> Self {
+    @MainActor @preconcurrency public static func offset(_ offset: CGSize) -> Self {
         return OffsetTransition(offset)
     }
 
-    /* @MainActor */ @preconcurrency public static func offset(x: CGFloat = 0, y: CGFloat = 0) -> Self {
+    @MainActor @preconcurrency public static func offset(x: CGFloat = 0, y: CGFloat = 0) -> Self {
         return self.offset(CGSize(width: x, height: y))
     }
 }
 
 extension Transition where Self == MoveTransition {
-    /* @MainActor */ @preconcurrency public static func move(edge: Edge) -> Self {
+    @MainActor @preconcurrency public static func move(edge: Edge) -> Self {
         return MoveTransition(edge: edge)
     }
 }
 
 extension Transition where Self == OpacityTransition {
-    /* @MainActor */ @preconcurrency public static var opacity: OpacityTransition {
+    @MainActor @preconcurrency public static var opacity: OpacityTransition {
         return OpacityTransition()
     }
 }
 
 extension Transition where Self == SlideTransition {
-    /* @MainActor */ @preconcurrency public static var slide: SlideTransition {
+    @MainActor @preconcurrency public static var slide: SlideTransition {
         return SlideTransition()
     }
 }
 
 extension Transition where Self == PushTransition {
-    /* @MainActor */ @preconcurrency public static func push(from edge: Edge) -> Self {
+    @MainActor @preconcurrency public static func push(from edge: Edge) -> Self {
         return PushTransition(edge: edge)
     }
 }
 
 extension Transition {
     @available(*, unavailable)
-    /* @MainActor */ @preconcurrency public func animation(_ animation: Animation?) -> some Transition {
+    @MainActor @preconcurrency public func animation(_ animation: Animation?) -> some Transition {
         return self
     }
 }
 
 extension Transition {
-    /* @MainActor */ @preconcurrency public func combined<T>(with other: T) -> some Transition where T : Transition {
+    @MainActor @preconcurrency public func combined<T>(with other: T) -> some Transition where T : Transition {
         return CombinedTransition(self, other)
     }
 }
 
 extension Transition {
-    /* @MainActor */ @preconcurrency public static var properties: TransitionProperties {
+    @MainActor @preconcurrency public static var properties: TransitionProperties {
         return TransitionProperties()
     }
 
     @available(*, unavailable)
-    /* @MainActor */ @preconcurrency public func apply<V>(content: V, phase: TransitionPhase) -> some View where V : View {
+    @MainActor @preconcurrency public func apply<V>(content: V, phase: TransitionPhase) -> some View where V : View {
         stubView()
     }
 }
 
 extension Transition where Self == IdentityTransition {
-    /* @MainActor */ @preconcurrency public static var identity: IdentityTransition {
+    @MainActor @preconcurrency public static var identity: IdentityTransition {
         return IdentityTransition()
     }
 }
 
 extension Transition where Self == BlurReplaceTransition {
     @available(*, unavailable)
-    /* @MainActor */ @preconcurrency public static func blurReplace(_ config: BlurReplaceTransition.Configuration = .downUp) -> BlurReplaceTransition {
+    @MainActor @preconcurrency public static func blurReplace(_ config: BlurReplaceTransition.Configuration = .downUp) -> BlurReplaceTransition {
         fatalError()
     }
 
     @available(*, unavailable)
-    /* @MainActor */ @preconcurrency public static var blurReplace: BlurReplaceTransition {
+    @MainActor @preconcurrency public static var blurReplace: BlurReplaceTransition {
         fatalError()
     }
 }
 
 extension Transition where Self == ScaleTransition {
-    /* @MainActor */ @preconcurrency public static var scale: ScaleTransition {
+    @MainActor @preconcurrency public static var scale: ScaleTransition {
         return ScaleTransition(0.5)
     }
 
-    /* @MainActor */ @preconcurrency public static func scale(_ scale: Double, anchor: UnitPoint = .center) -> Self {
+    @MainActor @preconcurrency public static func scale(_ scale: Double, anchor: UnitPoint = .center) -> Self {
         return ScaleTransition(scale, anchor: anchor)
     }
 }
@@ -219,40 +220,57 @@ extension AnyTransition {
     }
 }
 
-/* @MainActor */ @preconcurrency public struct AsymmetricTransition /* <Insertion, Removal> */ : Transition /* where Insertion : Transition, Removal : Transition */ {
-    /* @MainActor */ @preconcurrency public var insertion: any Transition /* Insertion */
-    /* @MainActor */ @preconcurrency public var removal: any Transition /* Removal */
+@MainActor @preconcurrency public struct AsymmetricTransition /* <Insertion, Removal> */ : Transition /* where Insertion : Transition, Removal : Transition */ {
+    @MainActor @preconcurrency public var insertion: any Transition /* Insertion */ {
+        get {
+            return _insertion.wrappedValue
+        }
+        set {
+            _insertion = UncheckedSendableBox(newValue)
+        }
+    }
+    private var _insertion: UncheckedSendableBox<any Transition>
 
-    /* @MainActor */ @preconcurrency public init(insertion: any Transition /* Insertion */, removal: any Transition /* Removal */) {
-        self.insertion = insertion
-        self.removal = removal
+    @MainActor @preconcurrency public var removal: any Transition /* Removal */ {
+        get {
+            return _removal.wrappedValue
+        }
+        set {
+            _removal = UncheckedSendableBox(newValue)
+        }
+    }
+    private var _removal: UncheckedSendableBox<any Transition>
+
+    /* @MainActor @preconcurrency */nonisolated public init(insertion: any Transition /* Insertion */, removal: any Transition /* Removal */) {
+        _insertion = UncheckedSendableBox(insertion)
+        _removal = UncheckedSendableBox(removal)
     }
 
-    /* @MainActor */ @preconcurrency public func body(content: Any /* AsymmetricTransition<Insertion, Removal>.Content */, phase: TransitionPhase) -> some View {
+    @MainActor @preconcurrency public func body(content: Any /* AsymmetricTransition<Insertion, Removal>.Content */, phase: TransitionPhase) -> some View {
         stubView()
     }
 
 //    @MainActor @preconcurrency public static var properties: TransitionProperties
 
     public var Java_transition: any SkipUI.Transition {
-        return SkipUI.AsymmetricTransition(insertion: insertion.Java_transition, removal: removal.Java_transition)
+        return SkipUI.AsymmetricTransition(insertion: _insertion.wrappedValue.Java_transition, removal: _removal.wrappedValue.Java_transition)
     }
 }
 
-/* @MainActor */ @preconcurrency public struct BlurReplaceTransition : Transition {
+@MainActor @preconcurrency public struct BlurReplaceTransition : Transition {
     public struct Configuration : Equatable, Sendable {
         public static let downUp = BlurReplaceTransition.Configuration()
         public static let upUp = BlurReplaceTransition.Configuration()
     }
 
-    /* @MainActor */ @preconcurrency public var configuration: BlurReplaceTransition.Configuration
+    @MainActor @preconcurrency public var configuration: BlurReplaceTransition.Configuration
 
     @available(*, unavailable)
-    /* @MainActor */ @preconcurrency public init(configuration: BlurReplaceTransition.Configuration) {
+    /* @MainActor @preconcurrency */nonisolated public init(configuration: BlurReplaceTransition.Configuration) {
         self.configuration = configuration
     }
 
-    /* @MainActor */ @preconcurrency public func body(content: Any /* BlurReplaceTransition.Content */, phase: TransitionPhase) -> some View {
+    @MainActor @preconcurrency public func body(content: Any /* BlurReplaceTransition.Content */, phase: TransitionPhase) -> some View {
         stubView()
     }
 
@@ -262,20 +280,20 @@ extension AnyTransition {
 }
 
 struct CombinedTransition : Transition {
-    let first: any Transition
-    let second: any Transition
+    private let first: UncheckedSendableBox<any Transition>
+    private let second: UncheckedSendableBox<any Transition>
 
-    init(_ first: any Transition, _ second: any Transition) {
-        self.first = first
-        self.second = second
+    nonisolated init(_ first: any Transition, _ second: any Transition) {
+        self.first = UncheckedSendableBox(first)
+        self.second = UncheckedSendableBox(second)
     }
 
-    /* @MainActor */ @preconcurrency public func body(content: Any /* CombinedTransition.Content */, phase: TransitionPhase) -> some View {
+    @MainActor @preconcurrency public func body(content: Any /* CombinedTransition.Content */, phase: TransitionPhase) -> some View {
         stubView()
     }
 
     public var Java_transition: any SkipUI.Transition {
-        return SkipUI.CombinedTransition(first.Java_transition, second.Java_transition)
+        return SkipUI.CombinedTransition(first.wrappedValue.Java_transition, second.wrappedValue.Java_transition)
     }
 }
 
@@ -295,11 +313,11 @@ public struct ContentTransition : Equatable, Sendable {
     }
 }
 
-/* @MainActor */ @preconcurrency public struct IdentityTransition : Transition {
-    /* @MainActor */ @preconcurrency public init() {
+@MainActor @preconcurrency public struct IdentityTransition : Transition {
+    /* @MainActor @preconcurrency */nonisolated public init() {
     }
 
-    /* @MainActor */ @preconcurrency public func body(content: Any /* IdentityTransition.Content */, phase: TransitionPhase) -> some View /* IdentityTransition.Content */ {
+    @MainActor @preconcurrency public func body(content: Any /* IdentityTransition.Content */, phase: TransitionPhase) -> some View /* IdentityTransition.Content */ {
         stubView()
     }
 
@@ -310,14 +328,14 @@ public struct ContentTransition : Equatable, Sendable {
     }
 }
 
-/* @MainActor */ @preconcurrency public struct MoveTransition : Transition {
-    /* @MainActor */ @preconcurrency public var edge: Edge
+@MainActor @preconcurrency public struct MoveTransition : Transition {
+    @MainActor @preconcurrency public var edge: Edge
 
-    /* @MainActor */ @preconcurrency public init(edge: Edge) {
+    /* @MainActor @preconcurrency */nonisolated public init(edge: Edge) {
         self.edge = edge
     }
 
-    /* @MainActor */ @preconcurrency public func body(content: Any /* MoveTransition.Content */, phase: TransitionPhase) -> some View {
+    @MainActor @preconcurrency public func body(content: Any /* MoveTransition.Content */, phase: TransitionPhase) -> some View {
         stubView()
     }
 
@@ -326,14 +344,14 @@ public struct ContentTransition : Equatable, Sendable {
     }
 }
 
-/* @MainActor */ @preconcurrency public struct OffsetTransition : Transition {
-    /* @MainActor */ @preconcurrency public var offset: CGSize
+@MainActor @preconcurrency public struct OffsetTransition : Transition {
+    @MainActor @preconcurrency public var offset: CGSize
 
-    /* @MainActor */ @preconcurrency public init(_ offset: CGSize) {
+    /* @MainActor @preconcurrency */nonisolated public init(_ offset: CGSize) {
         self.offset = offset
     }
 
-    /* @MainActor */ @preconcurrency public func body(content: Any /* OffsetTransition.Content */, phase: TransitionPhase) -> some View {
+    @MainActor @preconcurrency public func body(content: Any /* OffsetTransition.Content */, phase: TransitionPhase) -> some View {
         stubView()
     }
 
@@ -342,11 +360,11 @@ public struct ContentTransition : Equatable, Sendable {
     }
 }
 
-/* @MainActor */ @preconcurrency public struct OpacityTransition : Transition {
-    /* @MainActor */ @preconcurrency public init() {
+@MainActor @preconcurrency public struct OpacityTransition : Transition {
+    /* @MainActor @preconcurrency */nonisolated public init() {
     }
 
-    /* @MainActor */ @preconcurrency public func body(content: Any /* OpacityTransition.Content */, phase: TransitionPhase) -> some View {
+    @MainActor @preconcurrency public func body(content: Any /* OpacityTransition.Content */, phase: TransitionPhase) -> some View {
         stubView()
     }
 
@@ -357,14 +375,14 @@ public struct ContentTransition : Equatable, Sendable {
     }
 }
 
-/* @MainActor */ @preconcurrency public struct PushTransition : Transition {
-    /* @MainActor */ @preconcurrency public var edge: Edge
+@MainActor @preconcurrency public struct PushTransition : Transition {
+    @MainActor @preconcurrency public var edge: Edge
 
-    /* @MainActor */ @preconcurrency public init(edge: Edge) {
+    /* @MainActor @preconcurrency */nonisolated public init(edge: Edge) {
         self.edge = edge
     }
 
-    /* @MainActor */ @preconcurrency public func body(content: Any /* PushTransition.Content */, phase: TransitionPhase) -> some View {
+    @MainActor @preconcurrency public func body(content: Any /* PushTransition.Content */, phase: TransitionPhase) -> some View {
         stubView()
     }
 
@@ -373,16 +391,16 @@ public struct ContentTransition : Equatable, Sendable {
     }
 }
 
-/* @MainActor */ @preconcurrency public struct ScaleTransition : Transition {
-    /* @MainActor */ @preconcurrency public var scale: Double
-    /* @MainActor */ @preconcurrency public var anchor: UnitPoint
+@MainActor @preconcurrency public struct ScaleTransition : Transition {
+    @MainActor @preconcurrency public var scale: Double
+    @MainActor @preconcurrency public var anchor: UnitPoint
 
-    /* @MainActor */ @preconcurrency public init(_ scale: Double, anchor: UnitPoint = .center) {
+    /* @MainActor @preconcurrency */nonisolated public init(_ scale: Double, anchor: UnitPoint = .center) {
         self.scale = scale
         self.anchor = anchor
     }
 
-    /* @MainActor */ @preconcurrency public func body(content: Any /* ScaleTransition.Content */, phase: TransitionPhase) -> some View {
+    @MainActor @preconcurrency public func body(content: Any /* ScaleTransition.Content */, phase: TransitionPhase) -> some View {
         stubView()
     }
 
@@ -391,11 +409,11 @@ public struct ContentTransition : Equatable, Sendable {
     }
 }
 
-/* @MainActor */ @preconcurrency public struct SlideTransition : Transition {
-    /* @MainActor */ @preconcurrency public init() {
+@MainActor @preconcurrency public struct SlideTransition : Transition {
+    /* @MainActor @preconcurrency */nonisolated public init() {
     }
 
-    /* @MainActor */ @preconcurrency public func body(content: Any /* SlideTransition.Content */, phase: TransitionPhase) -> some View {
+    @MainActor @preconcurrency public func body(content: Any /* SlideTransition.Content */, phase: TransitionPhase) -> some View {
         stubView()
     }
 

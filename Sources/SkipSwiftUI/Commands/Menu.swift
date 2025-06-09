@@ -2,77 +2,77 @@
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import SkipUI
 
-/* @MainActor */ @preconcurrency public struct Menu<Label, Content> : View where Label : View, Content : View {
-    private let content: Content
-    private let label: Label
-    private let primaryAction: (() -> Void)?
+@MainActor @preconcurrency public struct Menu<Label, Content> : View where Label : View, Content : View {
+    private let content: UncheckedSendableBox<Content>
+    private let label: UncheckedSendableBox<Label>
+    private let primaryAction: UncheckedSendableBox<() -> Void>?
 
     public typealias Body = Never
 }
 
 extension Menu : SkipUIBridging {
     public var Java_view: any SkipUI.View {
-        return SkipUI.Menu(bridgedContent: content.Java_viewOrEmpty, bridgedLabel: label.Java_viewOrEmpty, primaryAction: primaryAction)
+        return SkipUI.Menu(bridgedContent: content.wrappedValue.Java_viewOrEmpty, bridgedLabel: label.wrappedValue.Java_viewOrEmpty, primaryAction: primaryAction?.wrappedValue)
     }
 }
 
 extension Menu {
     nonisolated public init(@ViewBuilder content: () -> Content, @ViewBuilder label: () -> Label) {
-        self.content = content()
-        self.label = label()
+        self.content = UncheckedSendableBox(content())
+        self.label = UncheckedSendableBox(label())
         self.primaryAction = nil
     }
 
     nonisolated public init(_ titleKey: LocalizedStringKey, @ViewBuilder content: () -> Content) where Label == Text {
-        self.content = content()
-        self.label = Text(titleKey)
+        self.content = UncheckedSendableBox(content())
+        self.label = UncheckedSendableBox(Text(titleKey))
         self.primaryAction = nil
     }
 
     @_disfavoredOverload nonisolated public init<S>(_ title: S, @ViewBuilder content: () -> Content) where Label == Text, S : StringProtocol {
-        self.content = content()
-        self.label = Text(title)
+        self.content = UncheckedSendableBox(content())
+        self.label = UncheckedSendableBox(Text(title))
         self.primaryAction = nil
     }
 }
 
 extension Menu {
     nonisolated public init(@ViewBuilder content: () -> Content, @ViewBuilder label: () -> Label, primaryAction: @escaping () -> Void) {
-        self.content = content()
-        self.label = label()
-        self.primaryAction = primaryAction
+        self.content = UncheckedSendableBox(content())
+        self.label = UncheckedSendableBox(label())
+        self.primaryAction = UncheckedSendableBox(primaryAction)
     }
 
     nonisolated public init(_ titleKey: LocalizedStringKey, @ViewBuilder content: () -> Content, primaryAction: @escaping () -> Void) where Label == Text {
-        self.content = content()
-        self.label = Text(titleKey)
-        self.primaryAction = primaryAction
+        self.content = UncheckedSendableBox(content())
+        self.label = UncheckedSendableBox(Text(titleKey))
+        self.primaryAction = UncheckedSendableBox(primaryAction)
     }
 
     @_disfavoredOverload nonisolated public init<S>(_ title: S, @ViewBuilder content: () -> Content, primaryAction: @escaping () -> Void) where Label == Text, S : StringProtocol {
-        self.content = content()
-        self.label = Text(title)
-        self.primaryAction = primaryAction
+        self.content = UncheckedSendableBox(content())
+        self.label = UncheckedSendableBox(Text(title))
+        self.primaryAction = UncheckedSendableBox(primaryAction)
     }
 }
 
 extension Menu where Label == SkipSwiftUI.Label<Text, Image> {
     nonisolated public init(_ titleKey: LocalizedStringKey, systemImage: String, @ViewBuilder content: () -> Content) {
-        self.content = content()
-        self.label = Label(titleKey, systemImage: systemImage)
+        self.content = UncheckedSendableBox(content())
+        self.label = UncheckedSendableBox(Label(titleKey, systemImage: systemImage))
         self.primaryAction = nil
     }
 
     @_disfavoredOverload nonisolated public init<S>(_ title: S, systemImage: String, @ViewBuilder content: () -> Content) where S : StringProtocol {
-        self.content = content()
-        self.label = Label(title, systemImage: systemImage)
+        self.content = UncheckedSendableBox(content())
+        self.label = UncheckedSendableBox(Label(title, systemImage: systemImage))
         self.primaryAction = nil
     }
 
     nonisolated public init(_ titleKey: LocalizedStringKey, systemImage: String, @ViewBuilder content: () -> Content, primaryAction: @escaping () -> Void) {
-        self.content = content()
-        self.label = Label(titleKey, systemImage: systemImage)
-        self.primaryAction = primaryAction
+        self.content = UncheckedSendableBox(content())
+        self.label = UncheckedSendableBox(Label(titleKey, systemImage: systemImage))
+        self.primaryAction = UncheckedSendableBox(primaryAction)
     }
 }
 
@@ -113,24 +113,24 @@ public struct MenuOrder : Equatable, Hashable, Sendable {
     public let identifier: Int
 }
 
-/* @MainActor */ @preconcurrency public protocol MenuStyle {
+@MainActor @preconcurrency public protocol MenuStyle {
     associatedtype Body : View
 
     @ViewBuilder @MainActor @preconcurrency func makeBody(configuration: Self.Configuration) -> Self.Body
 
     typealias Configuration = MenuStyleConfiguration
 
-    var identifier: Int { get } // For bridging
+    nonisolated var identifier: Int { get } // For bridging
 }
 
 extension MenuStyle {
-    public var identifier: Int {
+    nonisolated public var identifier: Int {
         return -1
     }
 }
 
-/* @MainActor */ @preconcurrency public struct ButtonMenuStyle : MenuStyle {
-    /* @MainActor */ @preconcurrency public init() {
+@MainActor @preconcurrency public struct ButtonMenuStyle : MenuStyle {
+    @MainActor @preconcurrency public init() {
     }
 
     @MainActor @preconcurrency public func makeBody(configuration: ButtonMenuStyle.Configuration) -> some View {
@@ -141,13 +141,13 @@ extension MenuStyle {
 }
 
 extension MenuStyle where Self == ButtonMenuStyle {
-    /* @MainActor */ @preconcurrency public static var button: ButtonMenuStyle {
+    @MainActor @preconcurrency public static var button: ButtonMenuStyle {
         return ButtonMenuStyle()
     }
 }
 
-/* @MainActor */ @preconcurrency public struct DefaultMenuStyle : MenuStyle {
-    /* @MainActor */ @preconcurrency public init() {
+@MainActor @preconcurrency public struct DefaultMenuStyle : MenuStyle {
+    @MainActor @preconcurrency public init() {
     }
 
     @MainActor @preconcurrency public func makeBody(configuration: ButtonMenuStyle.Configuration) -> some View {
@@ -158,14 +158,14 @@ extension MenuStyle where Self == ButtonMenuStyle {
 }
 
 extension MenuStyle where Self == DefaultMenuStyle {
-    /* @MainActor */ @preconcurrency public static var automatic: DefaultMenuStyle {
+    @MainActor @preconcurrency public static var automatic: DefaultMenuStyle {
         return DefaultMenuStyle()
     }
 }
 
-/* @MainActor */ @preconcurrency public struct BorderlessButtonMenuStyle : MenuStyle {
+@MainActor @preconcurrency public struct BorderlessButtonMenuStyle : MenuStyle {
     @available(*, unavailable)
-    /* @MainActor */ @preconcurrency public init() {
+    @MainActor @preconcurrency public init() {
         fatalError()
     }
 
@@ -176,17 +176,17 @@ extension MenuStyle where Self == DefaultMenuStyle {
 
 extension MenuStyle where Self == BorderlessButtonMenuStyle {
     @available(*, unavailable)
-    /* @MainActor */ @preconcurrency public static var borderlessButton: BorderlessButtonMenuStyle {
+    @MainActor @preconcurrency public static var borderlessButton: BorderlessButtonMenuStyle {
         fatalError()
     }
 }
 
 public struct MenuStyleConfiguration {
-    /* @MainActor */ @preconcurrency public struct Label : View {
+    @MainActor @preconcurrency public struct Label : View {
         public typealias Body = Never
     }
 
-    /* @MainActor */ @preconcurrency public struct Content : View {
+    @MainActor @preconcurrency public struct Content : View {
         public typealias Body = Never
     }
 }

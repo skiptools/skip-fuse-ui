@@ -1,9 +1,10 @@
 // Copyright 2025 Skip
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
+import SkipBridge
 import SkipUI
 
-/* @MainActor */ @preconcurrency public struct Button<Label> : View where Label : View {
-    private let label: Label
+@MainActor @preconcurrency public struct Button<Label> : View where Label : View {
+    private let label: UncheckedSendableBox<Label>
     private let action: @MainActor () -> Void
     private let role: ButtonRole?
 
@@ -22,7 +23,7 @@ extension Button : SkipUIBridging {
         #else
         let isolatedAction = action
         #endif
-        return SkipUI.Button(bridgedRole: role?.identifier, action: isolatedAction, bridgedLabel: label.Java_viewOrEmpty)
+        return SkipUI.Button(bridgedRole: role?.identifier, action: isolatedAction, bridgedLabel: label.wrappedValue.Java_viewOrEmpty)
     }
 }
 
@@ -63,7 +64,7 @@ extension Button {
     @preconcurrency nonisolated public init(role: ButtonRole?, action: @escaping @MainActor () -> Void, @ViewBuilder label: () -> Label) {
         self.role = role
         self.action = action
-        self.label = label()
+        self.label = UncheckedSendableBox(label())
     }
 }
 
@@ -109,7 +110,7 @@ public struct ButtonRole : Equatable, Sendable {
     let identifier: Int // For bridging
 }
 
-/* @MainActor */ @preconcurrency public protocol ButtonStyle {
+@MainActor @preconcurrency public protocol ButtonStyle {
     associatedtype Body : View
 
     @ViewBuilder @MainActor @preconcurrency func makeBody(configuration: Self.Configuration) -> Self.Body
@@ -118,7 +119,7 @@ public struct ButtonRole : Equatable, Sendable {
 }
 
 public struct ButtonStyleConfiguration {
-    /* @MainActor */ @preconcurrency public struct Label : View {
+    @MainActor @preconcurrency public struct Label : View {
         public typealias Body = Never
     }
 
@@ -127,8 +128,8 @@ public struct ButtonStyleConfiguration {
     public let isPressed: Bool
 }
 
-/* @MainActor */ @preconcurrency public struct BorderedButtonStyle : PrimitiveButtonStyle {
-    /* @MainActor */ @preconcurrency public init() {
+@MainActor @preconcurrency public struct BorderedButtonStyle : PrimitiveButtonStyle {
+    @MainActor @preconcurrency public init() {
     }
 
     @MainActor @preconcurrency public func makeBody(configuration: BorderedButtonStyle.Configuration) -> some View {
@@ -138,8 +139,8 @@ public struct ButtonStyleConfiguration {
     public let identifier = 3 // For bridging
 }
 
-/* @MainActor */ @preconcurrency public struct BorderedProminentButtonStyle : PrimitiveButtonStyle {
-    /* @MainActor */ @preconcurrency public init() {
+@MainActor @preconcurrency public struct BorderedProminentButtonStyle : PrimitiveButtonStyle {
+    @MainActor @preconcurrency public init() {
     }
 
     @MainActor @preconcurrency public func makeBody(configuration: BorderedProminentButtonStyle.Configuration) -> some View {
@@ -149,8 +150,8 @@ public struct ButtonStyleConfiguration {
     public let identifier = 4 // For bridging
 }
 
-/* @MainActor */ @preconcurrency public struct BorderlessButtonStyle : PrimitiveButtonStyle {
-    /* @MainActor */ @preconcurrency public init() {
+@MainActor @preconcurrency public struct BorderlessButtonStyle : PrimitiveButtonStyle {
+    @MainActor @preconcurrency public init() {
     }
 
     @MainActor @preconcurrency public func makeBody(configuration: BorderlessButtonStyle.Configuration) -> some View {
@@ -160,8 +161,8 @@ public struct ButtonStyleConfiguration {
     public let identifier = 2 // For bridging
 }
 
-/* @MainActor */ @preconcurrency public struct DefaultButtonStyle : PrimitiveButtonStyle {
-    /* @MainActor */ @preconcurrency public init() {
+@MainActor @preconcurrency public struct DefaultButtonStyle : PrimitiveButtonStyle {
+    @MainActor @preconcurrency public init() {
     }
 
     @MainActor @preconcurrency public func makeBody(configuration: DefaultButtonStyle.Configuration) -> some View {
@@ -171,8 +172,8 @@ public struct ButtonStyleConfiguration {
     public let identifier = 0 // For bridging
 }
 
-/* @MainActor */ @preconcurrency public struct PlainButtonStyle : PrimitiveButtonStyle {
-    /* @MainActor */ @preconcurrency public init() {
+@MainActor @preconcurrency public struct PlainButtonStyle : PrimitiveButtonStyle {
+    @MainActor @preconcurrency public init() {
     }
 
     @MainActor @preconcurrency public func makeBody(configuration: PlainButtonStyle.Configuration) -> some View {
@@ -182,54 +183,54 @@ public struct ButtonStyleConfiguration {
     public let identifier = 1 // For bridging
 }
 
-/* @MainActor */ @preconcurrency public protocol PrimitiveButtonStyle {
+@MainActor @preconcurrency public protocol PrimitiveButtonStyle {
     associatedtype Body : View
 
     @ViewBuilder @MainActor @preconcurrency func makeBody(configuration: Self.Configuration) -> Self.Body
 
     typealias Configuration = PrimitiveButtonStyleConfiguration
 
-    var identifier: Int { get } // For bridging
+    nonisolated var identifier: Int { get } // For bridging
 }
 
 extension PrimitiveButtonStyle {
-    public var identifier: Int {
+    nonisolated public var identifier: Int {
         return -1
     }
 }
 
 extension PrimitiveButtonStyle where Self == DefaultButtonStyle {
-    /* @MainActor */ @preconcurrency public static var automatic: DefaultButtonStyle {
+    @MainActor @preconcurrency public static var automatic: DefaultButtonStyle {
         return DefaultButtonStyle()
     }
 }
 
 extension PrimitiveButtonStyle where Self == BorderlessButtonStyle {
-    /* @MainActor */ @preconcurrency public static var borderless: BorderlessButtonStyle {
+    @MainActor @preconcurrency public static var borderless: BorderlessButtonStyle {
         return BorderlessButtonStyle()
     }
 }
 
 extension PrimitiveButtonStyle where Self == PlainButtonStyle {
-    /* @MainActor */ @preconcurrency public static var plain: PlainButtonStyle {
+    @MainActor @preconcurrency public static var plain: PlainButtonStyle {
         return PlainButtonStyle()
     }
 }
 
 extension PrimitiveButtonStyle where Self == BorderedButtonStyle {
-    /* @MainActor */ @preconcurrency public static var bordered: BorderedButtonStyle {
+    @MainActor @preconcurrency public static var bordered: BorderedButtonStyle {
         return BorderedButtonStyle()
     }
 }
 
 extension PrimitiveButtonStyle where Self == BorderedProminentButtonStyle {
-    /* @MainActor */ @preconcurrency public static var borderedProminent: BorderedProminentButtonStyle {
+    @MainActor @preconcurrency public static var borderedProminent: BorderedProminentButtonStyle {
         return BorderedProminentButtonStyle()
     }
 }
 
 public struct PrimitiveButtonStyleConfiguration {
-    /* @MainActor */ @preconcurrency public struct Label : View {
+    @MainActor @preconcurrency public struct Label : View {
         public typealias Body = Never
     }
 

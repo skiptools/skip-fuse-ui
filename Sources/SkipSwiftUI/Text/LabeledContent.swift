@@ -55,7 +55,7 @@ extension LabeledContent where Label == LabeledContentStyleConfiguration.Label, 
     }
 }
 
-/* @MainActor */ @preconcurrency public protocol LabeledContentStyle {
+@MainActor @preconcurrency public protocol LabeledContentStyle {
     associatedtype Body : View
 
     @ViewBuilder @MainActor @preconcurrency func makeBody(configuration: Self.Configuration) -> Self.Body
@@ -63,8 +63,8 @@ extension LabeledContent where Label == LabeledContentStyleConfiguration.Label, 
     typealias Configuration = LabeledContentStyleConfiguration
 }
 
-/* @MainActor */ @preconcurrency public struct AutomaticLabeledContentStyle : LabeledContentStyle {
-    /* @MainActor */ @preconcurrency public init() {
+@MainActor @preconcurrency public struct AutomaticLabeledContentStyle : LabeledContentStyle {
+    @MainActor @preconcurrency public init() {
     }
 
     @MainActor @preconcurrency public func makeBody(configuration: AutomaticLabeledContentStyle.Configuration) -> some View {
@@ -73,17 +73,17 @@ extension LabeledContent where Label == LabeledContentStyleConfiguration.Label, 
 }
 
 extension LabeledContentStyle where Self == AutomaticLabeledContentStyle {
-    /* @MainActor */ @preconcurrency public static var automatic: AutomaticLabeledContentStyle {
+    @MainActor @preconcurrency public static var automatic: AutomaticLabeledContentStyle {
         return AutomaticLabeledContentStyle()
     }
 }
 
 public struct LabeledContentStyleConfiguration {
-    /* @MainActor */ @preconcurrency public struct Label : View {
+    @MainActor @preconcurrency public struct Label : View {
         public typealias Body = Never
     }
 
-    /* @MainActor */ @preconcurrency public struct Content : View {
+    @MainActor @preconcurrency public struct Content : View {
         public typealias Body = Never
     }
 
