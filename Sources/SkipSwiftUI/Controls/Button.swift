@@ -4,7 +4,7 @@ import SkipBridge
 import SkipUI
 
 @MainActor @preconcurrency public struct Button<Label> : View where Label : View {
-    private let label: UncheckedSendableBox<Label>
+    private let label: UncheckedSendableBox<Label>?
     private let action: @MainActor () -> Void
     private let role: ButtonRole?
 
@@ -23,7 +23,7 @@ extension Button : SkipUIBridging {
         #else
         let isolatedAction = action
         #endif
-        return SkipUI.Button(bridgedRole: role?.identifier, action: isolatedAction, bridgedLabel: label.wrappedValue.Java_viewOrEmpty)
+        return SkipUI.Button(bridgedRole: role?.identifier, action: isolatedAction, bridgedLabel: label?.wrappedValue.Java_viewOrEmpty)
     }
 }
 
@@ -34,6 +34,12 @@ extension Button where Label == Text {
 
     @_disfavoredOverload @preconcurrency nonisolated public init<S>(_ title: S, action: @escaping @MainActor () -> Void) where S : StringProtocol {
         self.init(action: action, label: { Text(title) })
+    }
+
+    @preconcurrency public init(role: ButtonRole, action: @escaping @MainActor () -> Void) {
+        self.role = role
+        self.action = action
+        self.label = nil
     }
 }
 
@@ -104,8 +110,9 @@ public struct ButtonRepeatBehavior : Hashable, Sendable {
 
 public struct ButtonRole : Equatable, Sendable {
     public static let destructive = ButtonRole(identifier: 1) // For bridging
-
     public static let cancel = ButtonRole(identifier: 2) // For bridging
+    public static let confirm = ButtonRole(identifier: 3) // For bridging
+    public static let close = ButtonRole(identifier: 4) // For bridging
 
     let identifier: Int // For bridging
 }
@@ -193,6 +200,18 @@ public struct ButtonStyleConfiguration {
     public let identifier = 1 // For bridging
 }
 
+@MainActor @preconcurrency public struct GlassButtonStyle : PrimitiveButtonStyle {
+    @available(*, unavailable)
+    @MainActor @preconcurrency public init() {
+    }
+
+    @MainActor @preconcurrency public func makeBody(configuration: GlassButtonStyle.Configuration) -> some View {
+        stubView()
+    }
+
+    public let identifier = 5 // For bridging
+}
+
 @MainActor @preconcurrency public protocol PrimitiveButtonStyle {
     associatedtype Body : View
 
@@ -236,6 +255,13 @@ extension PrimitiveButtonStyle where Self == BorderedButtonStyle {
 extension PrimitiveButtonStyle where Self == BorderedProminentButtonStyle {
     @MainActor @preconcurrency public static var borderedProminent: BorderedProminentButtonStyle {
         return BorderedProminentButtonStyle()
+    }
+}
+
+extension PrimitiveButtonStyle where Self == GlassButtonStyle {
+    @available(*, unavailable)
+    @MainActor @preconcurrency public static var glass: GlassButtonStyle {
+        fatalError()
     }
 }
 

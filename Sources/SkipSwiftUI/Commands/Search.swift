@@ -88,6 +88,11 @@ public struct SearchUnavailableContent {
     }
 }
 
+public struct FindContext : Sendable {
+    public var isPresented: Binding<Bool>?
+    public var supportsReplace: Bool
+}
+
 extension View {
     nonisolated public func searchable(text: Binding<String>, placement: SearchFieldPlacement = .automatic, prompt: Text? = nil) -> some View {
         return ModifierView(target: self) {

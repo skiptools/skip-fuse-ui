@@ -20,3 +20,14 @@ extension Spacer : SkipUIBridging {
         return SkipUI.Spacer(minLength: minLength)
     }
 }
+
+public struct SpacerSizing : Sendable {
+    public static let flexible = SpacerSizing(identifier: 1) // For bridging
+    public static let fixed = SpacerSizing(identifier: 2) // For bridging
+
+    let identifier: Int // For bridging
+
+    init(identifier: Int) {
+        self.identifier = identifier
+    }
+}

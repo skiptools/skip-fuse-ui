@@ -24,3 +24,31 @@ public struct TextInputAutocapitalization : Sendable {
 //extension TextInputAutocapitalization {
 //    public init?(_ type: UITextAutocapitalizationType)
 //}
+
+public struct TextInputFormattingControlPlacement : Sendable {
+    public struct Set : OptionSet, Sendable {
+        public let rawValue: UInt
+
+        public init(rawValue: UInt) {
+            self.rawValue = rawValue
+        }
+
+        public static let contextMenu = TextInputFormattingControlPlacement.Set(rawValue: 1 << 0)
+        public static let inputAssistant = TextInputFormattingControlPlacement.Set(rawValue: 1 << 1)
+        public static let all = TextInputFormattingControlPlacement.Set(rawValue: 1 << 2)
+        public static let `default` = TextInputFormattingControlPlacement.Set(rawValue: 1 << 3)
+    }
+}
+
+extension View {
+    nonisolated public func textInputAutocapitalization(_ autocapitalization: TextInputAutocapitalization?) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.textInputAutocapitalization(bridgedAutocapitalization: autocapitalization?.identifier)
+        }
+    }
+
+    @available(*, unavailable)
+    @MainActor @preconcurrency public func textInputFormattingControlVisibility(_ visibility: Visibility, for placement: TextInputFormattingControlPlacement.Set) -> some View {
+        stubView()
+    }
+}

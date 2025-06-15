@@ -47,7 +47,7 @@ public struct SensoryFeedback : Equatable, Sendable {
         public static let heavy = SensoryFeedback.Weight()
     }
 
-    public struct Flexibility : Equatable, Sendable {
+    public struct Flexibility : Hashable, Sendable {
         public static let rigid = SensoryFeedback.Flexibility()
 
         public static let solid = SensoryFeedback.Flexibility()

@@ -112,7 +112,21 @@ extension CustomizableToolbarContent {
 
 extension CustomizableToolbarContent {
     @available(*, unavailable)
-    public func defaultCustomization(_ defaultVisibility: Visibility = .automatic, options: ToolbarCustomizationOptions = []) -> some CustomizableToolbarContent {
+    nonisolated public func defaultCustomization(_ defaultVisibility: Visibility = .automatic, options: ToolbarCustomizationOptions = []) -> some CustomizableToolbarContent {
+        stubToolbarContent()
+    }
+}
+
+extension CustomizableToolbarContent {
+    @available(*, unavailable)
+    nonisolated public func sharedBackgroundVisibility(_ visibility: Visibility) -> some CustomizableToolbarContent {
+        stubToolbarContent()
+    }
+}
+
+extension CustomizableToolbarContent {
+    @available(*, unavailable)
+    nonisolated public func matchedTransitionSource(id: some Hashable, in namespace: Namespace.ID) -> some CustomizableToolbarContent {
         stubToolbarContent()
     }
 }
@@ -151,9 +165,11 @@ public struct ToolbarCustomizationOptions : OptionSet, Sendable {
 }
 
 public struct ToolbarDefaultItemKind : Sendable {
-    public static let sidebarToggle = ToolbarDefaultItemKind()
+    public static let sidebarToggle = ToolbarDefaultItemKind(identifier: 1) // For bridging
+    public static let title = ToolbarDefaultItemKind(identifier: 2) // For bridging
+    public static let search = ToolbarDefaultItemKind(identifier: 3) // For bridging
 
-    public static let title = ToolbarDefaultItemKind()
+    let identifier: Int // For bridging
 }
 
 @MainActor @preconcurrency public struct ToolbarItem<ID, Content> : ToolbarContent where Content : View {
@@ -198,6 +214,14 @@ extension ToolbarItem : Identifiable where ID : Hashable {
     }
 }
 
+@MainActor @preconcurrency public struct DefaultToolbarItem : ToolbarContent {
+    @available(*, unavailable)
+    nonisolated public init(kind: ToolbarDefaultItemKind, placement: ToolbarItemPlacement = .automatic) {
+    }
+
+    public var body : Never { fatalError("Never") }
+}
+
 @MainActor @preconcurrency public struct ToolbarItemGroup<Content> : ToolbarContent where Content : View {
     private let placement: ToolbarItemPlacement
     private let content: UncheckedSendableBox<Content>
@@ -223,36 +247,48 @@ extension ToolbarItemGroup {
     }
 }
 
+@MainActor @preconcurrency public struct ToolbarSpacer : ToolbarContent, CustomizableToolbarContent {
+    private let sizing: SpacerSizing
+    private let placement: ToolbarItemPlacement
+
+    nonisolated public init(_ sizing: SpacerSizing = .flexible, placement: ToolbarItemPlacement = .automatic) {
+        self.sizing = sizing
+        self.placement = placement
+    }
+
+    public var body : Never { fatalError("Never") }
+}
+
+extension ToolbarSpacer : SkipUIBridging {
+    public var Java_view: any SkipUI.View {
+        return SkipUI.ToolbarSpacer(bridgedSizing: sizing.identifier, bridgedPlacement: placement.identifier)
+    }
+}
+
 public struct ToolbarItemPlacement : Sendable {
     public static let automatic = ToolbarItemPlacement(identifier: 0) // For bridging
-
     public static let principal = ToolbarItemPlacement(identifier: 1) // For bridging
-
     public static let navigation = ToolbarItemPlacement(identifier: 2) // For bridging
-
     public static let primaryAction = ToolbarItemPlacement(identifier: 3) // For bridging
-
     public static let secondaryAction = ToolbarItemPlacement(identifier: 4) // For bridging
-
     public static let status = ToolbarItemPlacement(identifier: 5) // For bridging
-
     public static let confirmationAction = ToolbarItemPlacement(identifier: 6) // For bridging
-
     public static let cancellationAction = ToolbarItemPlacement(identifier: 7) // For bridging
-
     public static let destructiveAction = ToolbarItemPlacement(identifier: 8) // For bridging
-
     public static let keyboard = ToolbarItemPlacement(identifier: 9) // For bridging
-
     public static let topBarLeading = ToolbarItemPlacement(identifier: 10) // For bridging
-
     public static let topBarTrailing = ToolbarItemPlacement(identifier: 11) // For bridging
-
     public static let bottomBar = ToolbarItemPlacement(identifier: 12) // For bridging
-
     public static let navigationBarLeading = ToolbarItemPlacement(identifier: 13) // For bridging
-
     public static let navigationBarTrailing = ToolbarItemPlacement(identifier: 14) // For bridging
+    @available(*, unavailable)
+    public static let title = ToolbarItemPlacement(identifier: 15) // For bridging
+    @available(*, unavailable)
+    public static let largeTitle = ToolbarItemPlacement(identifier: 16) // For bridging
+    @available(*, unavailable)
+    public static let subtitle = ToolbarItemPlacement(identifier: 17) // For bridging
+    @available(*, unavailable)
+    public static let largeSubtitle = ToolbarItemPlacement(identifier: 18) // For bridging
 
     let identifier: Int // For bridging
 

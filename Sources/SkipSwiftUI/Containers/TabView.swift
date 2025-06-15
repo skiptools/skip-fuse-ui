@@ -56,6 +56,26 @@ extension View {
             return $0.Java_viewOrEmpty.tabViewStyle(bridgedStyle: style.identifier, bridgedDisplayMode: displayMode)
         }
     }
+
+    nonisolated public func tabBarMinimizeBehavior(_ behavior: TabBarMinimizeBehavior) -> some View {
+        // We only support automatic, never
+        return self
+    }
+}
+
+public struct TabBarMinimizeBehavior : Hashable, Sendable {
+    public static let automatic = TabBarMinimizeBehavior(identity: 1)
+    @available(*, unavailable)
+    public static let onScrollDown = TabBarMinimizeBehavior(identity: 2)
+    @available(*, unavailable)
+    public static let onScrollUp = TabBarMinimizeBehavior(identity: 3)
+    public static let never = TabBarMinimizeBehavior(identity: 4)
+
+    let identity: Int
+
+    init(identity: Int) {
+        self.identity = identity
+    }
 }
 
 @MainActor @preconcurrency public protocol TabViewStyle {

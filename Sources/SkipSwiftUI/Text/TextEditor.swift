@@ -9,12 +9,21 @@ import SkipUI
         self.text = text
     }
 
+//    nonisolated public init(_ titleResource: LocalizedStringResource, text: Binding<String>) {
+//        self.text = text
+//    }
+
     #if compiler(>=6.0)
     @available(*, unavailable)
     nonisolated public init(text: Binding<String>, selection: Binding<TextSelection?>) {
         fatalError()
     }
     #endif
+
+    @available(*, unavailable)
+    nonisolated public init(text: Binding<AttributedString>, selection: Any? /* Binding<AttributedTextSelection>? */ = nil) {
+        fatalError()
+    }
 
     public typealias Body = Never
 }

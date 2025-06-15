@@ -64,7 +64,7 @@ public struct ScrollContentOffsetAdjustmentBehavior {
     }
 }
 
-public struct ScrollDismissesKeyboardMode : Sendable {
+public struct ScrollDismissesKeyboardMode : Hashable, Sendable {
     public static var automatic: ScrollDismissesKeyboardMode {
         return ScrollDismissesKeyboardMode()
     }
@@ -79,6 +79,18 @@ public struct ScrollDismissesKeyboardMode : Sendable {
 
     public static var never: ScrollDismissesKeyboardMode {
         return ScrollDismissesKeyboardMode()
+    }
+}
+
+public struct ScrollEdgeEffectStyle : Hashable, Sendable {
+    public static var automatic: ScrollEdgeEffectStyle {
+        return ScrollEdgeEffectStyle()
+    }
+    public static var hard: ScrollEdgeEffectStyle {
+        return ScrollEdgeEffectStyle()
+    }
+    public static var soft: ScrollEdgeEffectStyle {
+        return ScrollEdgeEffectStyle()
     }
 }
 
@@ -351,6 +363,16 @@ public struct ViewAlignedScrollTargetBehavior : ScrollTargetBehavior {
         self.limitBehavior = limitBehavior
     }
 
+    @available(*, unavailable)
+    public init(anchor: UnitPoint?) {
+        fatalError()
+    }
+
+    @available(*, unavailable)
+    public init(limitBehavior: ViewAlignedScrollTargetBehavior.LimitBehavior, anchor: UnitPoint?) {
+        fatalError()
+    }
+
     public func updateTarget(_ target: inout ScrollTarget, context: ViewAlignedScrollTargetBehavior.TargetContext) {
         fatalError()
     }
@@ -367,6 +389,16 @@ extension ScrollTargetBehavior where Self == ViewAlignedScrollTargetBehavior {
 
     public static func viewAligned(limitBehavior: ViewAlignedScrollTargetBehavior.LimitBehavior) -> Self {
         return ViewAlignedScrollTargetBehavior(limitBehavior: limitBehavior)
+    }
+
+    @available(*, unavailable)
+    public static func viewAligned(anchor: UnitPoint?) -> Self {
+        fatalError()
+    }
+
+    @available(*, unavailable)
+    public static func viewAligned(limitBehavior: ViewAlignedScrollTargetBehavior.LimitBehavior, anchor: UnitPoint?) -> Self {
+        fatalError()
     }
 }
 

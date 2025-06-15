@@ -385,11 +385,3 @@ extension View {
         }
     }
 }
-
-extension View {
-    nonisolated public func textInputAutocapitalization(_ autocapitalization: TextInputAutocapitalization?) -> some View {
-        return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.textInputAutocapitalization(bridgedAutocapitalization: autocapitalization?.identifier)
-        }
-    }
-}
