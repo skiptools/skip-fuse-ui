@@ -11,9 +11,19 @@ import SkipBridge
 @_exported import protocol SkipUI.ViewModifier
 
 /// The base protocol for compiled `Views` to bridge to their corresponding `skip.ui.View` implementations.
-public protocol SkipUIBridging {
+public protocol SkipUIBridging : JObjectConvertible {
     /// The composable SkipUI version of this view.
     nonisolated var Java_view: any SkipUI.View { get }
+}
+
+extension SkipUIBridging {
+    nonisolated public static func fromJavaObject(_ obj: JavaObjectPointer?, options: JConvertibleOptions) -> Self {
+        fatalError("This view does not implement fromJavaObject(_:options:)")
+    }
+
+    nonisolated public func toJavaObject(options: JConvertibleOptions) -> JavaObjectPointer? {
+        return (Java_view as? JObjectConvertible)?.toJavaObject(options: options)
+    }
 }
 
 extension View {

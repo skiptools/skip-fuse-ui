@@ -1,6 +1,7 @@
 // Copyright 2025 Skip
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import Foundation
+import SkipFuse
 import SkipUI
 
 extension View {
@@ -12,6 +13,10 @@ extension View {
 
     nonisolated public func accessibilityValue(_ valueKey: LocalizedStringKey, isEnabled: Bool = true) -> some View /* ModifiedContent<Self, AccessibilityAttachmentModifier> */ {
         return accessibilityValue(Text(valueKey), isEnabled: isEnabled)
+    }
+
+    @_disfavoredOverload nonisolated public func accessibilityValue(_ valueResource: AndroidLocalizedStringResource, isEnabled: Bool = true) -> some View /* ModifiedContent<Self, AccessibilityAttachmentModifier> */ {
+        return accessibilityValue(Text(valueResource), isEnabled: isEnabled)
     }
 
     @_disfavoredOverload nonisolated public func accessibilityValue<S>(_ value: S, isEnabled: Bool = true) -> some View /* ModifiedContent<Self, AccessibilityAttachmentModifier> */ where S : StringProtocol {
@@ -65,6 +70,10 @@ extension View {
         return accessibilityLabel(Text(labelKey), isEnabled: isEnabled)
     }
 
+    @_disfavoredOverload nonisolated public func accessibilityLabel(_ labelResource: AndroidLocalizedStringResource, isEnabled: Bool = true) -> some View /* ModifiedContent<Self, AccessibilityAttachmentModifier> */ {
+        return accessibilityLabel(Text(labelResource), isEnabled: isEnabled)
+    }
+
     @_disfavoredOverload nonisolated public func accessibilityLabel<S>(_ label: S, isEnabled: Bool) -> some View /* ModifiedContent<Self, AccessibilityAttachmentModifier> */ where S : StringProtocol {
         return accessibilityLabel(Text(label), isEnabled: isEnabled)
     }
@@ -92,6 +101,11 @@ extension View {
 
     @available(*, unavailable)
     nonisolated public func accessibilityHint(_ hintKey: LocalizedStringKey, isEnabled: Bool) -> some View /* ModifiedContent<Self, AccessibilityAttachmentModifier> */ {
+        stubView()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload nonisolated public func accessibilityHint(_ hintResource: AndroidLocalizedStringResource, isEnabled: Bool) -> some View /* ModifiedContent<Self, AccessibilityAttachmentModifier> */ {
         stubView()
     }
 
@@ -227,7 +241,12 @@ extension View {
     }
 
     @available(*, unavailable)
-    nonisolated public func accessibilityRotor<L, Content>(_ label: L, /* @AccessibilityRotorContentBuilder */ entries: @escaping () -> Content) -> some View where L : StringProtocol, Content : AccessibilityRotorContent {
+    @_disfavoredOverload nonisolated public func accessibilityRotor<Content>(_ labelResource: AndroidLocalizedStringResource, /* @AccessibilityRotorContentBuilder */ entries: @escaping () -> Content) -> some View where Content : AccessibilityRotorContent {
+        stubView()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload nonisolated public func accessibilityRotor<L, Content>(_ label: L, /* @AccessibilityRotorContentBuilder */ entries: @escaping () -> Content) -> some View where L : StringProtocol, Content : AccessibilityRotorContent {
         stubView()
     }
 
@@ -237,7 +256,12 @@ extension View {
     }
 
     @available(*, unavailable)
-    nonisolated public func accessibilityRotor<L, EntryModel>(_ rotorLabel: L, entries: [EntryModel], entryLabel: KeyPath<EntryModel, String>) -> some View where L : StringProtocol, EntryModel : Identifiable {
+    @_disfavoredOverload nonisolated public func accessibilityRotor<EntryModel>(_ rotorLabelResource: AndroidLocalizedStringResource, entries: [EntryModel], entryLabel: KeyPath<EntryModel, String>) -> some View where EntryModel : Identifiable {
+        stubView()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload nonisolated public func accessibilityRotor<L, EntryModel>(_ rotorLabel: L, entries: [EntryModel], entryLabel: KeyPath<EntryModel, String>) -> some View where L : StringProtocol, EntryModel : Identifiable {
         stubView()
     }
 
@@ -247,7 +271,12 @@ extension View {
     }
 
     @available(*, unavailable)
-    nonisolated public func accessibilityRotor<L, EntryModel, ID>(_ rotorLabel: L, entries: [EntryModel], entryID: KeyPath<EntryModel, ID>, entryLabel: KeyPath<EntryModel, String>) -> some View where L : StringProtocol, ID : Hashable {
+    @_disfavoredOverload nonisolated public func accessibilityRotor<EntryModel, ID>(_ rotorLabelResource: AndroidLocalizedStringResource, entries: [EntryModel], entryID: KeyPath<EntryModel, ID>, entryLabel: KeyPath<EntryModel, String>) -> some View where ID : Hashable {
+        stubView()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload nonisolated public func accessibilityRotor<L, EntryModel, ID>(_ rotorLabel: L, entries: [EntryModel], entryID: KeyPath<EntryModel, ID>, entryLabel: KeyPath<EntryModel, String>) -> some View where L : StringProtocol, ID : Hashable {
         stubView()
     }
 
@@ -257,7 +286,12 @@ extension View {
     }
 
     @available(*, unavailable)
-    nonisolated public func accessibilityRotor<L>(_ label: L, textRanges: [Range<String.Index>]) -> some View where L : StringProtocol {
+    @_disfavoredOverload nonisolated public func accessibilityRotor(_ labelResource: AndroidLocalizedStringResource, textRanges: [Range<String.Index>]) -> some View {
+        stubView()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload nonisolated public func accessibilityRotor<L>(_ label: L, textRanges: [Range<String.Index>]) -> some View where L : StringProtocol {
         stubView()
     }
 }
@@ -308,6 +342,11 @@ extension View {
     }
 
     @available(*, unavailable)
+    @_disfavoredOverload nonisolated public func accessibilityCustomContent(_ key: AccessibilityCustomContentKey, _ valueResource: AndroidLocalizedStringResource, importance: Any? = nil /* AXCustomContent.Importance = .default */) -> some View /* ModifiedContent<Self, AccessibilityAttachmentModifier> */ {
+        stubView()
+    }
+
+    @available(*, unavailable)
     @_disfavoredOverload nonisolated public func accessibilityCustomContent<V>(_ key: AccessibilityCustomContentKey, _ value: V, importance: Any? = nil /* AXCustomContent.Importance = .default */) -> some View /* ModifiedContent<Self, AccessibilityAttachmentModifier> */ where V : StringProtocol {
         stubView()
     }
@@ -325,7 +364,17 @@ extension View {
     }
 
     @available(*, unavailable)
+    @_disfavoredOverload nonisolated public func accessibilityCustomContent(_ labelResource: AndroidLocalizedStringResource, _ value: Text, importance: Any? = nil /* AXCustomContent.Importance = .default */) ->  some View /* ModifiedContent<Self, AccessibilityAttachmentModifier> */ {
+        stubView()
+    }
+
+    @available(*, unavailable)
     nonisolated public func accessibilityCustomContent(_ labelKey: LocalizedStringKey, _ valueKey: LocalizedStringKey, importance: Any? = nil /* AXCustomContent.Importance = .default */) -> some View /* ModifiedContent<Self, AccessibilityAttachmentModifier> */ {
+        stubView()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload nonisolated public func accessibilityCustomContent(_ labelResource: AndroidLocalizedStringResource, _ valueResource: AndroidLocalizedStringResource, importance: Any? = nil /* AXCustomContent.Importance = .default */) -> some View /* ModifiedContent<Self, AccessibilityAttachmentModifier> */ {
         stubView()
     }
 
@@ -409,6 +458,11 @@ extension View {
     }
 
     @available(*, unavailable)
+    @_disfavoredOverload nonisolated public func accessibilityDragPoint(_ point: UnitPoint, description: AndroidLocalizedStringResource, isEnabled: Bool = true) -> some View /* ModifiedContent<Self, AccessibilityAttachmentModifier> */ {
+        stubView()
+    }
+
+    @available(*, unavailable)
     @_disfavoredOverload nonisolated public func accessibilityDragPoint<S>(_ point: UnitPoint, description: S, isEnabled: Bool = true) -> some View /* ModifiedContent<Self, AccessibilityAttachmentModifier> */ where S : StringProtocol {
         stubView()
     }
@@ -420,6 +474,11 @@ extension View {
 
     @available(*, unavailable)
     nonisolated public func accessibilityDropPoint(_ point: UnitPoint, description: LocalizedStringKey, isEnabled: Bool = true) -> some View /* ModifiedContent<Self, AccessibilityAttachmentModifier> */ {
+        stubView()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload nonisolated public func accessibilityDropPoint(_ point: UnitPoint, description: AndroidLocalizedStringResource, isEnabled: Bool = true) -> some View /* ModifiedContent<Self, AccessibilityAttachmentModifier> */ {
         stubView()
     }
 
@@ -474,7 +533,12 @@ extension View {
     }
 
     @available(*, unavailable)
-    nonisolated public func accessibilityAction<S>(named name: S, _ handler: @escaping () -> Void) -> some View /* ModifiedContent<Self, AccessibilityAttachmentModifier> */ where S : StringProtocol {
+    @_disfavoredOverload nonisolated public func accessibilityAction(named nameResource: AndroidLocalizedStringResource, _ handler: @escaping () -> Void) -> some View /* ModifiedContent<Self, AccessibilityAttachmentModifier> */ {
+        stubView()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload nonisolated public func accessibilityAction<S>(named name: S, _ handler: @escaping () -> Void) -> some View /* ModifiedContent<Self, AccessibilityAttachmentModifier> */ where S : StringProtocol {
         stubView()
     }
 }
@@ -489,6 +553,10 @@ public struct AccessibilityActionCategory : Equatable, Sendable {
 
     public init(_ nameKey: LocalizedStringKey) {
         self.init(Text(nameKey))
+    }
+
+    @_disfavoredOverload public init(_ nameResource: AndroidLocalizedStringResource) {
+        self.init(Text(nameResource))
     }
 
     @_disfavoredOverload public init(_ name: some StringProtocol) {
@@ -537,10 +605,10 @@ public struct AccessibilityCustomContentKey : Equatable {
     public init(_ labelKey: LocalizedStringKey) {
     }
 
-//    public init(_ label: LocalizedStringResource, id: String) {
+//    public init(_ label: AndroidLocalizedStringResource, id: String) {
 //    }
 //
-//    public init(_ label: LocalizedStringResource) {
+//    public init(_ label: AndroidLocalizedStringResource) {
 //    }
 }
 

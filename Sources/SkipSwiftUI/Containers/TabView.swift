@@ -1,5 +1,6 @@
 // Copyright 2025 Skip
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
+import SkipFuse
 import SkipUI
 
 public struct TabView<SelectionValue, Content> where SelectionValue : Hashable /*, Content : View */ {
@@ -192,22 +193,22 @@ public struct Tab<Value, Content, Label> {
 extension Tab : TabContent where Value : Hashable, Content : View, Label : View {
     public typealias TabValue = Value
 
-    nonisolated public init<S>(_ title: S, image: String, value: Value, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel, S : StringProtocol {
+    @_disfavoredOverload nonisolated public init<S>(_ title: S, image: String, value: Value, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel, S : StringProtocol {
         self.init(title, image: image, value: value, role: nil, content: content)
     }
 
-    nonisolated public init<S>(_ title: S, image: String, value: Value, role: TabRole?, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel, S : StringProtocol {
+    @_disfavoredOverload nonisolated public init<S>(_ title: S, image: String, value: Value, role: TabRole?, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel, S : StringProtocol {
         self.content = content()
         self.label = DefaultTabLabel(title, image: image)
         self.value = value
         self.role = role
     }
 
-    nonisolated public init<S, T>(_ title: S, image: String, value: T, @ViewBuilder content: () -> Content) where Value == T?, Label == DefaultTabLabel, S : StringProtocol, T : Hashable {
+    @_disfavoredOverload nonisolated public init<S, T>(_ title: S, image: String, value: T, @ViewBuilder content: () -> Content) where Value == T?, Label == DefaultTabLabel, S : StringProtocol, T : Hashable {
         self.init(title, image: image, value: value, role: nil, content: content)
     }
 
-    nonisolated public init<S, T>(_ title: S, image: String, value: T, role: TabRole?, @ViewBuilder content: () -> Content) where Value == T?, Label == DefaultTabLabel, S : StringProtocol, T : Hashable {
+    @_disfavoredOverload nonisolated public init<S, T>(_ title: S, image: String, value: T, role: TabRole?, @ViewBuilder content: () -> Content) where Value == T?, Label == DefaultTabLabel, S : StringProtocol, T : Hashable {
         self.content = content()
         self.label = DefaultTabLabel(title, image: image)
         self.value = value
@@ -218,7 +219,9 @@ extension Tab : TabContent where Value : Hashable, Content : View, Label : View 
         self.init(titleKey, image: image, value: value, role: nil, content: content)
     }
 
-//    nonisolated public init(_ titleResource: LocalizedStringResource, image: String, value: Value, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel
+    @_disfavoredOverload nonisolated public init(_ titleResource: AndroidLocalizedStringResource, image: String, value: Value, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel {
+        self.init(titleResource, image: image, value: value, role: nil, content: content)
+    }
 
     nonisolated public init(_ titleKey: LocalizedStringKey, image: String, value: Value, role: TabRole?, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel {
         self.content = content()
@@ -227,13 +230,20 @@ extension Tab : TabContent where Value : Hashable, Content : View, Label : View 
         self.role = role
     }
 
-//    nonisolated public init(_ titleResource: LocalizedStringResource, image: String, value: Value, role: TabRole?, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel
+    @_disfavoredOverload nonisolated public init(_ titleResource: AndroidLocalizedStringResource, image: String, value: Value, role: TabRole?, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel {
+        self.content = content()
+        self.label = DefaultTabLabel(titleResource, image: image)
+        self.value = value
+        self.role = role
+    }
 
     nonisolated public init<T>(_ titleKey: LocalizedStringKey, image: String, value: T, @ViewBuilder content: () -> Content) where Value == T?, Label == DefaultTabLabel, T : Hashable {
         self.init(titleKey, image: image, value: value, role: nil, content: content)
     }
 
-//    nonisolated public init<T>(_ titleResource: LocalizedStringResource, image: String, value: T, @ViewBuilder content: () -> Content) where Value == T?, Label == DefaultTabLabel, T : Hashable
+    @_disfavoredOverload nonisolated public init<T>(_ titleResource: AndroidLocalizedStringResource, image: String, value: T, @ViewBuilder content: () -> Content) where Value == T?, Label == DefaultTabLabel, T : Hashable {
+        self.init(titleResource, image: image, value: value, role: nil, content: content)
+    }
 
     nonisolated public init<T>(_ titleKey: LocalizedStringKey, image: String, value: T, role: TabRole?, @ViewBuilder content: () -> Content) where Value == T?, Label == DefaultTabLabel, T : Hashable {
         self.content = content()
@@ -242,7 +252,12 @@ extension Tab : TabContent where Value : Hashable, Content : View, Label : View 
         self.role = role
     }
 
-//    nonisolated public init<T>(_ titleResource: LocalizedStringResource, image: String, value: T, role: TabRole?, @ViewBuilder content: () -> Content) where Value == T?, Label == DefaultTabLabel, T : Hashable
+    @_disfavoredOverload nonisolated public init<T>(_ titleResource: AndroidLocalizedStringResource, image: String, value: T, role: TabRole?, @ViewBuilder content: () -> Content) where Value == T?, Label == DefaultTabLabel, T : Hashable {
+        self.content = content()
+        self.label = DefaultTabLabel(titleResource, image: image)
+        self.value = value
+        self.role = role
+    }
 
     nonisolated public init<S>(_ title: S, systemImage: String, value: Value, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel, S : StringProtocol {
         self.init(title, systemImage: systemImage, value: value, role: nil, content: content)
@@ -255,11 +270,11 @@ extension Tab : TabContent where Value : Hashable, Content : View, Label : View 
         self.role = role
     }
 
-    nonisolated public init<S, T>(_ title: S, systemImage: String, value: T, @ViewBuilder content: () -> Content) where Value == T?, Label == DefaultTabLabel, S : StringProtocol, T : Hashable {
+    @_disfavoredOverload nonisolated public init<S, T>(_ title: S, systemImage: String, value: T, @ViewBuilder content: () -> Content) where Value == T?, Label == DefaultTabLabel, S : StringProtocol, T : Hashable {
         self.init(title, systemImage: systemImage, value: value, role: nil, content: content)
     }
 
-    nonisolated public init<S, T>(_ title: S, systemImage: String, value: T, role: TabRole?, @ViewBuilder content: () -> Content) where Value == T?, Label == DefaultTabLabel, S : StringProtocol, T : Hashable {
+    @_disfavoredOverload nonisolated public init<S, T>(_ title: S, systemImage: String, value: T, role: TabRole?, @ViewBuilder content: () -> Content) where Value == T?, Label == DefaultTabLabel, S : StringProtocol, T : Hashable {
         self.content = content()
         self.label = DefaultTabLabel(title, systemImage: systemImage)
         self.value = value
@@ -270,7 +285,9 @@ extension Tab : TabContent where Value : Hashable, Content : View, Label : View 
         self.init(titleKey, systemImage: systemImage, value: value, role: nil, content: content)
     }
 
-//    nonisolated public init(_ titleResource: LocalizedStringResource, systemImage: String, value: Value, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel
+    @_disfavoredOverload nonisolated public init(_ titleResource: AndroidLocalizedStringResource, systemImage: String, value: Value, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel {
+        self.init(titleResource, systemImage: systemImage, value: value, role: nil, content: content)
+    }
 
     nonisolated public init(_ titleKey: LocalizedStringKey, systemImage: String, value: Value, role: TabRole?, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel {
         self.content = content()
@@ -279,13 +296,20 @@ extension Tab : TabContent where Value : Hashable, Content : View, Label : View 
         self.role = role
     }
 
-//    nonisolated public init(_ titleResource: LocalizedStringResource, systemImage: String, value: Value, role: TabRole?, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel
+    @_disfavoredOverload nonisolated public init(_ titleResource: AndroidLocalizedStringResource, systemImage: String, value: Value, role: TabRole?, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel {
+        self.content = content()
+        self.label = DefaultTabLabel(titleResource, systemImage: systemImage)
+        self.value = value
+        self.role = role
+    }
 
     nonisolated public init<T>(_ titleKey: LocalizedStringKey, systemImage: String, value: T, @ViewBuilder content: () -> Content) where Value == T?, Label == DefaultTabLabel, T : Hashable {
         self.init(titleKey, systemImage: systemImage, value: value, role: nil, content: content)
     }
 
-//    nonisolated public init<T>(_ titleResource: LocalizedStringResource, systemImage: String, value: T, @ViewBuilder content: () -> Content) where Value == T?, Label == DefaultTabLabel, T : Hashable
+    @_disfavoredOverload nonisolated public init<T>(_ titleResource: AndroidLocalizedStringResource, systemImage: String, value: T, @ViewBuilder content: () -> Content) where Value == T?, Label == DefaultTabLabel, T : Hashable {
+        self.init(titleResource, systemImage: systemImage, value: value, role: nil, content: content)
+    }
 
     nonisolated public init<T>(_ titleKey: LocalizedStringKey, systemImage: String, value: T, role: TabRole?, @ViewBuilder content: () -> Content) where Value == T?, Label == DefaultTabLabel, T : Hashable {
         self.content = content()
@@ -294,7 +318,12 @@ extension Tab : TabContent where Value : Hashable, Content : View, Label : View 
         self.role = role
     }
 
-//    nonisolated public init<T>(_ titleResource: LocalizedStringResource, systemImage: String, value: T, role: TabRole?, @ViewBuilder content: () -> Content) where Value == T?, Label == DefaultTabLabel, T : Hashable
+    @_disfavoredOverload nonisolated public init<T>(_ titleResource: AndroidLocalizedStringResource, systemImage: String, value: T, role: TabRole?, @ViewBuilder content: () -> Content) where Value == T?, Label == DefaultTabLabel, T : Hashable {
+        self.content = content()
+        self.label = DefaultTabLabel(titleResource, systemImage: systemImage)
+        self.value = value
+        self.role = role
+    }
 
     nonisolated public init(value: Value, @ViewBuilder content: () -> Content) where Label == EmptyView {
         self.content = content()
@@ -356,11 +385,11 @@ extension Tab : TabContent where Value : Hashable, Content : View, Label : View 
 }
 
 extension Tab where Value == Never, Content : View, Label : View {
-    public init<S>(_ title: S, image: String, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel, S : StringProtocol {
+    @_disfavoredOverload public init<S>(_ title: S, image: String, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel, S : StringProtocol {
         self.init(title, image: image, role: nil, content: content)
     }
 
-    public init<S>(_ title: S, image: String, role: TabRole?, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel, S : StringProtocol {
+    @_disfavoredOverload public init<S>(_ title: S, image: String, role: TabRole?, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel, S : StringProtocol {
         self.content = content()
         self.label = DefaultTabLabel(title, image: image)
         self.value = nil
@@ -371,7 +400,9 @@ extension Tab where Value == Never, Content : View, Label : View {
         self.init(titleKey, image: image, role: nil, content: content)
     }
 
-//    public init(_ titleResource: LocalizedStringResource, image: String, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, image: String, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel {
+        self.init(titleResource, image: image, role: nil, content: content)
+    }
 
     public init(_ titleKey: LocalizedStringKey, image: String, role: TabRole?, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel {
         self.content = content()
@@ -380,13 +411,18 @@ extension Tab where Value == Never, Content : View, Label : View {
         self.role = role
     }
 
-//    public init(_ titleResource: LocalizedStringResource, image: String, role: TabRole?, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, image: String, role: TabRole?, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel {
+        self.content = content()
+        self.label = DefaultTabLabel(titleResource, image: image)
+        self.value = nil
+        self.role = role
+    }
 
-    public init<S>(_ title: S, systemImage: String, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel, S : StringProtocol {
+    @_disfavoredOverload public init<S>(_ title: S, systemImage: String, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel, S : StringProtocol {
         self.init(title, systemImage: systemImage, role: nil, content: content)
     }
 
-    public init<S>(_ title: S, systemImage: String, role: TabRole?, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel, S : StringProtocol {
+    @_disfavoredOverload public init<S>(_ title: S, systemImage: String, role: TabRole?, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel, S : StringProtocol {
         self.content = content()
         self.label = DefaultTabLabel(title, systemImage: systemImage)
         self.value = nil
@@ -397,7 +433,9 @@ extension Tab where Value == Never, Content : View, Label : View {
         self.init(titleKey, systemImage: systemImage, role: nil, content: content)
     }
 
-//    public init(_ titleResource: LocalizedStringResource, systemImage: String, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, systemImage: String, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel {
+        self.init(titleResource, systemImage: systemImage, role: nil, content: content)
+    }
 
     public init(_ titleKey: LocalizedStringKey, systemImage: String, role: TabRole?, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel {
         self.content = content()
@@ -406,7 +444,12 @@ extension Tab where Value == Never, Content : View, Label : View {
         self.role = role
     }
 
-//    public init(_ titleResource: LocalizedStringResource, systemImage: String, role: TabRole?, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, systemImage: String, role: TabRole?, @ViewBuilder content: () -> Content) where Label == DefaultTabLabel {
+        self.content = content()
+        self.label = DefaultTabLabel(titleResource, systemImage: systemImage)
+        self.value = nil
+        self.role = role
+    }
 }
 
 extension Tab where Value == Never, Content : View, Label : View {
@@ -479,7 +522,7 @@ extension TabSection where Content : TabContent, SelectionValue : Hashable {
         self.content = content()
     }
 
-    public init<S>(_ title: S, @TabContentBuilder<SelectionValue> content: () -> Content) where Header == Text, Footer == EmptyView, S : StringProtocol {
+    @_disfavoredOverload public init<S>(_ title: S, @TabContentBuilder<SelectionValue> content: () -> Content) where Header == Text, Footer == EmptyView, S : StringProtocol {
         self.content = content()
     }
 
@@ -487,7 +530,9 @@ extension TabSection where Content : TabContent, SelectionValue : Hashable {
         self.content = content()
     }
 
-//    public init(_ titleResource: LocalizedStringResource, @TabContentBuilder<SelectionValue> content: () -> Content) where Header == Text, Footer == EmptyView
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, @TabContentBuilder<SelectionValue> content: () -> Content) where Header == Text, Footer == EmptyView {
+        self.content = content()
+    }
 
     public init<V>(@TabContentBuilder<V?> content: () -> Content, @ViewBuilder header: () -> Header) where Header : View, Footer == EmptyView, SelectionValue == V?, V : Hashable {
         self.content = content()
@@ -497,7 +542,7 @@ extension TabSection where Content : TabContent, SelectionValue : Hashable {
         self.content = content()
     }
 
-    public init<V, S>(_ title: S, @TabContentBuilder<V?> content: () -> Content) where Header == Text, Footer == EmptyView, SelectionValue == V?, V : Hashable, S : StringProtocol {
+    @_disfavoredOverload public init<V, S>(_ title: S, @TabContentBuilder<V?> content: () -> Content) where Header == Text, Footer == EmptyView, SelectionValue == V?, V : Hashable, S : StringProtocol {
         self.content = content()
     }
 
@@ -505,7 +550,9 @@ extension TabSection where Content : TabContent, SelectionValue : Hashable {
         self.content = content()
     }
 
-//    public init<V>(_ titleResource: LocalizedStringResource, @TabContentBuilder<V?> content: () -> Content) where Header == Text, Footer == EmptyView, SelectionValue == V?, V : Hashable
+    @_disfavoredOverload public init<V>(_ titleResource: AndroidLocalizedStringResource, @TabContentBuilder<V?> content: () -> Content) where Header == Text, Footer == EmptyView, SelectionValue == V?, V : Hashable {
+        self.content = content()
+    }
 }
 
 extension TabSection : SkipUIBridging {
@@ -607,10 +654,13 @@ extension TabContent {
         return self
     }
 
-//    nonisolated public func accessibilityValue(_ valueResource: LocalizedStringResource, isEnabled: Bool = true) -> some TabContent<Self.TabValue> {
+    @available(*, unavailable)
+    @_disfavoredOverload nonisolated public func accessibilityValue(_ valueResource: AndroidLocalizedStringResource, isEnabled: Bool = true) -> some TabContent<Self.TabValue> {
+        return self
+    }
 
     @available(*, unavailable)
-    nonisolated public func accessibilityValue<S>(_ value: S, isEnabled: Bool = true) -> some TabContent<Self.TabValue> where S : StringProtocol {
+    @_disfavoredOverload nonisolated public func accessibilityValue<S>(_ value: S, isEnabled: Bool = true) -> some TabContent<Self.TabValue> where S : StringProtocol {
         return self
     }
 }
@@ -626,10 +676,13 @@ extension TabContent {
         return self
     }
 
-//    nonisolated public func accessibilityLabel(_ label: LocalizedStringResource, isEnabled: Bool = true) -> some TabContent<Self.TabValue>
+    @available(*, unavailable)
+    @_disfavoredOverload nonisolated public func accessibilityLabel(_ labelResource: AndroidLocalizedStringResource, isEnabled: Bool = true) -> some TabContent<Self.TabValue> {
+        return self
+    }
 
     @available(*, unavailable)
-    nonisolated public func accessibilityLabel<S>(_ label: S, isEnabled: Bool = true) -> some TabContent<Self.TabValue> where S : StringProtocol {
+    @_disfavoredOverload nonisolated public func accessibilityLabel<S>(_ label: S, isEnabled: Bool = true) -> some TabContent<Self.TabValue> where S : StringProtocol {
         return self
     }
 }
@@ -645,10 +698,13 @@ extension TabContent {
         return self
     }
 
-//    nonisolated public func accessibilityHint(_ hint: LocalizedStringResource, isEnabled: Bool = true) -> some TabContent<Self.TabValue>
+    @available(*, unavailable)
+    @_disfavoredOverload nonisolated public func accessibilityHint(_ hintResource: AndroidLocalizedStringResource, isEnabled: Bool = true) -> some TabContent<Self.TabValue> {
+        return self
+    }
 
     @available(*, unavailable)
-    nonisolated public func accessibilityHint<S>(_ hint: S, isEnabled: Bool = true) -> some TabContent<Self.TabValue> where S : StringProtocol {
+    @_disfavoredOverload nonisolated public func accessibilityHint<S>(_ hint: S, isEnabled: Bool = true) -> some TabContent<Self.TabValue> where S : StringProtocol {
         return self
     }
 }
@@ -706,10 +762,13 @@ extension TabContent {
         return self
     }
 
-//    nonisolated public func badge(_ resource: LocalizedStringResource) -> some TabContent<Self.TabValue> {
+    @available(*, unavailable)
+    @_disfavoredOverload nonisolated public func badge(_ resource: AndroidLocalizedStringResource) -> some TabContent<Self.TabValue> {
+        return self
+    }
 
     @available(*, unavailable)
-    nonisolated public func badge<S>(_ label: S) -> some TabContent<Self.TabValue> where S : StringProtocol {
+    @_disfavoredOverload nonisolated public func badge<S>(_ label: S) -> some TabContent<Self.TabValue> where S : StringProtocol {
         return self
     }
 }
@@ -738,7 +797,12 @@ extension TabContent {
     }
 
     @available(*, unavailable)
-    nonisolated public func accessibilityInputLabels<S>(_ inputLabels: [S], isEnabled: Bool = true) -> some TabContent<Self.TabValue> where S : StringProtocol {
+    @_disfavoredOverload nonisolated public func accessibilityInputLabels(_ inputLabelResources: [AndroidLocalizedStringResource], isEnabled: Bool = true) -> some TabContent<Self.TabValue> {
+        return self
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload nonisolated public func accessibilityInputLabels<S>(_ inputLabels: [S], isEnabled: Bool = true) -> some TabContent<Self.TabValue> where S : StringProtocol {
         return self
     }
 }

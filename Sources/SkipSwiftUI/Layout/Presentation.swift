@@ -4,6 +4,7 @@
 import CoreGraphics
 #endif
 import Foundation
+import SkipFuse
 import SkipUI
 
 public struct PresentationAdaptation : Sendable {
@@ -125,6 +126,10 @@ extension View {
         return alert(Text(titleKey), isPresented: isPresented, actions: actions)
     }
 
+    @_disfavoredOverload nonisolated public func alert<A>(_ titleResource: AndroidLocalizedStringResource, isPresented: Binding<Bool>, @ViewBuilder actions: () -> A) -> some View where A : View {
+        return alert(Text(titleResource), isPresented: isPresented, actions: actions)
+    }
+
     @_disfavoredOverload nonisolated public func alert<S, A>(_ title: S, isPresented: Binding<Bool>, @ViewBuilder actions: () -> A) -> some View where S : StringProtocol, A : View {
         return alert(Text(title), isPresented: isPresented, actions: actions)
     }
@@ -141,6 +146,10 @@ extension View {
 extension View {
     nonisolated public func alert<A, M>(_ titleKey: LocalizedStringKey, isPresented: Binding<Bool>, @ViewBuilder actions: () -> A, @ViewBuilder message: () -> M) -> some View where A : View, M : View {
         return alert(Text(titleKey), isPresented: isPresented, actions: actions, message: message)
+    }
+
+    @_disfavoredOverload nonisolated public func alert<A, M>(_ titleResource: AndroidLocalizedStringResource, isPresented: Binding<Bool>, @ViewBuilder actions: () -> A, @ViewBuilder message: () -> M) -> some View where A : View, M : View {
+        return alert(Text(titleResource), isPresented: isPresented, actions: actions, message: message)
     }
 
     @_disfavoredOverload nonisolated public func alert<S, A, M>(_ title: S, isPresented: Binding<Bool>, @ViewBuilder actions: () -> A, @ViewBuilder message: () -> M) -> some View where S : StringProtocol, A : View, M : View {
@@ -160,6 +169,10 @@ extension View {
 extension View {
     nonisolated public func alert<A, T>(_ titleKey: LocalizedStringKey, isPresented: Binding<Bool>, presenting data: T?, @ViewBuilder actions: (T) -> A) -> some View where A : View {
         return alert(Text(titleKey), isPresented: isPresented, presenting: data, actions: actions)
+    }
+
+    @_disfavoredOverload nonisolated public func alert<A, T>(_ titleResource: AndroidLocalizedStringResource, isPresented: Binding<Bool>, presenting data: T?, @ViewBuilder actions: (T) -> A) -> some View where A : View {
+        return alert(Text(titleResource), isPresented: isPresented, presenting: data, actions: actions)
     }
 
     @_disfavoredOverload nonisolated public func alert<S, A, T>(_ title: S, isPresented: Binding<Bool>, presenting data: T?, @ViewBuilder actions: (T) -> A) -> some View where S : StringProtocol, A : View {
@@ -183,6 +196,10 @@ extension View {
 extension View {
     nonisolated public func alert<A, M, T>(_ titleKey: LocalizedStringKey, isPresented: Binding<Bool>, presenting data: T?, @ViewBuilder actions: (T) -> A, @ViewBuilder message: (T) -> M) -> some View where A : View, M : View {
         return alert(Text(titleKey), isPresented: isPresented, presenting: data, actions: actions, message: message)
+    }
+
+    @_disfavoredOverload nonisolated public func alert<A, M, T>(_ titleResource: AndroidLocalizedStringResource, isPresented: Binding<Bool>, presenting data: T?, @ViewBuilder actions: (T) -> A, @ViewBuilder message: (T) -> M) -> some View where A : View, M : View {
+        return alert(Text(titleResource), isPresented: isPresented, presenting: data, actions: actions, message: message)
     }
 
     @_disfavoredOverload nonisolated public func alert<S, A, M, T>(_ title: S, isPresented: Binding<Bool>, presenting data: T?, @ViewBuilder actions: (T) -> A, @ViewBuilder message: (T) -> M) -> some View where S : StringProtocol, A : View, M : View {
@@ -229,6 +246,10 @@ extension View {
         return confirmationDialog(Text(titleKey), isPresented: isPresented, titleVisibility: titleVisibility, actions: actions)
     }
 
+    @_disfavoredOverload nonisolated public func confirmationDialog<A>(_ titleResource: AndroidLocalizedStringResource, isPresented: Binding<Bool>, titleVisibility: Visibility = .automatic, @ViewBuilder actions: () -> A) -> some View where A : View {
+        return confirmationDialog(Text(titleResource), isPresented: isPresented, titleVisibility: titleVisibility, actions: actions)
+    }
+
     @_disfavoredOverload nonisolated public func confirmationDialog<S, A>(_ title: S, isPresented: Binding<Bool>, titleVisibility: Visibility = .automatic, @ViewBuilder actions: () -> A) -> some View where S : StringProtocol, A : View {
         return confirmationDialog(Text(title), isPresented: isPresented, titleVisibility: titleVisibility, actions: actions)
     }
@@ -245,6 +266,10 @@ extension View {
 extension View {
     nonisolated public func confirmationDialog<A, M>(_ titleKey: LocalizedStringKey, isPresented: Binding<Bool>, titleVisibility: Visibility = .automatic, @ViewBuilder actions: () -> A, @ViewBuilder message: () -> M) -> some View where A : View, M : View {
         return confirmationDialog(Text(titleKey), isPresented: isPresented, titleVisibility: titleVisibility, actions: actions, message: message)
+    }
+
+    @_disfavoredOverload nonisolated public func confirmationDialog<A, M>(_ titleResource: AndroidLocalizedStringResource, isPresented: Binding<Bool>, titleVisibility: Visibility = .automatic, @ViewBuilder actions: () -> A, @ViewBuilder message: () -> M) -> some View where A : View, M : View {
+        return confirmationDialog(Text(titleResource), isPresented: isPresented, titleVisibility: titleVisibility, actions: actions, message: message)
     }
 
     @_disfavoredOverload nonisolated public func confirmationDialog<S, A, M>(_ title: S, isPresented: Binding<Bool>, titleVisibility: Visibility = .automatic, @ViewBuilder actions: () -> A, @ViewBuilder message: () -> M) -> some View where S : StringProtocol, A : View, M : View {
@@ -264,6 +289,10 @@ extension View {
 extension View {
     nonisolated public func confirmationDialog<A, T>(_ titleKey: LocalizedStringKey, isPresented: Binding<Bool>, titleVisibility: Visibility = .automatic, presenting data: T?, @ViewBuilder actions: (T) -> A) -> some View where A : View {
         return confirmationDialog(Text(titleKey), isPresented: isPresented, titleVisibility: titleVisibility, presenting: data, actions: actions)
+    }
+
+    @_disfavoredOverload nonisolated public func confirmationDialog<A, T>(_ titleResource: AndroidLocalizedStringResource, isPresented: Binding<Bool>, titleVisibility: Visibility = .automatic, presenting data: T?, @ViewBuilder actions: (T) -> A) -> some View where A : View {
+        return confirmationDialog(Text(titleResource), isPresented: isPresented, titleVisibility: titleVisibility, presenting: data, actions: actions)
     }
 
     @_disfavoredOverload nonisolated public func confirmationDialog<S, A, T>(_ title: S, isPresented: Binding<Bool>, titleVisibility: Visibility = .automatic, presenting data: T?, @ViewBuilder actions: (T) -> A) -> some View where S : StringProtocol, A : View {
@@ -287,6 +316,10 @@ extension View {
 extension View {
     nonisolated public func confirmationDialog<A, M, T>(_ titleKey: LocalizedStringKey, isPresented: Binding<Bool>, titleVisibility: Visibility = .automatic, presenting data: T?, @ViewBuilder actions: (T) -> A, @ViewBuilder message: (T) -> M) -> some View where A : View, M : View {
         return confirmationDialog(Text(titleKey), isPresented: isPresented, titleVisibility: titleVisibility, presenting: data, actions: actions, message: message)
+    }
+
+    @_disfavoredOverload nonisolated public func confirmationDialog<A, M, T>(_ titleResource: AndroidLocalizedStringResource, isPresented: Binding<Bool>, titleVisibility: Visibility = .automatic, presenting data: T?, @ViewBuilder actions: (T) -> A, @ViewBuilder message: (T) -> M) -> some View where A : View, M : View {
+        return confirmationDialog(Text(titleResource), isPresented: isPresented, titleVisibility: titleVisibility, presenting: data, actions: actions, message: message)
     }
 
     @_disfavoredOverload nonisolated public func confirmationDialog<S, A, M, T>(_ title: S, isPresented: Binding<Bool>, titleVisibility: Visibility = .automatic, presenting data: T?, @ViewBuilder actions: (T) -> A, @ViewBuilder message: (T) -> M) -> some View where S : StringProtocol, A : View, M : View {

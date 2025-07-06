@@ -14,6 +14,7 @@ let package = Package(
         .package(url: "https://source.skip.tools/skip.git", from: "1.5.24"),
         .package(url: "https://source.skip.tools/skip-fuse.git", from: "1.0.2"),
         .package(url: "https://source.skip.tools/skip-bridge.git", "0.14.1"..<"2.0.0"),
+        .package(url: "https://source.skip.tools/skip-android-bridge.git", "0.5.0"..<"2.0.0"),
         .package(url: "https://source.skip.tools/swift-jni.git", "0.2.1"..<"2.0.0"),
         .package(url: "https://source.skip.tools/skip-ui.git", from: "1.29.3")
     ],
@@ -22,6 +23,7 @@ let package = Package(
         .target(name: "SkipSwiftUI", dependencies: [
             .product(name: "SkipFuse", package: "skip-fuse"),
             .product(name: "SkipBridge", package: "skip-bridge"),
+            .product(name: "SkipAndroidBridge", package: "skip-android-bridge"),
             .product(name: "SwiftJNI", package: "swift-jni"),
             .product(name: "SkipUI", package: "skip-ui")
         ], plugins: [.plugin(name: "skipstone", package: "skip")]),

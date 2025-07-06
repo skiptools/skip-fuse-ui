@@ -1,5 +1,6 @@
 // Copyright 2025 Skip
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
+import SkipFuse
 import SkipUI
 
 public struct Section<Parent, Content, Footer> {
@@ -57,6 +58,12 @@ extension Section where Parent == Text, Content : View, Footer == EmptyView {
         self.footer = nil
     }
 
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, @ViewBuilder content: () -> Content) {
+        self.content = content()
+        self.header = Text(titleResource)
+        self.footer = nil
+    }
+
     @_disfavoredOverload public init<S>(_ title: S, @ViewBuilder content: () -> Content) where S : StringProtocol {
         self.content = content()
         self.header = Text(title)
@@ -67,6 +74,11 @@ extension Section where Parent == Text, Content : View, Footer == EmptyView {
 extension Section where Parent == Text, Content : View, Footer == EmptyView {
     @available(*, unavailable)
     public init(_ titleKey: LocalizedStringKey, isExpanded: Binding<Bool>, @ViewBuilder content: () -> Content) {
+        fatalError()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, isExpanded: Binding<Bool>, @ViewBuilder content: () -> Content) {
         fatalError()
     }
 

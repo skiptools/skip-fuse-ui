@@ -1,5 +1,6 @@
 // Copyright 2025 Skip
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
+import SkipFuse
 import SkipUI
 
 public struct SecureField<Label> where Label : View {
@@ -21,6 +22,12 @@ extension SecureField : SkipUIBridging {
 extension SecureField where Label == Text {
     public init(_ titleKey: LocalizedStringKey, text: Binding<String>, prompt: Text?) {
         self.label = Text(titleKey)
+        self.text = text
+        self.prompt = prompt
+    }
+
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, text: Binding<String>, prompt: Text?) {
+        self.label = Text(titleResource)
         self.text = text
         self.prompt = prompt
     }
@@ -47,6 +54,12 @@ extension SecureField where Label == Text {
         self.prompt = nil
     }
 
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, text: Binding<String>) {
+        self.label = Text(titleResource)
+        self.text = text
+        self.prompt = nil
+    }
+
     @_disfavoredOverload public init<S>(_ title: S, text: Binding<String>) where S : StringProtocol {
         self.label = Text(title)
         self.text = text
@@ -61,7 +74,12 @@ extension SecureField where Label == Text {
     }
 
     @available(*, unavailable)
-    public init<S>(_ title: S, text: Binding<String>, onCommit: @escaping () -> Void) where S : StringProtocol {
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, text: Binding<String>, onCommit: @escaping () -> Void) {
+        fatalError()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload public init<S>(_ title: S, text: Binding<String>, onCommit: @escaping () -> Void) where S : StringProtocol {
         fatalError()
     }
 }

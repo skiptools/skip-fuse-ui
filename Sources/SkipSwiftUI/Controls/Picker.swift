@@ -1,5 +1,6 @@
 // Copyright 2025 Skip
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
+import SkipFuse
 import SkipUI
 
 public struct Picker<Label, SelectionValue, Content> where Label : View, SelectionValue : Hashable, Content : View {
@@ -43,6 +44,15 @@ extension Picker where Label == Text {
         fatalError()
     }
 
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, selection: Binding<SelectionValue>, @ViewBuilder content: () -> Content) {
+        self.init(selection: selection, content: content, label: { Text(titleResource) })
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload public init<C>(_ titleResource: AndroidLocalizedStringResource, sources: C, selection: KeyPath<C.Element, Binding<SelectionValue>>, @ViewBuilder content: () -> Content) where C : RandomAccessCollection {
+        fatalError()
+    }
+
     @_disfavoredOverload public init<S>(_ title: S, selection: Binding<SelectionValue>, @ViewBuilder content: () -> Content) where S : StringProtocol {
         self.init(selection: selection, content: content, label: { Text(title) })
     }
@@ -60,6 +70,15 @@ extension Picker where Label == SkipSwiftUI.Label<Text, Image> {
 
     @available(*, unavailable)
     public init<C>(_ titleKey: LocalizedStringKey, systemImage: String, sources: C, selection: KeyPath<C.Element, Binding<SelectionValue>>, @ViewBuilder content: () -> Content) where C : RandomAccessCollection, C.Element == Binding<SelectionValue> {
+        fatalError()
+    }
+
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, systemImage: String, selection: Binding<SelectionValue>, @ViewBuilder content: () -> Content) {
+        self.init(selection: selection, content: content, label: { SkipSwiftUI.Label(titleResource, systemImage: systemImage) })
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload public init<C>(_ titleResource: AndroidLocalizedStringResource, systemImage: String, sources: C, selection: KeyPath<C.Element, Binding<SelectionValue>>, @ViewBuilder content: () -> Content) where C : RandomAccessCollection, C.Element == Binding<SelectionValue> {
         fatalError()
     }
 
@@ -107,6 +126,16 @@ extension Picker where Label == Text {
     }
 
     @available(*, unavailable)
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, selection: Binding<SelectionValue>, @ViewBuilder content: () -> Content, @ViewBuilder currentValueLabel: () -> some View) {
+        fatalError()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload public init<C>(_ titleResource: AndroidLocalizedStringResource, sources: C, selection: KeyPath<C.Element, Binding<SelectionValue>>, @ViewBuilder content: () -> Content, @ViewBuilder currentValueLabel: () -> some View) where C : RandomAccessCollection {
+        fatalError()
+    }
+
+    @available(*, unavailable)
     @_disfavoredOverload public init<S>(_ title: S, selection: Binding<SelectionValue>, @ViewBuilder content: () -> Content, @ViewBuilder currentValueLabel: () -> some View) where S : StringProtocol {
         fatalError()
     }
@@ -125,6 +154,16 @@ extension Picker where Label == SkipSwiftUI.Label<Text, Image> {
 
     @available(*, unavailable)
     public init<C>(_ titleKey: LocalizedStringKey, systemImage: String, sources: C, selection: KeyPath<C.Element, Binding<SelectionValue>>, @ViewBuilder content: () -> Content, @ViewBuilder currentValueLabel: () -> some View) where C : RandomAccessCollection, C.Element == Binding<SelectionValue> {
+        fatalError()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, systemImage: String, selection: Binding<SelectionValue>, @ViewBuilder content: () -> Content, @ViewBuilder currentValueLabel: () -> some View) {
+        fatalError()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload public init<C>(_ titleResource: AndroidLocalizedStringResource, systemImage: String, sources: C, selection: KeyPath<C.Element, Binding<SelectionValue>>, @ViewBuilder content: () -> Content, @ViewBuilder currentValueLabel: () -> some View) where C : RandomAccessCollection, C.Element == Binding<SelectionValue> {
         fatalError()
     }
 

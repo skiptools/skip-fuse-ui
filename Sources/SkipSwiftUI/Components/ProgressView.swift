@@ -1,6 +1,7 @@
 // Copyright 2025 Skip
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import Foundation
+import SkipFuse
 import SkipUI
 
 public struct ProgressView<Label, CurrentValueLabel> where Label : View, CurrentValueLabel : View {
@@ -57,6 +58,10 @@ extension ProgressView where CurrentValueLabel == EmptyView {
         self.init(label: { Text(titleKey) })
     }
 
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource) where Label == Text {
+        self.init(label: { Text(titleResource) })
+    }
+
     @_disfavoredOverload public init<S>(_ title: S) where Label == Text, S : StringProtocol {
         self.init(label: { Text(title) })
     }
@@ -82,6 +87,10 @@ extension ProgressView {
 
     public init<V>(_ titleKey: LocalizedStringKey, value: V?, total: V = 1.0) where Label == Text, CurrentValueLabel == EmptyView, V : BinaryFloatingPoint {
         self.init(value: value, total: total, label: { Text(titleKey) })
+    }
+
+    @_disfavoredOverload public init<V>(_ titleResource: AndroidLocalizedStringResource, value: V?, total: V = 1.0) where Label == Text, CurrentValueLabel == EmptyView, V : BinaryFloatingPoint {
+        self.init(value: value, total: total, label: { Text(titleResource) })
     }
 
     @_disfavoredOverload public init<S, V>(_ title: S, value: V?, total: V = 1.0) where Label == Text, CurrentValueLabel == EmptyView, S : StringProtocol, V : BinaryFloatingPoint {

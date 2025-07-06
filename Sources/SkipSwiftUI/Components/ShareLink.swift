@@ -1,6 +1,7 @@
 // Copyright 2025 Skip
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import Foundation
+import SkipFuse
 import SkipUI
 
 public struct ShareLink<Data, PreviewImage, PreviewIcon, Label> where Data : RandomAccessCollection, /* PreviewImage : Transferable, PreviewIcon : Transferable, */ Label : View /*, Data.Element : Transferable */ {
@@ -74,6 +75,11 @@ extension ShareLink where Label == EmptyView /* DefaultShareLinkLabel */ {
     }
 
     @available(*, unavailable)
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, items: Data, subject: Text? = nil, message: Text? = nil, preview: @escaping (Data.Element) -> Any /* SharePreview<PreviewImage, PreviewIcon> */) {
+        fatalError()
+    }
+
+    @available(*, unavailable)
     @_disfavoredOverload public init<S>(_ title: S, items: Data, subject: Text? = nil, message: Text? = nil, preview: @escaping (Data.Element) -> Any /* SharePreview<PreviewImage, PreviewIcon> */) where S : StringProtocol {
         fatalError()
     }
@@ -92,6 +98,11 @@ extension ShareLink where Label == EmptyView /* DefaultShareLinkLabel */ {
 
     @available(*, unavailable)
     public init<I>(_ titleKey: LocalizedStringKey, item: I, subject: Text? = nil, message: Text? = nil, preview: Any /* SharePreview<PreviewImage, PreviewIcon> */) where Data == CollectionOfOne<I> /*, I : Transferable */ {
+        fatalError()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload public init<I>(_ titleResource: AndroidLocalizedStringResource, item: I, subject: Text? = nil, message: Text? = nil, preview: Any /* SharePreview<PreviewImage, PreviewIcon> */) where Data == CollectionOfOne<I> /*, I : Transferable */ {
         fatalError()
     }
 
@@ -118,6 +129,11 @@ extension ShareLink where PreviewImage == Never, PreviewIcon == Never, Label == 
     }
 
     @available(*, unavailable)
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, items: Data, subject: Text? = nil, message: Text? = nil) {
+        fatalError()
+    }
+
+    @available(*, unavailable)
     @_disfavoredOverload public init<S>(_ title: S, items: Data, subject: Text? = nil, message: Text? = nil) where S : StringProtocol {
         fatalError()
     }
@@ -136,6 +152,11 @@ extension ShareLink where PreviewImage == Never, PreviewIcon == Never, Label == 
 
     @available(*, unavailable)
     public init(_ titleKey: LocalizedStringKey, items: Data, subject: Text? = nil, message: Text? = nil) {
+        fatalError()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, items: Data, subject: Text? = nil, message: Text? = nil) {
         fatalError()
     }
 
@@ -172,11 +193,25 @@ extension ShareLink where PreviewImage == Never, PreviewIcon == Never, Label == 
         self.label = Text(titleKey)
     }
 
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, item: URL, subject: Text? = nil, message: Text? = nil) where Data == CollectionOfOne<URL> {
+        self.data = item.absoluteString
+        self.subject = subject
+        self.message = message
+        self.label = Text(titleResource)
+    }
+
     public init(_ titleKey: LocalizedStringKey, item: String, subject: Text? = nil, message: Text? = nil) where Data == CollectionOfOne<String> {
         self.data = item
         self.subject = subject
         self.message = message
         self.label = Text(titleKey)
+    }
+
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, item: String, subject: Text? = nil, message: Text? = nil) where Data == CollectionOfOne<String> {
+        self.data = item
+        self.subject = subject
+        self.message = message
+        self.label = Text(titleResource)
     }
 
     @_disfavoredOverload public init<S>(_ title: S, item: URL, subject: Text? = nil, message: Text? = nil) where Data == CollectionOfOne<URL>, S : StringProtocol {

@@ -1,6 +1,7 @@
 // Copyright 2025 Skip
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import Foundation
+import SkipFuse
 import SkipUI
 
 public struct DatePicker<Label> where Label : View {
@@ -63,6 +64,27 @@ extension DatePicker where Label == Text {
 
     @available(*, unavailable)
     public init(_ titleKey: LocalizedStringKey, selection: Binding<Date>, in range: PartialRangeThrough<Date>, displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]) {
+        fatalError()
+    }
+
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, selection: Binding<Date>, displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]) {
+        self.selection = selection
+        self.displayedComponents = displayedComponents
+        self.label = Text(titleResource)
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, selection: Binding<Date>, in range: ClosedRange<Date>, displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]) {
+        fatalError()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, selection: Binding<Date>, in range: PartialRangeFrom<Date>, displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]) {
+        fatalError()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, selection: Binding<Date>, in range: PartialRangeThrough<Date>, displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]) {
         fatalError()
     }
 

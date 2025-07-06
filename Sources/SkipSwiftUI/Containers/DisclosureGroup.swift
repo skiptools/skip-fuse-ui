@@ -1,5 +1,6 @@
 // Copyright 2025 Skip
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
+import SkipFuse
 import SkipUI
 
 public struct DisclosureGroup<Label, Content> where Label : View, Content : View {
@@ -35,8 +36,17 @@ extension DisclosureGroup where Label == Text {
         fatalError()
     }
 
+    @available(*, unavailable)
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, @ViewBuilder content: @escaping () -> Content) {
+        fatalError()
+    }
+
     public init(_ titleKey: LocalizedStringKey, isExpanded: Binding<Bool>, @ViewBuilder content: @escaping () -> Content) {
         self.init(isExpanded: isExpanded, content: content, label: { Text(titleKey) })
+    }
+
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, isExpanded: Binding<Bool>, @ViewBuilder content: @escaping () -> Content) {
+        self.init(isExpanded: isExpanded, content: content, label: { Text(titleResource) })
     }
 
     @available(*, unavailable)

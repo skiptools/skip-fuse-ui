@@ -1,5 +1,6 @@
 // Copyright 2025 Skip
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
+import SkipFuse
 
 @MainActor @preconcurrency public protocol Commands {
 //    associatedtype Body : Commands
@@ -89,6 +90,11 @@ public struct CommandGroupPlacement : Sendable {
 public struct CommandMenu<Content> : Commands where Content : View {
     @available(*, unavailable)
     nonisolated public init(_ nameKey: LocalizedStringKey, @ViewBuilder content: () -> Content) {
+        fatalError()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload nonisolated public init(_ nameResource: AndroidLocalizedStringResource, @ViewBuilder content: () -> Content) {
         fatalError()
     }
 

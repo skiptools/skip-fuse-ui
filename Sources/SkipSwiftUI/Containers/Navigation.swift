@@ -4,6 +4,7 @@
 import CoreGraphics
 #endif
 import Foundation
+import SkipFuse
 import SkipUI
 
 public struct NavigationStack<Data, Root> where Root : View {
@@ -98,6 +99,10 @@ extension NavigationLink where Destination == Never {
         self.init(value: value, label: { Text(titleKey) })
     }
 
+    @_disfavoredOverload public init<P>(_ titleResource: AndroidLocalizedStringResource, value: P?) where Label == Text, P : Hashable {
+        self.init(value: value, label: { Text(titleResource) })
+    }
+
     @_disfavoredOverload public init<S, P>(_ title: S, value: P?) where Label == Text, S : StringProtocol, P : Hashable {
         self.init(value: value, label: { Text(title) })
     }
@@ -114,12 +119,20 @@ extension NavigationLink where Label == Text {
         self.init(destination: destination, label: { Text(titleKey) })
     }
 
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, @ViewBuilder destination: () -> Destination) {
+        self.init(destination: destination, label: { Text(titleResource) })
+    }
+
     @_disfavoredOverload public init<S>(_ title: S, @ViewBuilder destination: () -> Destination) where S : StringProtocol {
         self.init(destination: destination, label: { Text(title) })
     }
 
     public init(_ titleKey: LocalizedStringKey, destination: Destination) {
         self.init(destination: { destination }, label: { Text(titleKey) })
+    }
+
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, destination: Destination) {
+        self.init(destination: { destination }, label: { Text(titleResource) })
     }
 
     @_disfavoredOverload public init<S>(_ title: S, destination: Destination) where S : StringProtocol {
@@ -242,6 +255,10 @@ extension View {
 
     nonisolated public func navigationTitle(_ titleKey: LocalizedStringKey) -> some View {
         return navigationTitle(Text(titleKey))
+    }
+
+    @_disfavoredOverload nonisolated public func navigationTitle(_ titleResource: AndroidLocalizedStringResource) -> some View {
+        return navigationTitle(Text(titleResource))
     }
 
     @_disfavoredOverload nonisolated public func navigationTitle<S>(_ title: S) -> some View where S : StringProtocol {
@@ -506,6 +523,10 @@ extension View {
         return navigationTitle(titleKey)
     }
 
+    @_disfavoredOverload nonisolated public func navigationBarTitle(_ titleResource: AndroidLocalizedStringResource) -> some View {
+        return navigationTitle(titleResource)
+    }
+
     @_disfavoredOverload nonisolated public func navigationBarTitle<S>(_ title: S) -> some View where S : StringProtocol {
         return navigationTitle(title)
     }
@@ -516,6 +537,10 @@ extension View {
 
     nonisolated public func navigationBarTitle(_ titleKey: LocalizedStringKey, displayMode: NavigationBarItem.TitleDisplayMode) -> some View {
         return navigationBarTitle(Text(titleKey), displayMode: displayMode)
+    }
+
+    @_disfavoredOverload nonisolated public func navigationBarTitle(_ titleResource: AndroidLocalizedStringResource, displayMode: NavigationBarItem.TitleDisplayMode) -> some View {
+        return navigationBarTitle(Text(titleResource), displayMode: displayMode)
     }
 
     @_disfavoredOverload nonisolated public func navigationBarTitle<S>(_ title: S, displayMode: NavigationBarItem.TitleDisplayMode) -> some View where S : StringProtocol {

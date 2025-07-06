@@ -1,5 +1,6 @@
 // Copyright 2025 Skip
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
+import SkipFuse
 import SkipUI
 
 public struct Menu<Label, Content> where Label : View, Content : View {
@@ -31,6 +32,12 @@ extension Menu {
         self.primaryAction = nil
     }
 
+    @_disfavoredOverload nonisolated public init(_ titleResource: AndroidLocalizedStringResource, @ViewBuilder content: () -> Content) where Label == Text {
+        self.content = content()
+        self.label = Text(titleResource)
+        self.primaryAction = nil
+    }
+
     @_disfavoredOverload nonisolated public init<S>(_ title: S, @ViewBuilder content: () -> Content) where Label == Text, S : StringProtocol {
         self.content = content()
         self.label = Text(title)
@@ -51,6 +58,12 @@ extension Menu {
         self.primaryAction = primaryAction
     }
 
+    @_disfavoredOverload nonisolated public init(_ titleResource: AndroidLocalizedStringResource, @ViewBuilder content: () -> Content, primaryAction: @escaping () -> Void) where Label == Text {
+        self.content = content()
+        self.label = Text(titleResource)
+        self.primaryAction = primaryAction
+    }
+
     @_disfavoredOverload nonisolated public init<S>(_ title: S, @ViewBuilder content: () -> Content, primaryAction: @escaping () -> Void) where Label == Text, S : StringProtocol {
         self.content = content()
         self.label = Text(title)
@@ -65,6 +78,12 @@ extension Menu where Label == SkipSwiftUI.Label<Text, Image> {
         self.primaryAction = nil
     }
 
+    @_disfavoredOverload nonisolated public init(_ titleResource: AndroidLocalizedStringResource, systemImage: String, @ViewBuilder content: () -> Content) {
+        self.content = content()
+        self.label = Label(titleResource, systemImage: systemImage)
+        self.primaryAction = nil
+    }
+
     @_disfavoredOverload nonisolated public init<S>(_ title: S, systemImage: String, @ViewBuilder content: () -> Content) where S : StringProtocol {
         self.content = content()
         self.label = Label(title, systemImage: systemImage)
@@ -74,6 +93,12 @@ extension Menu where Label == SkipSwiftUI.Label<Text, Image> {
     nonisolated public init(_ titleKey: LocalizedStringKey, systemImage: String, @ViewBuilder content: () -> Content, primaryAction: @escaping () -> Void) {
         self.content = content()
         self.label = Label(titleKey, systemImage: systemImage)
+        self.primaryAction = primaryAction
+    }
+
+    @_disfavoredOverload nonisolated public init(_ titleResource: AndroidLocalizedStringResource, systemImage: String, @ViewBuilder content: () -> Content, primaryAction: @escaping () -> Void) {
+        self.content = content()
+        self.label = Label(titleResource, systemImage: systemImage)
         self.primaryAction = primaryAction
     }
 }

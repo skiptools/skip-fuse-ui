@@ -4,6 +4,7 @@
 import CoreGraphics
 #endif
 import Foundation
+import SkipFuse
 import SkipUI
 
 /* @frozen */ public struct Text : Equatable, Sendable {
@@ -31,6 +32,7 @@ import SkipUI
 struct TextSpec : Equatable, @unchecked Sendable {
     var verbatim: String?
     var key: LocalizedStringKey?
+    var resource: AndroidLocalizedStringResource?
     var tableName: String?
     var bundle: Bundle?
 }
@@ -53,7 +55,22 @@ extension Text : SkipUIBridging {
             return SkipUI.Text(verbatim: verbatim)
         } else if let key = spec.key {
             let values = key.interpolation.values.isEmpty ? nil : key.interpolation.values
-            return SkipUI.Text(keyPattern: key.interpolation.pattern, keyValues: values, tableName: spec.tableName, bridgedBundle: spec.bundle)
+            return SkipUI.Text(keyPattern: key.interpolation.pattern, keyValues: values, tableName: spec.tableName, localeIdentifier: nil, bridgedBundle: spec.bundle)
+        } else if let resource = spec.resource {
+            let values = resource.defaultValue.values.isEmpty ? nil : resource.defaultValue.values
+            let locale = resource.isDefaultLocale ? nil : resource.locale
+            let bundle: Bundle?
+            if resource.isDefaultBundle {
+                bundle = nil
+            } else {
+                switch resource.bundle {
+                case .main:
+                    bundle = AndroidBundle.main
+                case .atURL(let url):
+                    bundle = AndroidBundle(url: url)
+                }
+            }
+            return SkipUI.Text(keyPattern: resource.key, keyValues: values, tableName: resource.table, localeIdentifier: locale?.identifier, bridgedBundle: bundle)
         } else {
             return SkipUI.Text(verbatim: "")
         }
@@ -71,11 +88,11 @@ extension Text {
     public init(_ key: LocalizedStringKey, tableName: String? = nil, bundle: Bundle? = nil, comment: StaticString? = nil) {
         self.init(spec: TextSpec(key: key, tableName: tableName, bundle: bundle))
     }
-}
 
-//extension Text {
-//    public init(_ resource: LocalizedStringResource)
-//}
+    @_disfavoredOverload public init(_ resource: AndroidLocalizedStringResource) {
+        self.init(spec: TextSpec(resource: resource))
+    }
+}
 
 extension Text {
     public struct LineStyle : Hashable, Sendable {

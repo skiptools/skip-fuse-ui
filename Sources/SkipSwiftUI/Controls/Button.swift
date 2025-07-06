@@ -1,6 +1,7 @@
 // Copyright 2025 Skip
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import SkipBridge
+import SkipFuse
 import SkipUI
 
 public struct Button<Label> where Label : View {
@@ -34,6 +35,10 @@ extension Button where Label == Text {
         self.init(action: action, label: { Text(titleKey) })
     }
 
+    @_disfavoredOverload @preconcurrency public init(_ titleResource: AndroidLocalizedStringResource, action: @escaping @MainActor () -> Void) {
+        self.init(action: action, label: { Text(titleResource) })
+    }
+
     @_disfavoredOverload @preconcurrency public init<S>(_ title: S, action: @escaping @MainActor () -> Void) where S : StringProtocol {
         self.init(action: action, label: { Text(title) })
     }
@@ -48,6 +53,10 @@ extension Button where Label == Text {
 extension Button where Label == SkipSwiftUI.Label<Text, Image> {
     @preconcurrency public init(_ titleKey: LocalizedStringKey, systemImage: String, action: @escaping @MainActor () -> Void) {
         self.init(action: action, label: { SkipSwiftUI.Label(titleKey, systemImage: systemImage) })
+    }
+
+    @_disfavoredOverload @preconcurrency public init(_ titleResource: AndroidLocalizedStringResource, systemImage: String, action: @escaping @MainActor () -> Void) {
+        self.init(action: action, label: { SkipSwiftUI.Label(titleResource, systemImage: systemImage) })
     }
 
     @_disfavoredOverload @preconcurrency public init<S>(_ title: S, systemImage: String, action: @escaping @MainActor () -> Void) where S : StringProtocol {
@@ -81,6 +90,10 @@ extension Button where Label == Text {
         self.init(role: role, action: action, label: { Text(titleKey) })
     }
 
+    @_disfavoredOverload @preconcurrency public init(_ titleResource: AndroidLocalizedStringResource, role: ButtonRole?, action: @escaping @MainActor () -> Void) {
+        self.init(role: role, action: action, label: { Text(titleResource) })
+    }
+
     @_disfavoredOverload @preconcurrency public init<S>(_ title: S, role: ButtonRole?, action: @escaping @MainActor () -> Void) where S : StringProtocol {
         self.init(role: role, action: action, label: { Text(title) })
     }
@@ -89,6 +102,10 @@ extension Button where Label == Text {
 extension Button where Label == SkipSwiftUI.Label<Text, Image> {
     @preconcurrency public init(_ titleKey: LocalizedStringKey, systemImage: String, role: ButtonRole?, action: @escaping @MainActor () -> Void) {
         self.init(role: role, action: action, label: { SkipSwiftUI.Label(titleKey, systemImage: systemImage) })
+    }
+
+    @_disfavoredOverload @preconcurrency public init(_ titleResource: AndroidLocalizedStringResource, systemImage: String, role: ButtonRole?, action: @escaping @MainActor () -> Void) {
+        self.init(role: role, action: action, label: { SkipSwiftUI.Label(titleResource, systemImage: systemImage) })
     }
 
     @_disfavoredOverload @preconcurrency public init<S>(_ title: S, systemImage: String, role: ButtonRole?, action: @escaping @MainActor () -> Void) where S : StringProtocol {

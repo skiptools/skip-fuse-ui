@@ -1,6 +1,7 @@
 // Copyright 2025 Skip
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import Foundation
+import SkipFuse
 import SkipUI
 
 public struct TextField<Label> where Label : View {
@@ -64,6 +65,12 @@ extension TextField where Label == Text {
         self.prompt = prompt
     }
 
+    @_disfavoredOverload public init<F>(_ titleResource: AndroidLocalizedStringResource, value: Binding<F.FormatInput?>, format: F, prompt: Text? = nil) where F : ParseableFormatStyle, F.FormatOutput == String {
+        self.text = Self.text(from: value, format: format)
+        self.label = Text(titleResource)
+        self.prompt = prompt
+    }
+
     @_disfavoredOverload public init<S, F>(_ title: S, value: Binding<F.FormatInput?>, format: F, prompt: Text? = nil) where S : StringProtocol, F : ParseableFormatStyle, F.FormatOutput == String {
         self.text = Self.text(from: value, format: format)
         self.label = Text(title)
@@ -73,6 +80,12 @@ extension TextField where Label == Text {
     public init<F>(_ titleKey: LocalizedStringKey, value: Binding<F.FormatInput>, format: F, prompt: Text? = nil) where F : ParseableFormatStyle, F.FormatOutput == String {
         self.text = Self.text(from: value, format: format)
         self.label = Text(titleKey)
+        self.prompt = prompt
+    }
+
+    @_disfavoredOverload public init<F>(_ titleResource: AndroidLocalizedStringResource, value: Binding<F.FormatInput>, format: F, prompt: Text? = nil) where F : ParseableFormatStyle, F.FormatOutput == String {
+        self.text = Self.text(from: value, format: format)
+        self.label = Text(titleResource)
         self.prompt = prompt
     }
 
@@ -107,6 +120,14 @@ extension TextField where Label == Text {
     }
 
     @available(*, unavailable)
+    @_disfavoredOverload public init<V>(_ titleResource: AndroidLocalizedStringResource, value: Binding<V>, formatter: Formatter, prompt: Text?) {
+        fatalError()
+//        self.text = Self.text(from: value, formatter: formatter)
+//        self.label = Text(titleResource)
+//        self.prompt = prompt
+    }
+
+    @available(*, unavailable)
     @_disfavoredOverload public init<S, V>(_ title: S, value: Binding<V>, formatter: Formatter, prompt: Text?) where S : StringProtocol {
         fatalError()
 //        self.text = Self.text(from: value, formatter: formatter)
@@ -131,6 +152,14 @@ extension TextField where Label == Text {
         fatalError()
 //        self.text = Self.text(from: value, formatter: formatter)
 //        self.label = Text(titleKey)
+//        self.prompt = nil
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload public init<V>(_ titleResource: AndroidLocalizedStringResource, value: Binding<V>, formatter: Formatter) {
+        fatalError()
+//        self.text = Self.text(from: value, formatter: formatter)
+//        self.label = Text(titleResource)
 //        self.prompt = nil
     }
 
@@ -160,17 +189,32 @@ extension TextField where Label == Text {
     }
 
     @available(*, unavailable)
-    public init<S, V>(_ title: S, value: Binding<V>, formatter: Formatter, onEditingChanged: @escaping (Bool) -> Void, onCommit: @escaping () -> Void) where S : StringProtocol {
+    @_disfavoredOverload public init<V>(_ titleResource: AndroidLocalizedStringResource, value: Binding<V>, formatter: Formatter, onEditingChanged: @escaping (Bool) -> Void, onCommit: @escaping () -> Void) {
         fatalError()
     }
 
     @available(*, unavailable)
-    public init<S, V>(_ title: S, value: Binding<V>, formatter: Formatter, onEditingChanged: @escaping (Bool) -> Void) where S : StringProtocol {
+    @_disfavoredOverload public init<V>(_ titleResource: AndroidLocalizedStringResource, value: Binding<V>, formatter: Formatter, onEditingChanged: @escaping (Bool) -> Void) {
         fatalError()
     }
 
     @available(*, unavailable)
-    public init<S, V>(_ title: S, value: Binding<V>, formatter: Formatter, onCommit: @escaping () -> Void) where S : StringProtocol {
+    @_disfavoredOverload public init<V>(_ titleResource: AndroidLocalizedStringResource, value: Binding<V>, formatter: Formatter, onCommit: @escaping () -> Void) {
+        fatalError()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload public init<S, V>(_ title: S, value: Binding<V>, formatter: Formatter, onEditingChanged: @escaping (Bool) -> Void, onCommit: @escaping () -> Void) where S : StringProtocol {
+        fatalError()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload public init<S, V>(_ title: S, value: Binding<V>, formatter: Formatter, onEditingChanged: @escaping (Bool) -> Void) where S : StringProtocol {
+        fatalError()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload public init<S, V>(_ title: S, value: Binding<V>, formatter: Formatter, onCommit: @escaping () -> Void) where S : StringProtocol {
         fatalError()
     }
 }
@@ -187,12 +231,22 @@ extension TextField where Label == Text {
     }
 
     @available(*, unavailable)
-    public init<S>(_ title: S, text: Binding<String>, axis: Axis) where S : StringProtocol {
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, text: Binding<String>, axis: Axis) {
         fatalError()
     }
 
     @available(*, unavailable)
-    public init<S>(_ title: S, text: Binding<String>, prompt: Text?, axis: Axis) where S : StringProtocol {
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, text: Binding<String>, prompt: Text?, axis: Axis) {
+        fatalError()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload public init<S>(_ title: S, text: Binding<String>, axis: Axis) where S : StringProtocol {
+        fatalError()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload public init<S>(_ title: S, text: Binding<String>, prompt: Text?, axis: Axis) where S : StringProtocol {
         fatalError()
     }
 }
@@ -208,6 +262,12 @@ extension TextField where Label == Text {
     public init(_ titleKey: LocalizedStringKey, text: Binding<String>, prompt: Text?) {
         self.text = text
         self.label = Text(titleKey)
+        self.prompt = prompt
+    }
+
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, text: Binding<String>, prompt: Text?) {
+        self.text = text
+        self.label = Text(titleResource)
         self.prompt = prompt
     }
 
@@ -234,7 +294,12 @@ extension TextField where Label == Text {
     }
 
     @available(*, unavailable)
-    public init<S>(_ title: S, text: Binding<String>, selection: Binding<TextSelection?>, prompt: Text? = nil, axis: Axis? = nil) where S : StringProtocol {
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, text: Binding<String>, selection: Binding<TextSelection?>, prompt: Text? = nil, axis: Axis? = nil) {
+        fatalError()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload public init<S>(_ title: S, text: Binding<String>, selection: Binding<TextSelection?>, prompt: Text? = nil, axis: Axis? = nil) where S : StringProtocol {
         fatalError()
     }
 }
@@ -244,6 +309,12 @@ extension TextField where Label == Text {
     public init(_ titleKey: LocalizedStringKey, text: Binding<String>) {
         self.text = text
         self.label = Text(titleKey)
+        self.prompt = nil
+    }
+
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, text: Binding<String>) {
+        self.text = text
+        self.label = Text(titleResource)
         self.prompt = nil
     }
 
@@ -271,17 +342,32 @@ extension TextField where Label == Text {
     }
 
     @available(*, unavailable)
-    public init<S>(_ title: S, text: Binding<String>, onEditingChanged: @escaping (Bool) -> Void, onCommit: @escaping () -> Void) where S : StringProtocol {
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, text: Binding<String>, onEditingChanged: @escaping (Bool) -> Void, onCommit: @escaping () -> Void) {
         fatalError()
     }
 
     @available(*, unavailable)
-    public init<S>(_ title: S, text: Binding<String>, onEditingChanged: @escaping (Bool) -> Void) where S : StringProtocol {
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, text: Binding<String>, onEditingChanged: @escaping (Bool) -> Void) {
         fatalError()
     }
 
     @available(*, unavailable)
-    public init<S>(_ title: S, text: Binding<String>, onCommit: @escaping () -> Void) where S : StringProtocol {
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, text: Binding<String>, onCommit: @escaping () -> Void) {
+        fatalError()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload public init<S>(_ title: S, text: Binding<String>, onEditingChanged: @escaping (Bool) -> Void, onCommit: @escaping () -> Void) where S : StringProtocol {
+        fatalError()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload public init<S>(_ title: S, text: Binding<String>, onEditingChanged: @escaping (Bool) -> Void) where S : StringProtocol {
+        fatalError()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload public init<S>(_ title: S, text: Binding<String>, onCommit: @escaping () -> Void) where S : StringProtocol {
         fatalError()
     }
 }

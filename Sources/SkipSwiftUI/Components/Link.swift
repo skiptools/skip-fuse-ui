@@ -1,6 +1,7 @@
 // Copyright 2025 Skip
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import Foundation
+import SkipFuse
 import SkipUI
 
 public struct Link<Label> where Label : View {
@@ -26,6 +27,10 @@ extension Link : SkipUIBridging {
 extension Link where Label == Text {
     public init(_ titleKey: LocalizedStringKey, destination: URL) {
         self.init(destination: destination, label: { Text(titleKey) })
+    }
+
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, destination: URL) {
+        self.init(destination: destination, label: { Text(titleResource) })
     }
 
     @_disfavoredOverload public init<S>(_ title: S, destination: URL) where S : StringProtocol {

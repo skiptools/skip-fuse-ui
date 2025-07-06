@@ -9,7 +9,7 @@ public struct TextEditor {
         self.text = text
     }
 
-    //    nonisolated public init(_ titleResource: LocalizedStringResource, text: Binding<String>) {
+    //    nonisolated public init(_ titleResource: AndroidLocalizedStringResource, text: Binding<String>) {
     //        self.text = text
     //    }
 

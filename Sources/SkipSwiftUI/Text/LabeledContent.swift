@@ -1,6 +1,7 @@
 // Copyright 2025 Skip
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 import Foundation
+import SkipFuse
 
 public struct LabeledContent<Label, Content> {
 }
@@ -21,6 +22,11 @@ extension LabeledContent where Label == Text, Content : View {
     }
 
     @available(*, unavailable)
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, @ViewBuilder content: () -> Content) {
+        fatalError()
+    }
+
+    @available(*, unavailable)
     @_disfavoredOverload public init<S>(_ title: S, @ViewBuilder content: () -> Content) where S : StringProtocol {
         fatalError()
     }
@@ -28,17 +34,27 @@ extension LabeledContent where Label == Text, Content : View {
 
 extension LabeledContent where Label == Text, Content == Text {
     @available(*, unavailable)
-    @_disfavoredOverload public init<S>(_ titleKey: LocalizedStringKey, value: S) where S : StringProtocol {
+    public init<S>(_ titleKey: LocalizedStringKey, value: S) where S : StringProtocol {
         fatalError()
     }
 
     @available(*, unavailable)
-    public init<S1, S2>(_ title: S1, value: S2) where S1 : StringProtocol, S2 : StringProtocol {
+    @_disfavoredOverload public init<S>(_ titleResource: AndroidLocalizedStringResource, value: S) where S : StringProtocol {
+        fatalError()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload public init<S1, S2>(_ title: S1, value: S2) where S1 : StringProtocol, S2 : StringProtocol {
         fatalError()
     }
 
     @available(*, unavailable)
     public init<F>(_ titleKey: LocalizedStringKey, value: F.FormatInput, format: F) where F : FormatStyle, F.FormatInput : Equatable, F.FormatOutput == String {
+        fatalError()
+    }
+
+    @available(*, unavailable)
+    @_disfavoredOverload public init<F>(_ titleResource: AndroidLocalizedStringResource, value: F.FormatInput, format: F) where F : FormatStyle, F.FormatInput : Equatable, F.FormatOutput == String {
         fatalError()
     }
 

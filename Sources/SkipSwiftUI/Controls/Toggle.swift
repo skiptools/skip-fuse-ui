@@ -1,5 +1,6 @@
 // Copyright 2025 Skip
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
+import SkipFuse
 import SkipUI
 
 public struct Toggle<Label> where Label : View {
@@ -41,12 +42,20 @@ extension Toggle where Label == Text {
         self.init(isOn: isOn, label: { Text(titleKey) })
     }
 
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, isOn: Binding<Bool>) {
+        self.init(isOn: isOn, label: { Text(titleResource) })
+    }
+
     @_disfavoredOverload public init<S>(_ title: S, isOn: Binding<Bool>) where S : StringProtocol {
         self.init(isOn: isOn, label: { Text(title) })
     }
 
     public init<C>(_ titleKey: LocalizedStringKey, sources: C, isOn: KeyPath<C.Element, Binding<Bool>>) where C : RandomAccessCollection {
         self.init(sources: sources, isOn: isOn, label: { Text(titleKey) })
+    }
+
+    @_disfavoredOverload public init<C>(_ titleResource: AndroidLocalizedStringResource, sources: C, isOn: KeyPath<C.Element, Binding<Bool>>) where C : RandomAccessCollection {
+        self.init(sources: sources, isOn: isOn, label: { Text(titleResource) })
     }
 
     @_disfavoredOverload public init<S, C>(_ title: S, sources: C, isOn: KeyPath<C.Element, Binding<Bool>>) where S : StringProtocol, C : RandomAccessCollection {
@@ -59,12 +68,20 @@ extension Toggle where Label == SkipSwiftUI.Label<Text, Image> {
         self.init(isOn: isOn, label: { SkipSwiftUI.Label(titleKey, systemImage: systemImage) })
     }
 
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, systemImage: String, isOn: Binding<Bool>) {
+        self.init(isOn: isOn, label: { SkipSwiftUI.Label(titleResource, systemImage: systemImage) })
+    }
+
     @_disfavoredOverload public init<S>(_ title: S, systemImage: String, isOn: Binding<Bool>) where S : StringProtocol {
         self.init(isOn: isOn, label: { SkipSwiftUI.Label(title, systemImage: systemImage) })
     }
 
     public init<C>(_ titleKey: LocalizedStringKey, systemImage: String, sources: C, isOn: KeyPath<C.Element, Binding<Bool>>) where C : RandomAccessCollection {
         self.init(sources: sources, isOn: isOn, label: { SkipSwiftUI.Label(titleKey, systemImage: systemImage) })
+    }
+
+    @_disfavoredOverload public init<C>(_ titleResource: AndroidLocalizedStringResource, systemImage: String, sources: C, isOn: KeyPath<C.Element, Binding<Bool>>) where C : RandomAccessCollection {
+        self.init(sources: sources, isOn: isOn, label: { SkipSwiftUI.Label(titleResource, systemImage: systemImage) })
     }
 
     @_disfavoredOverload public init<S, C>(_ title: S, systemImage: String, sources: C, isOn: KeyPath<C.Element, Binding<Bool>>) where S : StringProtocol, C : RandomAccessCollection {

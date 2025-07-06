@@ -1,5 +1,6 @@
 // Copyright 2025 Skip
 // SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
+import SkipFuse
 import SkipUI
 
 public struct Label<Title, Icon> where Title : View, Icon : View {
@@ -30,6 +31,16 @@ extension Label where Title == Text, Icon == Image {
 
     public init(_ titleKey: LocalizedStringKey, systemImage name: String) {
         self.title = Text(titleKey)
+        self.icon = Image(systemName: name)
+    }
+
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, image name: String) {
+        self.title = Text(titleResource)
+        self.icon = Image(name, bundle: .main)
+    }
+
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, systemImage name: String) {
+        self.title = Text(titleResource)
         self.icon = Image(systemName: name)
     }
 
