@@ -31,6 +31,24 @@ public struct AsyncImage<Content> where Content : View {
     }
 }
 
+extension AsyncImage {
+    public func renderingMode(_ renderingMode: Image.TemplateRenderingMode?) -> AsyncImage {
+        logger.info("AsyncImage.renderingMode called with: \(String(describing: renderingMode))")
+        return AsyncImage(
+            url: self.url,
+            scale: self.scale,
+            renderingMode: renderingMode,
+            content: self.content
+        )
+    }
+    
+    private init(url: URL?, scale: CGFloat, renderingMode: Image.TemplateRenderingMode?, content: ((AsyncImagePhase) -> Content)?) {
+        self.url = url
+        self.scale = scale
+        self.content = content
+    }
+}
+
 extension AsyncImage : View {
     public typealias Body = Never
 }
@@ -46,9 +64,12 @@ extension AsyncImage : SkipUIBridging {
                 } else if let error {
                     phase = .failure(error)
                 } else {
-                    phase = .success(Image(spec: .init(.java(image!))))
+
+                    var imageSpec = ImageSpec(.java(image!))
+                    phase = .success(Image(spec: imageSpec))
                 }
                 let result = content(phase)
+
                 return result.Java_viewOrEmpty
             }
         } else {

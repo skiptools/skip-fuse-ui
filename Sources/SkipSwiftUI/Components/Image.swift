@@ -21,11 +21,13 @@ import SkipUI
 /// Define an image.
 struct ImageSpec : Equatable, Sendable {
     let type: ImageType
-    var resizingMode: Image.ResizingMode?
+    public var resizingMode: Image.ResizingMode?
+    public var templateRenderingMode: Image.TemplateRenderingMode?
 
-    init(_ type: ImageType, resizingMode: Image.ResizingMode? = nil) {
+    init(_ type: ImageType, resizingMode: Image.ResizingMode? = nil, templateRenderingMode: Image.TemplateRenderingMode? = nil) {
         self.type = type
         self.resizingMode = resizingMode
+        self.templateRenderingMode = templateRenderingMode
     }
 }
 
@@ -43,7 +45,7 @@ extension Image : View {
 
 extension Image : SkipUIBridging {
     public var Java_view: any SkipUI.View {
-        let image: SkipUI.Image
+        var image: SkipUI.Image
         switch spec.type {
         case .named(let name, let bundle, let label):
             image = SkipUI.Image(name: name, isSystem: false, isDecorative: false, bridgedBundle: bundle, label: label?.Java_view as? SkipUI.Text)
@@ -56,10 +58,18 @@ extension Image : SkipUIBridging {
         case .java(let javaImage):
             image = javaImage
         }
-        guard spec.resizingMode != nil else {
-            return image
+        if let resizingMode = spec.resizingMode {
+            image = image.resizable()
         }
-        return image.resizable()
+        if let templateRenderingMode = spec.templateRenderingMode {
+            logger.info("Applying templateRenderingMode: \(String(describing: templateRenderingMode))")
+            let skipUIRenderingMode: SkipUI.Image.TemplateRenderingMode = templateRenderingMode == .template ? .template : .original
+            logger.info("Converting to SkipUI renderingMode: \(String(describing: skipUIRenderingMode))")
+            image = image.renderingMode(skipUIRenderingMode)
+        } else {
+            logger.info("No templateRenderingMode specified for image type: \(String(describing: spec.type))")
+        }
+        return image
     }
 }
 
@@ -69,7 +79,6 @@ extension Image {
         case stretch = 1 // For bridging
     }
 
-    // public func resizable(capInsets: EdgeInsets = EdgeInsets(), resizingMode: Image.ResizingMode = .stretch) -> Image
     public func resizable() -> Image {
         var spec = self.spec
         spec.resizingMode = .stretch
@@ -130,9 +139,11 @@ extension Image {
 }
 
 extension Image {
-    @available(*, unavailable)
     public func renderingMode(_ renderingMode: Image.TemplateRenderingMode?) -> Image {
-        fatalError()
+        logger.info("Image.renderingMode called with: \(String(describing: renderingMode))")
+        var spec = self.spec
+        spec.templateRenderingMode = renderingMode
+        return Image(spec: spec)
     }
 }
 
