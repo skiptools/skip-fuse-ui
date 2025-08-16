@@ -387,6 +387,12 @@ extension ToolbarTitleMenu : ToolbarContent, CustomizableToolbarContent {
     public var body : Never { fatalError("Never") }
 }
 
+extension ToolbarTitleMenu : SkipUIBridging {
+    public var Java_view: any SkipUI.View {
+        return SkipUI.ToolbarTitleMenu(bridgedContent: content.Java_viewOrEmpty)
+    }
+}
+
 extension Group : ToolbarContent where Content : ToolbarContent {
     nonisolated public init(@ToolbarContentBuilder content: () -> Content) {
         self.content = content()
@@ -692,9 +698,12 @@ extension View {
         }
     }
 
-    @available(*, unavailable)
     nonisolated public func toolbarTitleMenu<C>(@ViewBuilder content: () -> C) -> some View where C : View {
-        stubView()
+        let content = content()
+        return ModifierView(target: self) {
+            let javaContent = (content as? SkipUIBridging)?.Java_view ?? SkipUI.EmptyView()
+            return $0.Java_viewOrEmpty.toolbarTitleMenu(bridgedContent: javaContent)
+        }
     }
 
     nonisolated public func toolbarTitleDisplayMode(_ mode: ToolbarTitleDisplayMode) -> some View {
