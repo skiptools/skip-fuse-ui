@@ -90,9 +90,9 @@ extension _ChangedGesture : Gesture {
         if Self.Value.self == DragGesture.Value.self {
             return javaGesture.onChangedDragGestureValue(bridgedAction: { action(DragGesture.Value($0) as! Value) })
         } else if Self.Value.self == MagnifyGesture.Value.self {
-            return javaGesture
+            return javaGesture.onChangedMagnifyGestureValue(bridgedAction: { action(MagnifyGesture.Value($0) as! Value) })
         } else if Self.Value.self == RotateGesture.Value.self {
-            return javaGesture
+            return javaGesture.onChangedRotateGestureValue(bridgedAction: { action(RotateGesture.Value($0) as! Value) })
         } else if Self.Value.self == Bool.self {
             return javaGesture.onChangedBool(bridgedAction: { action($0 as! Value) })
         } else if Self.Value.self == CGFloat.self {
@@ -124,9 +124,9 @@ extension _EndedGesture : Gesture {
         if Self.Value.self == DragGesture.Value.self {
             return javaGesture.onEndedDragGestureValue(bridgedAction: { action(DragGesture.Value($0) as! Value) })
         } else if Self.Value.self == MagnifyGesture.Value.self {
-            return javaGesture
+            return javaGesture.onEndedMagnifyGestureValue(bridgedAction: { action(MagnifyGesture.Value($0) as! Value) })
         } else if Self.Value.self == RotateGesture.Value.self {
-            return javaGesture
+            return javaGesture.onEndedRotateGestureValue(bridgedAction: { action(RotateGesture.Value($0) as! Value) })
         } else if Self.Value.self == Bool.self {
             return javaGesture.onEndedBool(bridgedAction: { action($0 as! Value) })
         } else if Self.Value.self == CGFloat.self {
@@ -324,11 +324,18 @@ public struct MagnifyGesture {
         public var velocity: CGFloat
         public var startAnchor: UnitPoint
         public var startLocation: CGPoint
+
+        init(_ value: SkipUI.MagnifyGestureValue) {
+            self.time = Date(timeIntervalSinceReferenceDate: value.time)
+            self.magnification = value.magnification
+            self.velocity = value.velocity
+            self.startAnchor = UnitPoint(x: value.startAnchorX, y: value.startAnchorY)
+            self.startLocation = CGPoint(x: value.startLocationX, y: value.startLocationY)
+        }
     }
 
     public var minimumScaleDelta: CGFloat
 
-    @available(*, unavailable)
     public init(minimumScaleDelta: CGFloat = 0.01) {
         self.minimumScaleDelta = minimumScaleDelta
     }
@@ -337,7 +344,9 @@ public struct MagnifyGesture {
 extension MagnifyGesture : Gesture {
     public var body: Never { fatalError("Never") }
 
-    public var Java_gesture: any BridgedGesture { fatalError("Never") }
+    public var Java_gesture: any SkipUI.BridgedGesture {
+        return SkipUI.MagnifyGesture(minimumScaleDelta: minimumScaleDelta)
+    }
 }
 
 public struct RotateGesture {
@@ -347,11 +356,18 @@ public struct RotateGesture {
         public var velocity: Angle
         public var startAnchor: UnitPoint
         public var startLocation: CGPoint
+
+        init(_ value: SkipUI.RotateGestureValue) {
+            self.time = Date(timeIntervalSinceReferenceDate: value.time)
+            self.rotation = Angle(degrees: value.rotationDegrees)
+            self.velocity = Angle(degrees: value.velocityDegrees)
+            self.startAnchor = UnitPoint(x: value.startAnchorX, y: value.startAnchorY)
+            self.startLocation = CGPoint(x: value.startLocationX, y: value.startLocationY)
+        }
     }
 
     public var minimumAngleDelta: Angle
 
-    @available(*, unavailable)
     public init(minimumAngleDelta: Angle = .degrees(1)) {
         self.minimumAngleDelta = minimumAngleDelta
     }
@@ -360,7 +376,9 @@ public struct RotateGesture {
 extension RotateGesture : Gesture {
     public var body: Never { fatalError("Never") }
 
-    public var Java_gesture: any BridgedGesture { fatalError("Never") }
+    public var Java_gesture: any SkipUI.BridgedGesture {
+        return SkipUI.RotateGesture(minimumAngleDegreesDelta: minimumAngleDelta.degrees)
+    }
 }
 
 public struct RotationGesture {
@@ -376,7 +394,7 @@ extension RotationGesture : Gesture {
     public typealias Value = Angle
     public var body: Never { fatalError("Never") }
 
-    public var Java_gesture: any BridgedGesture { fatalError("Never") }
+    public var Java_gesture: any SkipUI.BridgedGesture { fatalError("Never") }
 }
 
 /* @frozen */public struct SequenceGesture<First, Second> where First : Gesture, Second : Gesture {
