@@ -62,6 +62,10 @@ import SkipUI
         fatalError()
     }
 
+    public static let openSettingsURLString = "intent://android.settings.APPLICATION_DETAILS_SETTINGS" // Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+    public static let openDefaultApplicationsSettingsURLString = "intent://android.settings.APP_OPEN_BY_DEFAULT_SETTINGS" // ACTION_APP_OPEN_BY_DEFAULT_SETTINGS added in API 31
+    public static let openNotificationSettingsURLString = "intent://android.settings.APP_NOTIFICATION_SETTINGS" // Settings.ACTION_APP_NOTIFICATION_SETTINGS
+
     open func open(_ url: URL, options: [UIApplication.OpenExternalURLOptionsKey : Any] = [:]) async -> Bool {
         let keyedOptions = options.reduce(into: [String: Any]()) { result, entry in
             result[entry.key.rawValue] = entry.value
@@ -179,10 +183,6 @@ extension UIApplication {
     @MainActor @preconcurrency public func activateSceneSession(for request: Any /* UISceneSessionActivationRequest */, errorHandler: ((any Error) -> Void)? = nil) {
         fatalError()
     }
-}
-
-extension UIApplication {
-    nonisolated public static let openNotificationSettingsURLString = "openNotificationSettingsURLString"
 }
 
 extension UIApplication {
@@ -347,11 +347,6 @@ extension UIApplication {
 
     @available(*, unavailable)
     nonisolated public class var protectedDataDidBecomeAvailableNotification: NSNotification.Name {
-        fatalError()
-    }
-
-    @available(*, unavailable)
-    nonisolated public class var openSettingsURLString: String {
         fatalError()
     }
 
