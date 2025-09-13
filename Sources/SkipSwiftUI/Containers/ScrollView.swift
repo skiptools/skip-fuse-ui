@@ -66,20 +66,22 @@ public struct ScrollContentOffsetAdjustmentBehavior {
 }
 
 public struct ScrollDismissesKeyboardMode : Hashable, Sendable {
+    let identifier: Int
+
     public static var automatic: ScrollDismissesKeyboardMode {
-        return ScrollDismissesKeyboardMode()
+        return ScrollDismissesKeyboardMode(identifier: 1) // For bridging
     }
 
     public static var immediately: ScrollDismissesKeyboardMode {
-        return ScrollDismissesKeyboardMode()
+        return ScrollDismissesKeyboardMode(identifier: 2) // For bridging
     }
 
     public static var interactively: ScrollDismissesKeyboardMode {
-        return ScrollDismissesKeyboardMode()
+        return ScrollDismissesKeyboardMode(identifier: 3) // For bridging
     }
 
     public static var never: ScrollDismissesKeyboardMode {
-        return ScrollDismissesKeyboardMode()
+        return ScrollDismissesKeyboardMode(identifier: 4) // For bridging
     }
 }
 
@@ -577,9 +579,10 @@ extension View {
         }
     }
 
-    @available(*, unavailable)
     nonisolated public func scrollDismissesKeyboard(_ mode: ScrollDismissesKeyboardMode) -> some View {
-        stubView()
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.scrollDismissesKeyboard(bridgedMode: mode.identifier)
+        }
     }
 
     @available(*, unavailable)

@@ -105,6 +105,9 @@ extension EnvironmentValues {
         case "scenePhase":
             let rawValue = bridgedValue as? Int
             return rawValue == nil ? ScenePhase.active : ScenePhase(rawValue: rawValue!) ?? .active
+        case "scrollDismissesKeyboardMode":
+            let identifier = bridgedValue as? Int
+            return identifier == nil ? ScrollDismissesKeyboardMode.automatic : ScrollDismissesKeyboardMode(identifier: identifier!)
         case "timeZone":
             let identifier = bridgedValue as? String
             return identifier == nil ? TimeZone.current : TimeZone(identifier: identifier!) ?? .current
@@ -185,6 +188,8 @@ extension EnvironmentValues {
             return SkipUI.RefreshAction(bridgedAction: bridgedAction)
         case "scenePhase":
             return (value as? ScenePhase ?? .active).rawValue
+        case "scrollDismissesKeyboardMode":
+            return (value as? ScrollDismissesKeyboardMode ?? .automatic).identifier
         case "timeZone":
             return (value as? TimeZone ?? TimeZone.current).identifier
         case "verticalSizeClass":
@@ -211,6 +216,7 @@ extension EnvironmentValues {
         keys[\EnvironmentValues.openURL] = "openURL"
         keys[\EnvironmentValues.refresh] = "refresh"
         keys[\EnvironmentValues.scenePhase] = "scenePhase"
+        keys[\EnvironmentValues.scrollDismissesKeyboardMode] = "scrollDismissesKeyboardMode"
         keys[\EnvironmentValues.timeZone] = "timeZone"
         keys[\EnvironmentValues.verticalSizeClass] = "verticalSizeClass"
         return keys
@@ -621,5 +627,12 @@ extension EnvironmentValues {
 extension EnvironmentValues {
     public var isSearching: Bool {
         get { fatalError("Read via @Environment property wrapper") }
+    }
+}
+
+extension EnvironmentValues {
+    public var scrollDismissesKeyboardMode: ScrollDismissesKeyboardMode {
+        get { fatalError("Read via @Environment property wrapper") }
+        set { fatalError("Set via dedicated View modifier") }
     }
 }
