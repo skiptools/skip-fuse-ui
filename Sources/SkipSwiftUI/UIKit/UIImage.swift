@@ -77,17 +77,56 @@ open class UIImage : NSObject /*, NSSecureCoding */, @unchecked Sendable {
     }
 
     public init?(contentsOfFile path: String) {
+        #if SKIP
+        // Android decode: try direct file; fall back to content Uri via ImageDecoder
+        if let bitmap = android.graphics.BitmapFactory.decodeFile(path) {
+            guard let bridged = SkipUI.UIImage.bridgedInit(androidBitmap: bitmap, scale: 1.0) else { return nil }
+            self.uiImage = bridged
+            return
+        }
+
+        let context = ProcessInfo.processInfo.androidContext
+        let resolver = context.getContentResolver()
+        let uri = android.net.Uri.parse(path)
+        let source = android.graphics.ImageDecoder.createSource(resolver, uri)
+
+        guard let bitmap = android.graphics.ImageDecoder.decodeBitmap(source),
+              let bridged = SkipUI.UIImage.bridgedInit(androidBitmap: bitmap, scale: 1.0) else {
+            return nil
+        }
+        self.uiImage = bridged
+        return
+        #else
         guard let uiImage = SkipUI.UIImage.bridgedInit(contentsOfFile: path) else {
             return nil
         }
         self.uiImage = uiImage
+        #endif
     }
 
     public init?(data: Data, scale: CGFloat = 1.0) {
+        #if SKIP
+        // Android decode from bytes using ImageDecoder + ByteBuffer
+        do {
+            let bytes = data.kotlin(nocopy: true)
+            let buffer = java.nio.ByteBuffer.wrap(bytes)
+            let source = android.graphics.ImageDecoder.createSource(buffer)
+
+            guard let bitmap = android.graphics.ImageDecoder.decodeBitmap(source),
+                  let bridged = SkipUI.UIImage.bridgedInit(androidBitmap: bitmap, scale: scale) else {
+                return nil
+            }
+            self.uiImage = bridged
+            return
+        } catch {
+            return nil
+        }
+        #else
         guard let uiImage = SkipUI.UIImage.bridgedInit(data: data, scale: scale) else {
             return nil
         }
         self.uiImage = uiImage
+        #endif
     }
 
     @available(*, unavailable)
