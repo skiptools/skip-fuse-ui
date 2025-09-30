@@ -385,5 +385,8 @@ extension UIApplication {
 
         public static let universalLinksOnly = OpenExternalURLOptionsKey(rawValue: "universalLinksOnly")
         public static let eventAttribution = OpenExternalURLOptionsKey(rawValue: "eventAttribution")
+
+        // Android-specific keys
+        public static let intent = OpenExternalURLOptionsKey(rawValue: "intent")
     }
 }
