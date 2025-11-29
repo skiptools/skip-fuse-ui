@@ -62,13 +62,10 @@ extension Image : SkipUIBridging {
             image = image.resizable()
         }
         if let templateRenderingMode = spec.templateRenderingMode {
-            logger.info("Applying templateRenderingMode: \(String(describing: templateRenderingMode))")
             let skipUIRenderingMode: SkipUI.Image.TemplateRenderingMode = templateRenderingMode == .template ? .template : .original
-            logger.info("Converting to SkipUI renderingMode: \(String(describing: skipUIRenderingMode))")
             image = image.renderingMode(skipUIRenderingMode)
-        } else {
-            logger.info("No templateRenderingMode specified for image type: \(String(describing: spec.type))")
-        }
+        }         
+
         return image
     }
 }
@@ -140,7 +137,6 @@ extension Image {
 
 extension Image {
     public func renderingMode(_ renderingMode: Image.TemplateRenderingMode?) -> Image {
-        logger.info("Image.renderingMode called with: \(String(describing: renderingMode))")
         var spec = self.spec
         spec.templateRenderingMode = renderingMode
         return Image(spec: spec)

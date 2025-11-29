@@ -33,7 +33,6 @@ public struct AsyncImage<Content> where Content : View {
 
 extension AsyncImage {
     public func renderingMode(_ renderingMode: Image.TemplateRenderingMode?) -> AsyncImage {
-        logger.info("AsyncImage.renderingMode called with: \(String(describing: renderingMode))")
         return AsyncImage(
             url: self.url,
             scale: self.scale,
