@@ -282,9 +282,27 @@ extension View {
 }
 
 extension View {
-    @available(*, unavailable)
     nonisolated public func navigationDestination<D, C>(item: Binding<D?>, @ViewBuilder destination: @escaping (D) -> C) -> some View where D : Hashable, C : View {
-        stubView()
+        return ModifierView(target: self) {
+            let bridgedDestination: (Any) -> any SkipUI.View = {
+                let data = ($0 as! SwiftHashable).base as! D
+                return destination(data).Java_viewOrEmpty
+            }
+            let getItem: () -> Any? = {
+                if let value = item.wrappedValue {
+                    return Java_swiftHashable(for: value)
+                }
+                return nil
+            }
+            let setItem: (Any?) -> Void = {
+                if let value = $0 {
+                    item.wrappedValue = (value as! SwiftHashable).base as? D
+                } else {
+                    item.wrappedValue = nil
+                }
+            }
+            return $0.Java_viewOrEmpty.navigationDestination(getItem: getItem, setItem: setItem, bridgedDestination: bridgedDestination)
+        }
     }
 }
 
