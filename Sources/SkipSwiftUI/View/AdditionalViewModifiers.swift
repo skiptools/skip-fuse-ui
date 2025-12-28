@@ -460,3 +460,17 @@ extension View {
         }
     }
 }
+
+// MARK: - Mask
+extension View {
+    /* @inlinable */ nonisolated public func mask<Mask>(alignment: Alignment = .center, @ViewBuilder _ mask: () -> Mask) -> some View where Mask : View {
+        let maskView = mask()
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.mask(horizontalAlignmentKey: alignment.horizontal.key, verticalAlignmentKey: alignment.vertical.key, bridgedMask: maskView.Java_viewOrEmpty)
+        }
+    }
+
+    @inlinable nonisolated public func mask<Mask>(_ mask: Mask) -> some View where Mask : View {
+        return self.mask(alignment: .center) { mask }
+    }
+}
