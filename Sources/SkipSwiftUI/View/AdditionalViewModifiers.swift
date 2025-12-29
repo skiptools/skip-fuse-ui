@@ -474,3 +474,12 @@ extension View {
         return self.mask(alignment: .center) { mask }
     }
 }
+
+// MARK: - Tracking
+extension View {
+    /* @inlinable */ nonisolated public func tracking(_ tracking: CGFloat) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.tracking(tracking)
+        }
+    }
+}

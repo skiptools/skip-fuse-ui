@@ -368,9 +368,12 @@ extension Text {
         fatalError()
     }
 
-    @available(*, unavailable)
     nonisolated public func tracking(_ tracking: CGFloat) -> Text {
-        fatalError()
+        var text = self
+        text.modifierChain.append {
+            $0.tracking(tracking)
+        }
+        return text
     }
 
     @available(*, unavailable)
@@ -444,11 +447,6 @@ extension View {
 
     @available(*, unavailable)
     @_disfavoredOverload nonisolated public func kerning(_ kerning: CGFloat) -> some View {
-        stubView()
-    }
-
-    @available(*, unavailable)
-    @_disfavoredOverload nonisolated public func tracking(_ tracking: CGFloat) -> some View {
         stubView()
     }
 
