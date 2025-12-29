@@ -497,11 +497,6 @@ extension View {
         stubView()
     }
 
-    @available(*, unavailable)
-    nonisolated public func minimumScaleFactor(_ factor: CGFloat) -> some View {
-        stubView()
-    }
-
     nonisolated public func multilineTextAlignment(_ alignment: TextAlignment) -> some View {
         return ModifierView(target: self) {
             $0.Java_viewOrEmpty.multilineTextAlignment(bridgedAlignment: alignment.rawValue)

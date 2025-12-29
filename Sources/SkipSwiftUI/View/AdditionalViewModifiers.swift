@@ -492,3 +492,12 @@ extension View {
         }
     }
 }
+
+// MARK: - Minimum Scale Factor
+extension View {
+    /* @inlinable */ nonisolated public func minimumScaleFactor(_ factor: CGFloat) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.minimumScaleFactor(factor)
+        }
+    }
+}
