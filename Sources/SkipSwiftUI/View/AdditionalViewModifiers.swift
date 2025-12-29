@@ -483,3 +483,12 @@ extension View {
         }
     }
 }
+
+// MARK: - Line Spacing
+extension View {
+    /* @inlinable */ nonisolated public func lineSpacing(_ lineSpacing: CGFloat) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.lineSpacing(lineSpacing)
+        }
+    }
+}

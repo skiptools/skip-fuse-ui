@@ -493,11 +493,6 @@ extension View {
     }
 
     @available(*, unavailable)
-    nonisolated public func lineSpacing(_ lineSpacing: CGFloat) -> some View {
-        stubView()
-    }
-
-    @available(*, unavailable)
     nonisolated public func lineHeight(_ lineHeight: Any? /* AttributedString.LineHeight? */) -> some View {
         stubView()
     }
