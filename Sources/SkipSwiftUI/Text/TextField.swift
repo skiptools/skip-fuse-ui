@@ -8,6 +8,7 @@ public struct TextField<Label> where Label : View {
     private let text: Binding<String>
     private let prompt: Text?
     private let label: Label
+    private var selection: Binding<TextSelection?>? = nil
 }
 
 extension TextField : View {
@@ -16,7 +17,7 @@ extension TextField : View {
 
 extension TextField : SkipUIBridging {
     public var Java_view: any SkipUI.View {
-        return SkipUI.TextField(getText: { text.wrappedValue }, setText: { text.wrappedValue = $0 }, prompt: prompt?.Java_view as? SkipUI.Text, isSecure: false, bridgedLabel: label.Java_viewOrEmpty)
+        return SkipUI.TextField(getText: { text.wrappedValue }, setText: { text.wrappedValue = $0 }, getSelection: { selection?.wrappedValue }, setSelection: { selection?.wrappedValue = $0 }, prompt: prompt?.Java_view as? SkipUI.Text, isSecure: false, bridgedLabel: label.Java_viewOrEmpty)
     }
 }
 
@@ -286,24 +287,28 @@ extension TextField {
     }
 }
 
-#if compiler(>=6.0)
 extension TextField where Label == Text {
-    @available(*, unavailable)
     public init(_ titleKey: LocalizedStringKey, text: Binding<String>, selection: Binding<TextSelection?>, prompt: Text? = nil, axis: Axis? = nil) {
-        fatalError()
+        self.text = text
+        self.label = Text(titleKey)
+        self.prompt = prompt
+        self.selection = selection
     }
 
-    @available(*, unavailable)
     @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, text: Binding<String>, selection: Binding<TextSelection?>, prompt: Text? = nil, axis: Axis? = nil) {
-        fatalError()
+        self.text = text
+        self.label = Text(titleResource)
+        self.prompt = prompt
+        self.selection = selection
     }
 
-    @available(*, unavailable)
     @_disfavoredOverload public init<S>(_ title: S, text: Binding<String>, selection: Binding<TextSelection?>, prompt: Text? = nil, axis: Axis? = nil) where S : StringProtocol {
-        fatalError()
+        self.text = text
+        self.label = Text(title)
+        self.prompt = prompt
+        self.selection = selection
     }
 }
-#endif
 
 extension TextField where Label == Text {
     public init(_ titleKey: LocalizedStringKey, text: Binding<String>) {
