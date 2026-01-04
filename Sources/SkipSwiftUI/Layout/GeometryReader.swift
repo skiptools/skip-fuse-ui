@@ -21,9 +21,9 @@ public struct GeometryProxy {
         fatalError()
     }
 
-    @available(*, unavailable)
     public var safeAreaInsets: EdgeInsets {
-        fatalError()
+        let (top, leading, bottom, trailing) = javaProxy.bridgedSafeAreaInsets
+        return EdgeInsets(top: top, leading: leading, bottom: bottom, trailing: trailing)
     }
 
     public func frame(in coordinateSpace: CoordinateSpace) -> CGRect {
