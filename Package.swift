@@ -16,7 +16,7 @@ let package = Package(
         .package(url: "https://source.skip.tools/skip-bridge.git", "0.16.3"..<"2.0.0"),
         .package(url: "https://source.skip.tools/skip-android-bridge.git", "0.6.1"..<"2.0.0"),
         .package(url: "https://source.skip.tools/swift-jni.git", "0.3.1"..<"2.0.0"),
-        .package(url: "https://github.com/fhasse95/skip-ui.git", branch: "Textfield-Selection") // TODO: Update after merge of https://github.com/skiptools/skip-ui/pull/282
+        .package(url: "https://source.skip.tools/swift-ui.git", from: "1.44.5")
     ],
     targets: [
         .target(name: "SkipFuseUI", dependencies: ["SkipSwiftUI"]),
