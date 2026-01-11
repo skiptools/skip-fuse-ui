@@ -14,9 +14,9 @@ public final class UNUserNotificationCenter {
         return shared
     }
 
-    @available(*, unavailable)
-    public func getNotificationSettings() async -> Any /* UNNotificationSettings */ {
-        fatalError()
+    public func notificationSettings() async -> UNNotificationSettings {
+        let skipUISettings = await SkipUI.UNUserNotificationCenter.current().notificationSettings()
+        return UNNotificationSettings(Java_settings: skipUISettings)
     }
 
     @available(*, unavailable)
@@ -468,5 +468,123 @@ public final class UNLocationNotificationTrigger: UNNotificationTrigger {
 public final class UNPushNotificationTrigger: UNNotificationTrigger {
     public override init(repeats: Bool) {
         super.init(repeats: repeats)
+    }
+}
+
+public enum UNAuthorizationStatus : Int, Sendable {
+    case notDetermined = 0
+    case denied = 1
+    case authorized = 2
+    @available(iOS 12.0, *)
+    case provisional = 3
+    @available(iOS 14.0, *)
+    case ephemeral = 4
+}
+
+@available(iOS 11.0, *)
+public enum UNShowPreviewsSetting : Int, Sendable {
+    case always = 0
+    case whenAuthenticated = 1
+    case never = 2
+}
+
+public enum UNNotificationSetting : Int, Sendable {
+    case notSupported = 0
+    case disabled = 1
+    case enabled = 2
+}
+
+public enum UNAlertStyle : Int, Sendable {
+    case none = 0
+    case banner = 1
+    case alert = 2
+}
+
+public class UNNotificationSettings {
+    private let Java_settings: SkipUI.UNNotificationSettings
+    
+    public var authorizationStatus: UNAuthorizationStatus {
+        return UNAuthorizationStatus(rawValue: Java_settings.authorizationStatus.rawValue) ?? .notDetermined
+    }
+    
+    init(Java_settings: SkipUI.UNNotificationSettings) {
+        self.Java_settings = Java_settings
+    }
+    
+    @available(*, unavailable)
+    public var soundSetting: UNNotificationSetting {
+        fatalError()
+    }
+    
+    @available(*, unavailable)
+    public var badgeSetting: UNNotificationSetting {
+        fatalError()
+    }
+    
+    @available(*, unavailable)
+    public var alertSetting: UNNotificationSetting {
+        fatalError()
+    }
+    
+    @available(*, unavailable)
+    public var notificationCenterSetting: UNNotificationSetting {
+        fatalError()
+    }
+    
+    @available(*, unavailable)
+    public var lockScreenSetting: UNNotificationSetting {
+        fatalError()
+    }
+    
+    @available(*, unavailable)
+    public var carPlaySetting: UNNotificationSetting {
+        fatalError()
+    }
+    
+    @available(*, unavailable)
+    public var alertStyle: UNAlertStyle {
+        fatalError()
+    }
+    
+    @available(iOS 11.0, *)
+    @available(*, unavailable)
+    public var showPreviewsSetting: UNShowPreviewsSetting {
+        fatalError()
+    }
+    
+    @available(iOS 12.0, *)
+    @available(*, unavailable)
+    public var criticalAlertSetting: UNNotificationSetting {
+        fatalError()
+    }
+    
+    @available(iOS 12.0, *)
+    @available(*, unavailable)
+    public var providesAppNotificationSettings: Bool {
+        fatalError()
+    }
+    
+    @available(iOS 13.0, *)
+    @available(*, unavailable)
+    public var announcementSetting: UNNotificationSetting {
+        fatalError()
+    }
+    
+    @available(iOS 15.0, *)
+    @available(*, unavailable)
+    public var timeSensitiveSetting: UNNotificationSetting {
+        fatalError()
+    }
+    
+    @available(iOS 15.0, *)
+    @available(*, unavailable)
+    public var scheduledDeliverySetting: UNNotificationSetting {
+        fatalError()
+    }
+    
+    @available(iOS 15.0, *)
+    @available(*, unavailable)
+    public var directMessagesSetting: UNNotificationSetting {
+        fatalError()
     }
 }
