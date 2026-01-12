@@ -460,3 +460,44 @@ extension View {
         }
     }
 }
+
+// MARK: - Mask
+extension View {
+    /* @inlinable */ nonisolated public func mask<Mask>(alignment: Alignment = .center, @ViewBuilder _ mask: () -> Mask) -> some View where Mask : View {
+        let maskView = mask()
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.mask(horizontalAlignmentKey: alignment.horizontal.key, verticalAlignmentKey: alignment.vertical.key, bridgedMask: maskView.Java_viewOrEmpty)
+        }
+    }
+
+    @inlinable nonisolated public func mask<Mask>(_ mask: Mask) -> some View where Mask : View {
+        return self.mask(alignment: .center) { mask }
+    }
+}
+
+// MARK: - Tracking
+extension View {
+    /* @inlinable */ nonisolated public func tracking(_ tracking: CGFloat) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.tracking(tracking)
+        }
+    }
+}
+
+// MARK: - Line Spacing
+extension View {
+    /* @inlinable */ nonisolated public func lineSpacing(_ lineSpacing: CGFloat) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.lineSpacing(lineSpacing)
+        }
+    }
+}
+
+// MARK: - Minimum Scale Factor
+extension View {
+    /* @inlinable */ nonisolated public func minimumScaleFactor(_ factor: CGFloat) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.minimumScaleFactor(factor)
+        }
+    }
+}

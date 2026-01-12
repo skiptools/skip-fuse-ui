@@ -368,9 +368,12 @@ extension Text {
         fatalError()
     }
 
-    @available(*, unavailable)
     nonisolated public func tracking(_ tracking: CGFloat) -> Text {
-        fatalError()
+        var text = self
+        text.modifierChain.append {
+            $0.tracking(tracking)
+        }
+        return text
     }
 
     @available(*, unavailable)
@@ -448,11 +451,6 @@ extension View {
     }
 
     @available(*, unavailable)
-    @_disfavoredOverload nonisolated public func tracking(_ tracking: CGFloat) -> some View {
-        stubView()
-    }
-
-    @available(*, unavailable)
     @_disfavoredOverload nonisolated public func baselineOffset(_ baselineOffset: CGFloat) -> some View {
         stubView()
     }
@@ -495,17 +493,7 @@ extension View {
     }
 
     @available(*, unavailable)
-    nonisolated public func lineSpacing(_ lineSpacing: CGFloat) -> some View {
-        stubView()
-    }
-
-    @available(*, unavailable)
     nonisolated public func lineHeight(_ lineHeight: Any? /* AttributedString.LineHeight? */) -> some View {
-        stubView()
-    }
-
-    @available(*, unavailable)
-    nonisolated public func minimumScaleFactor(_ factor: CGFloat) -> some View {
         stubView()
     }
 
