@@ -124,6 +124,46 @@ extension View {
 }
 
 extension View {
+    nonisolated public func brightness(_ amount: Double) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.brightness(amount)
+        }
+    }
+}
+
+extension View {
+    nonisolated public func contrast(_ amount: Double) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.contrast(amount)
+        }
+    }
+}
+
+extension View {
+    nonisolated public func saturation(_ amount: Double) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.saturation(amount)
+        }
+    }
+}
+
+extension View {
+    nonisolated public func hueRotation(_ angle: Angle) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.hueRotation(bridgedAngle: angle.radians)
+        }
+    }
+}
+
+extension View {
+    nonisolated public func colorMultiply(_ color: Color) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.colorMultiply(color.Java_view as? SkipUI.Color ?? SkipUI.Color._clear)
+        }
+    }
+}
+
+extension View {
     /* @inlinable */ nonisolated public func compositingGroup() -> some View {
         return ModifierView(target: self) {
             $0.Java_viewOrEmpty.compositingGroup()
