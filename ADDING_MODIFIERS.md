@@ -8,9 +8,9 @@ Adding a new modifier requires changes across three repositories:
 
 | Repository | Purpose | Branch Pattern |
 |------------|---------|----------------|
-| `skip-ui` | Kotlin/Compose implementation | `vborko/<modifier>-modifier` |
-| `skip-fuse-ui` | Swift bridging layer | `vborko/<modifier>-modifier` |
-| `skipapp-showcase-fuse` | Test app/playground | `vborko/<modifier>-playground` |
+| `skip-ui` | Kotlin/Compose implementation | `feature/<modifier>-modifier` |
+| `skip-fuse-ui` | Swift bridging layer | `feature/<modifier>-modifier` |
+| `skipapp-showcase-fuse` | Test app/playground | `feature/<modifier>-playground` |
 
 ## File Locations
 
