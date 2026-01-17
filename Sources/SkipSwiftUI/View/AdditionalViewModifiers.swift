@@ -164,6 +164,38 @@ extension View {
 }
 
 extension View {
+    nonisolated public func blendMode(_ blendMode: BlendMode) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.blendMode(bridgedRawValue: blendMode.rawValue)
+        }
+    }
+}
+
+extension View {
+    nonisolated public func allowsHitTesting(_ enabled: Bool) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.allowsHitTesting(enabled)
+        }
+    }
+}
+
+extension View {
+    nonisolated public func drawingGroup(opaque: Bool = false, colorMode: ColorRenderingMode = .nonLinear) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.drawingGroup()
+        }
+    }
+}
+
+extension View {
+    nonisolated public func luminanceToAlpha() -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.luminanceToAlpha()
+        }
+    }
+}
+
+extension View {
     /* @inlinable */ nonisolated public func compositingGroup() -> some View {
         return ModifierView(target: self) {
             $0.Java_viewOrEmpty.compositingGroup()
