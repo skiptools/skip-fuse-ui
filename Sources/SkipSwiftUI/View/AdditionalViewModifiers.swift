@@ -581,3 +581,36 @@ extension View {
         }
     }
 }
+
+// MARK: - Badge
+extension View {
+    /* @inlinable */ nonisolated public func badge(_ count: Int) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.badge(count)
+        }
+    }
+
+    /* @inlinable */ nonisolated public func badge(_ label: Text?) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.badge(label?.Java_view as? SkipUI.Text)
+        }
+    }
+
+    @inlinable nonisolated public func badge(_ key: LocalizedStringKey) -> some View {
+        return badge(Text(key))
+    }
+
+    @inlinable nonisolated public func badge(_ label: String?) -> some View {
+        if let label {
+            return badge(Text(label))
+        } else {
+            return badge(nil as Text?)
+        }
+    }
+
+    /* @inlinable */ nonisolated public func badgeProminence(_ prominence: BadgeProminence) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.badgeProminence(bridgedRawValue: prominence.rawValue)
+        }
+    }
+}
