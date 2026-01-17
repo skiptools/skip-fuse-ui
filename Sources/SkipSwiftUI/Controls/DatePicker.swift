@@ -8,6 +8,8 @@ public struct DatePicker<Label> where Label : View {
     private let selection: Binding<Date>
     private let displayedComponents: DatePicker<Label>.Components
     private let label: Label
+    private let minDate: Date?
+    private let maxDate: Date?
 
     public typealias Components = DatePickerComponents
 }
@@ -18,7 +20,13 @@ extension DatePicker : View {
 
 extension DatePicker : SkipUIBridging {
     public var Java_view: any SkipUI.View {
-        return SkipUI.DatePicker(getSelection: { selection.wrappedValue }, setSelection: { selection.wrappedValue = $0 }, bridgedDisplayedComponents: Int(displayedComponents.rawValue), bridgedLabel: label.Java_viewOrEmpty)
+        if minDate != nil || maxDate != nil {
+            let min = minDate ?? Date.distantPast
+            let max = maxDate ?? Date.distantFuture
+            return SkipUI.DatePicker(getSelection: { selection.wrappedValue }, setSelection: { selection.wrappedValue = $0 }, bridgedMinDate: min, bridgedMaxDate: max, bridgedDisplayedComponents: Int(displayedComponents.rawValue), bridgedLabel: label.Java_viewOrEmpty)
+        } else {
+            return SkipUI.DatePicker(getSelection: { selection.wrappedValue }, setSelection: { selection.wrappedValue = $0 }, bridgedDisplayedComponents: Int(displayedComponents.rawValue), bridgedLabel: label.Java_viewOrEmpty)
+        }
     }
 }
 
@@ -27,10 +35,20 @@ extension DatePicker {
         self.selection = selection
         self.displayedComponents = displayedComponents
         self.label = label()
+        self.minDate = nil
+        self.maxDate = nil
+    }
+
+    public init(selection: Binding<Date>, in range: ClosedRange<Date>, displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date], @ViewBuilder label: () -> Label) {
+        self.selection = selection
+        self.displayedComponents = displayedComponents
+        self.label = label()
+        self.minDate = range.lowerBound
+        self.maxDate = range.upperBound
     }
 
     @available(*, unavailable)
-    public init(selection: Binding<Date>, in range: ClosedRange<Date>, displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date], @ViewBuilder label: () -> Label) {
+    public init(selection: Binding<Date>, in range: Range<Date>, displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date], @ViewBuilder label: () -> Label) {
         fatalError()
     }
 
@@ -50,10 +68,20 @@ extension DatePicker where Label == Text {
         self.selection = selection
         self.displayedComponents = displayedComponents
         self.label = Text(titleKey)
+        self.minDate = nil
+        self.maxDate = nil
+    }
+
+    public init(_ titleKey: LocalizedStringKey, selection: Binding<Date>, in range: ClosedRange<Date>, displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]) {
+        self.selection = selection
+        self.displayedComponents = displayedComponents
+        self.label = Text(titleKey)
+        self.minDate = range.lowerBound
+        self.maxDate = range.upperBound
     }
 
     @available(*, unavailable)
-    public init(_ titleKey: LocalizedStringKey, selection: Binding<Date>, in range: ClosedRange<Date>, displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]) {
+    public init(_ titleKey: LocalizedStringKey, selection: Binding<Date>, in range: Range<Date>, displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]) {
         fatalError()
     }
 
@@ -71,10 +99,20 @@ extension DatePicker where Label == Text {
         self.selection = selection
         self.displayedComponents = displayedComponents
         self.label = Text(titleResource)
+        self.minDate = nil
+        self.maxDate = nil
+    }
+
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, selection: Binding<Date>, in range: ClosedRange<Date>, displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]) {
+        self.selection = selection
+        self.displayedComponents = displayedComponents
+        self.label = Text(titleResource)
+        self.minDate = range.lowerBound
+        self.maxDate = range.upperBound
     }
 
     @available(*, unavailable)
-    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, selection: Binding<Date>, in range: ClosedRange<Date>, displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]) {
+    @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, selection: Binding<Date>, in range: Range<Date>, displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]) {
         fatalError()
     }
 
@@ -92,10 +130,20 @@ extension DatePicker where Label == Text {
         self.selection = selection
         self.displayedComponents = displayedComponents
         self.label = Text(title)
+        self.minDate = nil
+        self.maxDate = nil
+    }
+
+    @_disfavoredOverload public init<S>(_ title: S, selection: Binding<Date>, in range: ClosedRange<Date>, displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]) where S : StringProtocol {
+        self.selection = selection
+        self.displayedComponents = displayedComponents
+        self.label = Text(title)
+        self.minDate = range.lowerBound
+        self.maxDate = range.upperBound
     }
 
     @available(*, unavailable)
-    @_disfavoredOverload public init<S>(_ title: S, selection: Binding<Date>, in range: ClosedRange<Date>, displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]) where S : StringProtocol {
+    @_disfavoredOverload public init<S>(_ title: S, selection: Binding<Date>, in range: Range<Date>, displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]) where S : StringProtocol {
         fatalError()
     }
 
