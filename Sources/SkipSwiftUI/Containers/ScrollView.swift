@@ -131,20 +131,26 @@ extension ScrollGeometry : CustomDebugStringConvertible {
 }
 
 public struct ScrollIndicatorVisibility : Equatable {
+    public let rawValue: Int
+
+    private init(rawValue: Int) {
+        self.rawValue = rawValue
+    }
+
     public static var automatic: ScrollIndicatorVisibility {
-        return ScrollIndicatorVisibility()
+        return ScrollIndicatorVisibility(rawValue: 0) // For bridging
     }
 
     public static var visible: ScrollIndicatorVisibility {
-        return ScrollIndicatorVisibility()
+        return ScrollIndicatorVisibility(rawValue: 1) // For bridging
     }
 
     public static var hidden: ScrollIndicatorVisibility {
-        return ScrollIndicatorVisibility()
+        return ScrollIndicatorVisibility(rawValue: 2) // For bridging
     }
 
     public static var never: ScrollIndicatorVisibility {
-        return ScrollIndicatorVisibility()
+        return ScrollIndicatorVisibility(rawValue: 3) // For bridging
     }
 }
 
@@ -585,14 +591,16 @@ extension View {
         }
     }
 
-    @available(*, unavailable)
     nonisolated public func scrollDisabled(_ disabled: Bool) -> some View {
-        stubView()
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.scrollDisabled(disabled)
+        }
     }
 
-    @available(*, unavailable)
     nonisolated public func scrollIndicators(_ visibility: ScrollIndicatorVisibility, axes: Axis.Set = [.vertical, .horizontal]) -> some View {
-        stubView()
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.scrollIndicators(bridgedVisibility: visibility.rawValue, bridgedAxes: Int(axes.rawValue))
+        }
     }
 
     @available(*, unavailable)
