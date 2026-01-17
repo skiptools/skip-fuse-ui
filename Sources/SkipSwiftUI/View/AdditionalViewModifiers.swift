@@ -204,6 +204,14 @@ extension View {
 }
 
 extension View {
+    nonisolated public func flipsForRightToLeftLayoutDirection(_ enabled: Bool) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.flipsForRightToLeftLayoutDirection(enabled)
+        }
+    }
+}
+
+extension View {
     @available(*, unavailable)
     nonisolated public func controlSize(_ controlSize: ControlSize) -> some View {
         stubView()
