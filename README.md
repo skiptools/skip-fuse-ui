@@ -1,6 +1,6 @@
 # SkipFuseUI
 
-Bridging between SwiftUI and Jetpack Compose for [Skip Fuse](https://skip.tools/docs/modes/) apps. SkipFuseUI uses [SkipUI](https://skip.tools/docs/modules/skip-ui/) under the hood to adapt the SwiftUI APIs to Compose. See its documentation for information about SwiftUI-on-Android.
+Bridging between SwiftUI and Jetpack Compose for [Skip Fuse](https://skip.dev/docs/modes/) apps. SkipFuseUI uses [SkipUI](https://skip.dev/docs/modules/skip-ui/) under the hood to adapt the SwiftUI APIs to Compose. See its documentation for information about SwiftUI-on-Android.
 
 ## License
 
