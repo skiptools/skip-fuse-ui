@@ -164,9 +164,49 @@ extension View {
 }
 
 extension View {
+    nonisolated public func blendMode(_ blendMode: BlendMode) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.blendMode(bridgedRawValue: blendMode.rawValue)
+        }
+    }
+}
+
+extension View {
+    nonisolated public func allowsHitTesting(_ enabled: Bool) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.allowsHitTesting(enabled)
+        }
+    }
+}
+
+extension View {
+    nonisolated public func drawingGroup(opaque: Bool = false, colorMode: ColorRenderingMode = .nonLinear) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.drawingGroup()
+        }
+    }
+}
+
+extension View {
+    nonisolated public func luminanceToAlpha() -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.luminanceToAlpha()
+        }
+    }
+}
+
+extension View {
     /* @inlinable */ nonisolated public func compositingGroup() -> some View {
         return ModifierView(target: self) {
             $0.Java_viewOrEmpty.compositingGroup()
+        }
+    }
+}
+
+extension View {
+    nonisolated public func flipsForRightToLeftLayoutDirection(_ enabled: Bool) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.flipsForRightToLeftLayoutDirection(enabled)
         }
     }
 }
@@ -538,6 +578,39 @@ extension View {
     /* @inlinable */ nonisolated public func minimumScaleFactor(_ factor: CGFloat) -> some View {
         return ModifierView(target: self) {
             $0.Java_viewOrEmpty.minimumScaleFactor(factor)
+        }
+    }
+}
+
+// MARK: - Badge
+extension View {
+    /* @inlinable */ nonisolated public func badge(_ count: Int) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.badge(count)
+        }
+    }
+
+    /* @inlinable */ nonisolated public func badge(_ label: Text?) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.badge(label?.Java_view as? SkipUI.Text)
+        }
+    }
+
+    @inlinable nonisolated public func badge(_ key: LocalizedStringKey) -> some View {
+        return badge(Text(key))
+    }
+
+    @inlinable nonisolated public func badge(_ label: String?) -> some View {
+        if let label {
+            return badge(Text(label))
+        } else {
+            return badge(nil as Text?)
+        }
+    }
+
+    /* @inlinable */ nonisolated public func badgeProminence(_ prominence: BadgeProminence) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.badgeProminence(bridgedRawValue: prominence.rawValue)
         }
     }
 }
