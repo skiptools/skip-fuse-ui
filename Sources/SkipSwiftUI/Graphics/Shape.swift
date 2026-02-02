@@ -346,9 +346,8 @@ extension AnyShape {
 }
 
 extension Shape {
-    @available(*, unavailable)
-    /* @inlinable */ nonisolated public func trim(from startFraction: CGFloat = 0, to endFraction: CGFloat = 1) -> some Shape {
-        stubShape()
+    /* @inlinable */ nonisolated public func trim(from startFraction: CGFloat = 0, to endFraction: CGFloat = 1) -> TrimmedShape<Self> {
+        return TrimmedShape(shape: self, startFraction: startFraction, endFraction: endFraction)
     }
 }
 
@@ -643,6 +642,36 @@ extension RotatedShape {
 extension TransformedShape {
     nonisolated public var Java_view: any SkipUI.View {
         return shape.Java_view
+    }
+}
+
+@frozen public struct TrimmedShape<Content> : Shape where Content : Shape {
+    public var shape: Content
+    public var startFraction: CGFloat
+    public var endFraction: CGFloat
+
+    @inlinable nonisolated public init(shape: Content, startFraction: CGFloat, endFraction: CGFloat) {
+        self.shape = shape
+        self.startFraction = startFraction
+        self.endFraction = endFraction
+    }
+
+    nonisolated public func path(in rect: CGRect) -> Path {
+        return shape.path(in: rect)
+    }
+
+    nonisolated public static var role: ShapeRole {
+        return Content.role
+    }
+
+    nonisolated public var layoutDirectionBehavior: LayoutDirectionBehavior {
+        return shape.layoutDirectionBehavior
+    }
+}
+
+extension TrimmedShape {
+    nonisolated public var Java_view: any SkipUI.View {
+        return shape.Java_shape.trim(from: startFraction, to: endFraction)
     }
 }
 
