@@ -37,7 +37,7 @@ struct ColorSpec : Hashable, Sendable {
     }
 }
 
-enum ColorType : Hashable {
+enum ColorType : Hashable, Sendable {
     case accent
     case primary
     case secondary
