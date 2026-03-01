@@ -27,7 +27,7 @@ import SkipUI
     }
 }
 
-struct ColorSpec : Hashable {
+struct ColorSpec : Hashable, Sendable {
     let type: ColorType
     var opacity = 1.0
 
