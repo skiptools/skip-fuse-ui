@@ -554,19 +554,30 @@ public struct PinnedScrollableViews : OptionSet, Sendable {
 }
 
 extension View {
-    @available(*, unavailable)
+    /// Sets the content margins for this view.
     nonisolated public func contentMargins(_ edges: Edge.Set = .all, _ insets: EdgeInsets, for placement: ContentMarginPlacement = .automatic) -> some View {
-        stubView()
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.contentMargins(Int(edges.rawValue), top: insets.top, leading: insets.leading, bottom: insets.bottom, trailing: insets.trailing, for: placement.rawValue)
+        }
     }
 
-    @available(*, unavailable)
+    /// Sets the content margins for this view.
     nonisolated public func contentMargins(_ edges: Edge.Set = .all, _ length: CGFloat?, for placement: ContentMarginPlacement = .automatic) -> some View {
-        stubView()
+        let insets: EdgeInsets
+        if let length {
+            insets = EdgeInsets(top: edges.contains(.top) ? length : 0.0,
+                                leading: edges.contains(.leading) ? length : 0.0,
+                                bottom: edges.contains(.bottom) ? length : 0.0,
+                                trailing: edges.contains(.trailing) ? length : 0.0)
+        } else {
+            insets = EdgeInsets()
+        }
+        return contentMargins(edges, insets, for: placement)
     }
 
-    @available(*, unavailable)
+    /// Sets the content margins for this view.
     nonisolated public func contentMargins(_ length: CGFloat, for placement: ContentMarginPlacement = .automatic) -> some View {
-        stubView()
+        return contentMargins(.all, length, for: placement)
     }
 
     @available(*, unavailable)
