@@ -618,9 +618,13 @@ extension View {
         stubView()
     }
 
-    @available(*, unavailable)
-    nonisolated public func scrollPosition(id: Binding<(some Hashable)?>, anchor: UnitPoint? = nil) -> some View {
-        stubView()
+    nonisolated public func scrollPosition(id: Binding<AnyHashable?>, anchor: UnitPoint? = nil) -> some View {
+        return ModifierView(target: self) {
+            // Bridge to SkipUI using closure-based API
+            let getId: () -> AnyHashable? = { id.wrappedValue }
+            let setId: (AnyHashable?) -> Void = { id.wrappedValue = $0 }
+            return $0.Java_viewOrEmpty.scrollPosition(getId: getId, setId: setId)
+        }
     }
 
     nonisolated public func scrollTargetBehavior(_ behavior: some ScrollTargetBehavior) -> some View {
