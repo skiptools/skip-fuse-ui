@@ -63,6 +63,7 @@ enum ColorType : Hashable, Sendable {
     case w(Double, Double)
     case hsb(Double, Double, Double, Double)
     case named(String, Bundle?)
+    case systemBackground
     indirect case saturate(ColorSpec, Double)
 }
 
@@ -123,6 +124,8 @@ extension Color : SkipUIBridging {
             SkipUI.Color(hue: hue, saturation: saturation, brightness: brightness, opacity: opacity)
         case .named(let name, let bundle):
             SkipUI.Color(name: name, bridgedBundle: bundle)
+        case .systemBackground:
+            SkipUI.Color._background
         case .saturate(let spec, let multiplier):
             Java_color(for: spec).saturate(by: multiplier)
         }
@@ -216,6 +219,14 @@ extension Color {
 extension Color {
     public init(_ name: String, bundle: Bundle? = nil) {
         self.spec = .init(.named(name, bundle))
+    }
+
+    public init(_ uiColor: UIColor) {
+        if uiColor === UIColor.systemBackground {
+            self.init(spec: .init(.systemBackground))
+            return
+        }
+        self.init(spec: .init(.rgb(Double(uiColor.red), Double(uiColor.green), Double(uiColor.blue), Double(uiColor.alpha))))
     }
 }
 

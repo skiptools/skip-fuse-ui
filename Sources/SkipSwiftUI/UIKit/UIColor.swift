@@ -9,6 +9,12 @@ import SkipUI
 open class UIColor : NSObject /*, NSSecureCoding, NSCopying */, @unchecked Sendable {
     let uiColor: SkipUI.UIColor
 
+    /// Stored RGB components for Color conversion; SkipUI.UIColor properties may be internal when bridged.
+    private let _red: CGFloat
+    private let _green: CGFloat
+    private let _blue: CGFloat
+    private let _alpha: CGFloat
+
     @available(*, unavailable)
     public init(white: CGFloat, alpha: CGFloat) {
         fatalError()
@@ -21,7 +27,20 @@ open class UIColor : NSObject /*, NSSecureCoding, NSCopying */, @unchecked Senda
 
     public init(red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) {
         self.uiColor = SkipUI.UIColor(red: red, green: green, blue: blue, alpha: alpha)
+        self._red = red
+        self._green = green
+        self._blue = blue
+        self._alpha = alpha
     }
+
+    /// Semantic system background color. Use with `Color(.systemBackground)` to get the adaptive semantic color.
+    public static let systemBackground: UIColor = UIColor(red: 1, green: 1, blue: 1, alpha: 1)
+
+    /// RGB component accessors for Color conversion (e.g. Color(uiColor)).
+    public var red: CGFloat { _red }
+    public var green: CGFloat { _green }
+    public var blue: CGFloat { _blue }
+    public var alpha: CGFloat { _alpha }
 
     @available(*, unavailable)
     public init(displayP3Red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) {
