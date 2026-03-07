@@ -93,30 +93,28 @@ public final class UNUserNotificationCenter {
         try await SkipUI.UNUserNotificationCenter.current().add(request.Java_request)
     }
 
-    @available(*, unavailable)
-    public func getPendingNotificationRequests() async -> [Any /* UNNotificationRequest */] {
-        fatalError()
+    public func pendingNotificationRequests() async -> [Any /* UNNotificationRequest */] {
+        await SkipUI.UNUserNotificationCenter.current().pendingNotificationRequests()
     }
 
-    @available(*, unavailable)
     public func removePendingNotificationRequests(withIdentifiers: [String]) {
+        SkipUI.UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: withIdentifiers)
     }
 
-    @available(*, unavailable)
     public func removeAllPendingNotificationRequests() {
+        SkipUI.UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
     }
 
-    @available(*, unavailable)
-    public func getDeliveredNotifications() async -> [Any /* UNNotification */] {
-        fatalError()
+    public func deliveredNotifications() async -> [Any /* UNNotification */] {
+        await SkipUI.UNUserNotificationCenter.current().deliveredNotifications()
     }
 
-    @available(*, unavailable)
     public func removeDeliveredNotifications(withIdentifiers: [String]) {
+        SkipUI.UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: withIdentifiers)
     }
 
-    @available(*, unavailable)
     public func removeAllDeliveredNotifications() {
+        SkipUI.UNUserNotificationCenter.current().removeAllDeliveredNotifications()
     }
 
     @available(*, unavailable)
@@ -180,7 +178,7 @@ public final class UNNotification {
     }
 }
 
-public final class UNNotificationRequest {
+public final class UNNotificationRequest: @unchecked Sendable {
     public let identifier: String
     public let content: UNNotificationContent
     public let trigger: UNNotificationTrigger?
@@ -198,7 +196,7 @@ public final class UNNotificationRequest {
     }
 
     var Java_request: SkipUI.UNNotificationRequest {
-        return SkipUI.UNNotificationRequest(identifier: identifier, content: content.Java_content)
+        return SkipUI.UNNotificationRequest(identifier: identifier, content: content.Java_content, trigger: trigger?.Java_trigger)
     }
 }
 
@@ -436,6 +434,14 @@ public class UNNotificationTrigger {
     public init(repeats: Bool) {
         self.repeats = repeats
     }
+    
+    init(Java_trigger: SkipUI.UNNotificationTrigger) {
+        self.repeats = Java_trigger.repeats
+    }
+    
+    var Java_trigger: SkipUI.UNNotificationTrigger {
+        return SkipUI.UNNotificationTrigger(repeats: repeats)
+    }
 }
 
 public final class UNTimeIntervalNotificationTrigger: UNNotificationTrigger {
@@ -445,14 +451,40 @@ public final class UNTimeIntervalNotificationTrigger: UNNotificationTrigger {
         self.timeInterval = timeInterval
         super.init(repeats: repeats)
     }
+
+    init(Java_trigger: SkipUI.UNTimeIntervalNotificationTrigger) {
+        self.timeInterval = Java_trigger.timeInterval
+        super.init(Java_trigger: Java_trigger)
+    }
+
+    override var Java_trigger: SkipUI.UNTimeIntervalNotificationTrigger {
+        return SkipUI.UNTimeIntervalNotificationTrigger(timeInterval: timeInterval, repeats: repeats)
+    }
+
+    public func nextTriggerDate() -> Date? {
+        return Java_trigger.nextTriggerDate()
+    }
 }
 
 public final class UNCalendarNotificationTrigger: UNNotificationTrigger {
-    public let dateComponents: DateComponents
+    public let dateComponents: Any /* DateComponents */
 
-    public init(dateComponents: DateComponents, repeats: Bool) {
+    public init(dateMatching dateComponents: Any /* DateComponents */, repeats: Bool) {
         self.dateComponents = dateComponents
         super.init(repeats: repeats)
+    }
+
+    init(Java_request: SkipUI.UNCalendarNotificationTrigger) {
+        self.dateComponents = Java_request.dateComponents
+        super.init(repeats: false)
+    }
+
+    override var Java_trigger: SkipUI.UNCalendarNotificationTrigger {
+        return SkipUI.UNCalendarNotificationTrigger(dateMatching: dateComponents as! DateComponents, repeats: repeats)
+    }
+
+    public func nextTriggerDate() -> Date? {
+        return Java_trigger.nextTriggerDate()
     }
 }
 
