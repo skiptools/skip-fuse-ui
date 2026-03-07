@@ -18,8 +18,7 @@ let package = Package(
         .package(url: "https://source.skip.tools/swift-jni.git", "0.3.1"..<"2.0.0"),
         
         // TODO: Update skip ui package URL and version after skip ui PR has been merged
-        .package(url: "https://github.com/fhasse95/skip-ui.git", branch: "Triggered-Notification-Support"),
-        //.package(url: "https://source.skip.tools/skip-ui.git", from: "1.46.0") 
+        .package(url: "https://source.skip.tools/skip-ui.git", branch: "main") 
     ],
     targets: [
         .target(name: "SkipFuseUI", dependencies: ["SkipSwiftUI"]),
