@@ -368,6 +368,25 @@ extension View {
 }
 
 extension View {
+    nonisolated public func onGeometryChange<T>(for type: T.Type, of transform: @escaping (GeometryProxy) -> T, action: @escaping (_ newValue: T) -> Void) -> some View where T : Equatable {
+        onGeometryChange(for: type, of: transform) { oldValue, newValue in
+            action(newValue)
+        }
+    }
+
+    nonisolated public func onGeometryChange<T>(for type: T.Type, of transform: @escaping (GeometryProxy) -> T, action: @escaping (_ oldValue: T, _ newValue: T) -> Void) -> some View where T : Equatable {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.onGeometryChangeErased(of: { jproxy in
+                let proxy = GeometryProxy(javaProxy: jproxy)
+                return Java_swiftEquatable(for: transform(proxy))
+            }) { (oldValue: SwiftEquatable, newValue: SwiftEquatable) in
+                action(oldValue.base as! T, newValue.base as! T)
+            }
+        }
+    }
+}
+
+extension View {
     /* @inlinable */ nonisolated public func opacity(_ opacity: Double) -> some View {
         return ModifierView(target: self) {
             $0.Java_viewOrEmpty.opacity(opacity)
