@@ -1,5 +1,5 @@
-// Copyright 2025 Skip
-// SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
+// Copyright 2025–2026 Skip
+// SPDX-License-Identifier: MPL-2.0
 
 @frozen public enum VerticalEdge : Int8, Hashable, CaseIterable, BitwiseCopyable, Sendable {
     case top = 1 // For bridging
