@@ -528,7 +528,7 @@ extension View {
     }
 
     nonisolated public func navigationBarHidden(_ hidden: Bool) -> some View {
-        return toolbarVisibility(.hidden, for: .navigationBar)
+        return toolbarVisibility(hidden ? .hidden : .visible, for: .navigationBar)
     }
 }
 
