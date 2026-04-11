@@ -109,10 +109,13 @@ open class UIImage : NSObject /*, NSSecureCoding */, @unchecked Sendable {
     public init(ciImage: Any /* CIImage */, scale: CGFloat, orientation: UIImage.Orientation) {
         fatalError()
     }
+    
+    private init(skipImage: SkipUI.UIImage) {
+        self.uiImage = skipImage
+    }
 
-    @available(*, unavailable)
     open var size: CGSize {
-        fatalError()
+        return .init(width: uiImage.bridgedWidth, height: uiImage.bridgedHeight)
     }
 
     @available(*, unavailable)
@@ -319,9 +322,11 @@ open class UIImage : NSObject /*, NSSecureCoding */, @unchecked Sendable {
         fatalError()
     }
 
-    @available(*, unavailable)
     open func preparingThumbnail(of size: CGSize) -> UIImage? {
-        fatalError()
+        if let uiImage = uiImage.preparingThumbnail(width: size.width, height: size.height) {
+            return UIImage(skipImage: uiImage)
+        }
+        return nil
     }
 
     @available(*, unavailable)
@@ -329,9 +334,11 @@ open class UIImage : NSObject /*, NSSecureCoding */, @unchecked Sendable {
         fatalError()
     }
 
-    @available(*, unavailable)
     open func byPreparingThumbnail(ofSize size: CGSize) async -> UIImage? {
-        fatalError()
+        if let uiImage = await uiImage.byPreparingThumbnail(width: size.width, height: size.height) {
+            return UIImage(skipImage: uiImage)
+        }
+        return nil
     }
 
     @available(*, unavailable)
