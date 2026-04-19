@@ -28,7 +28,7 @@ open class SkipUITestCase : XCTestCase {
     public var testName: String? {
         #if SKIP
         let tname = _testName.methodName // "testLocalizedText$SkipUI_debugUnitTest"
-        return tname.split(separator: Char("$")).first
+        return tname.split(separator: "$").first
         #else
         let tname = testRun?.test.name // "-[SkipUITests testLocalizedText]"
         return tname?
