@@ -96,15 +96,15 @@ extension TabViewStyle {
 }
 
 @MainActor @preconcurrency public struct SidebarAdaptableTabViewStyle : TabViewStyle {
-    @available(*, unavailable)
     nonisolated public init() {
     }
+
+    public let identifier = 3 // For bridging
 }
 
 extension TabViewStyle where Self == SidebarAdaptableTabViewStyle {
-    @available(*, unavailable)
     @MainActor @preconcurrency public static var sidebarAdaptable: SidebarAdaptableTabViewStyle {
-        fatalError()
+        return SidebarAdaptableTabViewStyle()
     }
 }
 
