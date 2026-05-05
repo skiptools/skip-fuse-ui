@@ -282,6 +282,29 @@ extension View {
 }
 
 extension View {
+    nonisolated public func navigationStackLayoutHints(expectedTitle: Text = Text(verbatim: ""), expectedTitleDisplayMode: NavigationBarItem.TitleDisplayMode? = nil) -> some View {
+        return ModifierView(target: self) {
+            let title = expectedTitle.Java_view as? SkipUI.Text ?? SkipUI.Text(verbatim: "")
+            return $0.Java_viewOrEmpty.navigationStackLayoutHints(expectedTitle: title, bridgedExpectedTitleDisplayMode: expectedTitleDisplayMode?.rawValue)
+        }
+    }
+
+    nonisolated public func navigationDestinationLayoutHints<D>(for data: D.Type, expectedTitle: Text = Text(verbatim: ""), expectedTitleDisplayMode: NavigationBarItem.TitleDisplayMode? = nil) -> some View {
+        return ModifierView(target: self) {
+            let title = expectedTitle.Java_view as? SkipUI.Text ?? SkipUI.Text(verbatim: "")
+            return $0.Java_viewOrEmpty.navigationDestinationLayoutHints(destinationKey: String(describing: data), expectedTitle: title, bridgedExpectedTitleDisplayMode: expectedTitleDisplayMode?.rawValue)
+        }
+    }
+
+    nonisolated public func navigationDestinationLayoutHints(destinationKey: String, expectedTitle: Text = Text(verbatim: ""), expectedTitleDisplayMode: NavigationBarItem.TitleDisplayMode? = nil) -> some View {
+        return ModifierView(target: self) {
+            let title = expectedTitle.Java_view as? SkipUI.Text ?? SkipUI.Text(verbatim: "")
+            return $0.Java_viewOrEmpty.navigationDestinationLayoutHints(destinationKey: destinationKey, expectedTitle: title, bridgedExpectedTitleDisplayMode: expectedTitleDisplayMode?.rawValue)
+        }
+    }
+}
+
+extension View {
     nonisolated public func navigationDestination<D, C>(item: Binding<D?>, @ViewBuilder destination: @escaping (D) -> C) -> some View where D : Hashable, C : View {
         return ModifierView(target: self) {
             let bridgedDestination: (Any) -> any SkipUI.View = {
