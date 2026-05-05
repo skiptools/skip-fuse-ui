@@ -293,6 +293,14 @@ extension View {
 }
 
 extension View {
+    nonisolated public func statusBarHidden(_ hidden: Bool = true) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.statusBarHidden(hidden)
+        }
+    }
+}
+
+extension View {
     /* @inlinable */ nonisolated public func id<ID>(_ id: ID) -> some View where ID : Hashable {
         return ModifierView(target: self) {
             $0.Java_viewOrEmpty.id(Java_swiftHashable(for: id))
