@@ -231,6 +231,17 @@ extension View {
     }
 }
 
+#if os(Android)
+extension View {
+    /// When `true`, SkipUI ``Image`` / ``AsyncImage`` use Coil ``SubcomposeAsyncImage`` (slower; avoids first-frame empty state with cached images). Default is `false`.
+    nonisolated public func subcomposeAsyncImage(_ enabled: Bool = true) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.subcomposeAsyncImage(enabled)
+        }
+    }
+}
+#endif
+
 extension View {
     @inlinable nonisolated public func edgesIgnoringSafeArea(_ edges: Edge.Set) -> some View {
         return ignoresSafeArea(edges: edges)
