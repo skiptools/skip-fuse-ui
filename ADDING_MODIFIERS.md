@@ -200,7 +200,7 @@ Check both repositories for `@available(*, unavailable)` stubs:
 
 `Sources/ShowcaseFuse/<Name>Playground.swift`:
 ```swift
-// Copyright 2023–2025 Skip
+// Copyright 2023–2026 Skip
 import SwiftUI
 
 struct TrackingPlayground: View {

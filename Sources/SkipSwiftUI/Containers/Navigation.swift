@@ -1,5 +1,5 @@
-// Copyright 2025 Skip
-// SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
+// Copyright 2025–2026 Skip
+// SPDX-License-Identifier: MPL-2.0
 #if !ROBOLECTRIC && canImport(CoreGraphics)
 import CoreGraphics
 #endif
@@ -282,6 +282,29 @@ extension View {
 }
 
 extension View {
+    nonisolated public func navigationStackLayoutHints(expectedTitle: Text = Text(verbatim: ""), expectedTitleDisplayMode: NavigationBarItem.TitleDisplayMode? = nil) -> some View {
+        return ModifierView(target: self) {
+            let title = expectedTitle.Java_view as? SkipUI.Text ?? SkipUI.Text(verbatim: "")
+            return $0.Java_viewOrEmpty.navigationStackLayoutHints(expectedTitle: title, bridgedExpectedTitleDisplayMode: expectedTitleDisplayMode?.rawValue)
+        }
+    }
+
+    nonisolated public func navigationDestinationLayoutHints<D>(for data: D.Type, expectedTitle: Text = Text(verbatim: ""), expectedTitleDisplayMode: NavigationBarItem.TitleDisplayMode? = nil) -> some View {
+        return ModifierView(target: self) {
+            let title = expectedTitle.Java_view as? SkipUI.Text ?? SkipUI.Text(verbatim: "")
+            return $0.Java_viewOrEmpty.navigationDestinationLayoutHints(destinationKey: String(describing: data), expectedTitle: title, bridgedExpectedTitleDisplayMode: expectedTitleDisplayMode?.rawValue)
+        }
+    }
+
+    nonisolated public func navigationDestinationLayoutHints(destinationKey: String, expectedTitle: Text = Text(verbatim: ""), expectedTitleDisplayMode: NavigationBarItem.TitleDisplayMode? = nil) -> some View {
+        return ModifierView(target: self) {
+            let title = expectedTitle.Java_view as? SkipUI.Text ?? SkipUI.Text(verbatim: "")
+            return $0.Java_viewOrEmpty.navigationDestinationLayoutHints(destinationKey: destinationKey, expectedTitle: title, bridgedExpectedTitleDisplayMode: expectedTitleDisplayMode?.rawValue)
+        }
+    }
+}
+
+extension View {
     nonisolated public func navigationDestination<D, C>(item: Binding<D?>, @ViewBuilder destination: @escaping (D) -> C) -> some View where D : Hashable, C : View {
         return ModifierView(target: self) {
             let bridgedDestination: (Any) -> any SkipUI.View = {
@@ -528,7 +551,7 @@ extension View {
     }
 
     nonisolated public func navigationBarHidden(_ hidden: Bool) -> some View {
-        return toolbarVisibility(.hidden, for: .navigationBar)
+        return toolbarVisibility(hidden ? .hidden : .visible, for: .navigationBar)
     }
 }
 

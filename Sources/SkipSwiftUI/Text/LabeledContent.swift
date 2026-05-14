@@ -1,73 +1,82 @@
-// Copyright 2025 Skip
-// SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
+// Copyright 2025–2026 Skip
+// SPDX-License-Identifier: MPL-2.0
 import Foundation
 import SkipFuse
+import SkipUI
 
-public struct LabeledContent<Label, Content> {
+public struct LabeledContent<Label, Content> where Label: View, Content: View {
+    private let content: Content
+    private let label: Label
+    
+    public init(@ViewBuilder content: () -> Content, @ViewBuilder label: () -> Label) {
+        self.content = content()
+        self.label = label()
+    }
 }
 
-extension LabeledContent : View where Label : View, Content : View {
-    @available(*, unavailable)
-    nonisolated public init(@ViewBuilder content: () -> Content, @ViewBuilder label: () -> Label) {
-        fatalError()
-    }
-
+extension LabeledContent: View {
     public typealias Body = Never
 }
 
+extension LabeledContent : SkipUIBridging {
+    public var Java_view: any SkipUI.View {
+        return SkipUI.LabeledContent(bridgedContent: content.Java_viewOrEmpty, bridgedLabel: label.Java_viewOrEmpty)
+    }
+}
+
 extension LabeledContent where Label == Text, Content : View {
-    @available(*, unavailable)
     public init(_ titleKey: LocalizedStringKey, @ViewBuilder content: () -> Content) {
-        fatalError()
+        self.label = Text(titleKey)
+        self.content = content()
     }
 
-    @available(*, unavailable)
     @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, @ViewBuilder content: () -> Content) {
-        fatalError()
+        self.label = Text(titleResource)
+        self.content = content()
     }
 
-    @available(*, unavailable)
     @_disfavoredOverload public init<S>(_ title: S, @ViewBuilder content: () -> Content) where S : StringProtocol {
-        fatalError()
+        self.label = Text(title)
+        self.content = content()
     }
 }
 
 extension LabeledContent where Label == Text, Content == Text {
-    @available(*, unavailable)
     public init<S>(_ titleKey: LocalizedStringKey, value: S) where S : StringProtocol {
-        fatalError()
+        self.label = Text(titleKey)
+        self.content = Text(value)
     }
 
-    @available(*, unavailable)
     @_disfavoredOverload public init<S>(_ titleResource: AndroidLocalizedStringResource, value: S) where S : StringProtocol {
-        fatalError()
+        self.label = Text(titleResource)
+        self.content = Text(value)
     }
 
-    @available(*, unavailable)
     @_disfavoredOverload public init<S1, S2>(_ title: S1, value: S2) where S1 : StringProtocol, S2 : StringProtocol {
-        fatalError()
+        self.label = Text(title)
+        self.content = Text(value)
     }
 
-    @available(*, unavailable)
     public init<F>(_ titleKey: LocalizedStringKey, value: F.FormatInput, format: F) where F : FormatStyle, F.FormatInput : Equatable, F.FormatOutput == String {
-        fatalError()
+        self.label = Text(titleKey)
+        self.content = Text(value, format: format)
     }
 
-    @available(*, unavailable)
     @_disfavoredOverload public init<F>(_ titleResource: AndroidLocalizedStringResource, value: F.FormatInput, format: F) where F : FormatStyle, F.FormatInput : Equatable, F.FormatOutput == String {
-        fatalError()
+        self.label = Text(titleResource)
+        self.content = Text(value, format: format)
     }
 
-    @available(*, unavailable)
     @_disfavoredOverload public init<S, F>(_ title: S, value: F.FormatInput, format: F) where S : StringProtocol, F : FormatStyle, F.FormatInput : Equatable, F.FormatOutput == String {
-        fatalError()
+        self.label = Text(title)
+        self.content = Text(value, format: format)
     }
 }
 
 extension LabeledContent where Label == LabeledContentStyleConfiguration.Label, Content == LabeledContentStyleConfiguration.Content {
-    @available(*, unavailable)
     public init(_ configuration: LabeledContentStyleConfiguration) {
-        fatalError()
+        self.label = configuration.label
+        self.content = configuration.content
     }
 }
 
@@ -108,7 +117,6 @@ public struct LabeledContentStyleConfiguration {
 }
 
 extension View {
-    @available(*, unavailable)
     nonisolated public func labeledContentStyle<S>(_ style: S) -> some View where S : LabeledContentStyle {
         stubView()
     }

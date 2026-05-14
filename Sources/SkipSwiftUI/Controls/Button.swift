@@ -1,5 +1,5 @@
-// Copyright 2025 Skip
-// SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
+// Copyright 2025–2026 Skip
+// SPDX-License-Identifier: MPL-2.0
 import SkipBridge
 import SkipFuse
 import SkipUI
@@ -231,6 +231,17 @@ public struct GlassButtonStyle : PrimitiveButtonStyle {
     public let identifier = 5 // For bridging
 }
 
+public struct M3TextButtonStyle : PrimitiveButtonStyle {
+    public init() {
+    }
+
+    @MainActor @preconcurrency public func makeBody(configuration: M3TextButtonStyle.Configuration) -> some View {
+        stubView()
+    }
+
+    public let identifier = 7 // For bridging
+}
+
 @MainActor @preconcurrency public protocol PrimitiveButtonStyle {
     associatedtype Body : View
 
@@ -281,6 +292,12 @@ extension PrimitiveButtonStyle where Self == GlassButtonStyle {
     @available(*, unavailable)
     @MainActor @preconcurrency public static var glass: GlassButtonStyle {
         fatalError()
+    }
+}
+
+extension PrimitiveButtonStyle where Self == M3TextButtonStyle {
+    @MainActor @preconcurrency public static var m3Text: M3TextButtonStyle {
+        return M3TextButtonStyle()
     }
 }
 

@@ -1,5 +1,5 @@
-// Copyright 2025 Skip
-// SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
+// Copyright 2025–2026 Skip
+// SPDX-License-Identifier: MPL-2.0
 import SkipFuse
 import SkipUI
 
@@ -96,15 +96,15 @@ extension TabViewStyle {
 }
 
 @MainActor @preconcurrency public struct SidebarAdaptableTabViewStyle : TabViewStyle {
-    @available(*, unavailable)
     nonisolated public init() {
     }
+
+    public let identifier = 3 // For bridging
 }
 
 extension TabViewStyle where Self == SidebarAdaptableTabViewStyle {
-    @available(*, unavailable)
     @MainActor @preconcurrency public static var sidebarAdaptable: SidebarAdaptableTabViewStyle {
-        fatalError()
+        return SidebarAdaptableTabViewStyle()
     }
 }
 

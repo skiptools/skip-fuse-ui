@@ -1,5 +1,5 @@
-// Copyright 2023–2025 Skip
-// SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
+// Copyright 2023–2026 Skip
+// SPDX-License-Identifier: MPL-2.0
 import Foundation
 import XCTest
 
@@ -28,7 +28,7 @@ open class SkipUITestCase : XCTestCase {
     public var testName: String? {
         #if SKIP
         let tname = _testName.methodName // "testLocalizedText$SkipUI_debugUnitTest"
-        return tname.split(separator: Char("$")).first
+        return tname.split(separator: "$").first
         #else
         let tname = testRun?.test.name // "-[SkipUITests testLocalizedText]"
         return tname?
