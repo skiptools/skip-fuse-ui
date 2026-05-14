@@ -397,8 +397,10 @@ extension View {
         stubView()
     }
 
-    @available(*, unavailable)
     nonisolated public func swipeActions<T>(edge: HorizontalEdge = .trailing, allowsFullSwipe: Bool = true, @ViewBuilder content: () -> T) -> some View where T : View {
-        stubView()
+        let actions = content()
+        return ModifierView(target: self) {
+            return $0.Java_viewOrEmpty.swipeActions(bridgedEdge: Int(edge.rawValue), allowsFullSwipe: allowsFullSwipe, bridgedActions: actions.Java_viewOrEmpty)
+        }
     }
 }
