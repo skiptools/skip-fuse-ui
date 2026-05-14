@@ -302,6 +302,20 @@ extension View {
             return $0.Java_viewOrEmpty.navigationDestinationLayoutHints(destinationKey: destinationKey, expectedTitle: title, bridgedExpectedTitleDisplayMode: expectedTitleDisplayMode?.rawValue)
         }
     }
+
+    #if os(Android)
+    nonisolated public func navigationStackTransitions(_ options: @escaping (SkipUI.NavDisplayTransitionOptions) -> SkipUI.NavDisplayTransitionOptions) -> some View {
+        ModifierView(target: self) {
+            $0.Java_viewOrEmpty.navigationStackTransitions(options)
+        }
+    }
+
+    nonisolated public func tabViewTransitions(_ options: @escaping (SkipUI.NavDisplayTransitionOptions) -> SkipUI.NavDisplayTransitionOptions) -> some View {
+        ModifierView(target: self) {
+            $0.Java_viewOrEmpty.tabViewTransitions(options)
+        }
+    }
+    #endif
 }
 
 extension View {
