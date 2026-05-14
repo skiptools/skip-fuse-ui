@@ -1,0 +1,6 @@
+# Configuration file for Skip (https://skip.dev) project
+skip:
+  mode: 'native'
+  bridging:
+    auto: true
+    options: 'kotlincompat'
