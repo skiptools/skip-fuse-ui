@@ -16,7 +16,16 @@ public struct AsyncImage<Content> where Content : View {
     public init<I, P>(url: URL?, scale: CGFloat = 1, @ViewBuilder content: @escaping (Image) -> I, @ViewBuilder placeholder: @escaping () -> P) where Content == AnyView /* _ConditionalContent<I, P> */, I : View, P : View {
         self.init(url: url, scale: scale, transaction: Transaction()) { phase in
             switch phase {
-            case .empty, .failure:
+            case .empty:
+                if let image = phase.image {
+                    ZStack {
+                        Color.clear // Showing a placeholder here prevents layout shift if the image is 0x0 on the first frame
+                        image
+                    }
+                } else {
+                    placeholder()
+                }
+            case .failure:
                 placeholder()
             case .success(let image):
                 content(image)
@@ -54,18 +63,22 @@ extension AsyncImage : View {
 
 extension AsyncImage : SkipUIBridging {
     public var Java_view: any SkipUI.View {
-        let factory: ((SkipUI.Image?, (any Error)?) -> any SkipUI.View)?
+        let factory: ((SkipUI.AsyncImageBridgedContentArguments) -> any SkipUI.View)?
         if let content {
-            factory = { image, error in
+            factory = { args in
                 let phase: AsyncImagePhase
-                if image == nil && error == nil {
-                    phase = .empty
-                } else if let error {
+                if let error = args.error {
                     phase = .failure(error)
+                } else if let image = args.image {
+                    let imageSpec = ImageSpec(.java(image))
+                    let image = Image(spec: imageSpec)
+                    if args.isEmpty {
+                        phase = .empty(image)
+                    } else {
+                        phase = .success(image)
+                    }
                 } else {
-
-                    var imageSpec = ImageSpec(.java(image!))
-                    phase = .success(Image(spec: imageSpec))
+                    phase = .empty(nil)
                 }
                 let result = content(phase)
 
@@ -79,13 +92,15 @@ extension AsyncImage : SkipUIBridging {
 }
 
 public enum AsyncImagePhase : Sendable {
-    case empty
+    case empty(Image?)
     case success(Image)
     case failure(any Error)
 
     public var image: Image? {
         switch self {
         case .success(let image):
+            return image
+        case .empty(let image):
             return image
         default:
             return nil
