@@ -3,6 +3,8 @@
 
 #if os(Android)
 @_exported import SkipSwiftUI
+#elseif SKIP_BRIDGE
+@_exported import SkipSwiftUI
 #elseif canImport(SwiftUI)
 @_exported import SwiftUI
 #endif
