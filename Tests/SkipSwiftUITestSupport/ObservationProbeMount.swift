@@ -21,6 +21,31 @@ public final class ObservationProbeMount {
     public func renderedText() -> String {
         "count: \(self.box.count)"
     }
+
+    public func renderedText(onChange: @escaping () -> Void) -> String {
+        if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
+            let handler = ObservationChangeHandler(onChange)
+            return withObservationTracking {
+                self.renderedText()
+            } onChange: {
+                handler()
+            }
+        } else {
+            return self.renderedText()
+        }
+    }
+}
+
+private struct ObservationChangeHandler: @unchecked Sendable {
+    private let handler: () -> Void
+
+    init(_ handler: @escaping () -> Void) {
+        self.handler = handler
+    }
+
+    func callAsFunction() {
+        self.handler()
+    }
 }
 
 private protocol ObservationProbeMountBox: AnyObject {

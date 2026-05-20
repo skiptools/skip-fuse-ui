@@ -3,6 +3,8 @@
 import XCTest
 
 #if SKIP
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -35,6 +37,29 @@ final class ObservationMountRuntimeTests: SkipUITestCase {
 
         composeRule.setContent {
             Text(probe.renderedText()).Compose()
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("count: 0").assertIsDisplayed()
+
+        probe.setCount(1)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText("count: 1").assertIsDisplayed()
+        #else
+        throw XCTSkip("Runs only in the transpiled Skip Compose test runtime.")
+        #endif
+    }
+
+    func testMountedViewInvalidatesWithObservationTracking() throws {
+        #if SKIP
+        let probe = ObservationProbeMount()
+
+        composeRule.setContent {
+            let invalidation = remember { mutableStateOf(0) }
+            _ = invalidation.value
+            Text(probe.renderedText {
+                invalidation.value += 1
+            }).Compose()
         }
         composeRule.waitForIdle()
         composeRule.onNodeWithText("count: 0").assertIsDisplayed()
