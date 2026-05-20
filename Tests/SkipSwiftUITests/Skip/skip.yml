@@ -1,0 +1,17 @@
+build:
+  contents:
+    - block: 'dependencies'
+      contents:
+        - 'testImplementation(libs.androidx.compose.ui.test)'
+        - 'testImplementation(libs.androidx.compose.ui.test.junit4)'
+        - 'testImplementation(libs.androidx.compose.ui.test.manifest)'
+    - block: 'tasks.named("buildLocalSwiftPackage")'
+      contents:
+        - block: 'doLast'
+          contents:
+            - block: 'project.objects.newInstance<SkipBridgeExecOps>().execOps.exec'
+              contents:
+                - 'workingDir(layout.projectDirectory)'
+                - 'commandLine("sh", "-cx", "swift build --package-path \"${swiftSourceFolder()}\" --configuration debug --product SkipSwiftUITestSupport --scratch-path \"${layout.projectDirectory}/.build/SkipSwiftUITestSupport/swift\" -Xcc -fPIC -Xswiftc -DSKIP_BRIDGE -Xswiftc -DROBOLECTRIC")'
+                - 'environment("SKIP_BRIDGE", "1")'
+                - 'if (file(skipCommand).exists()) { environment("SKIP_COMMAND_OVERRIDE", skipCommand) }'

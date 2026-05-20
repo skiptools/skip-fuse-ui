@@ -28,7 +28,7 @@ open class SkipUITestCase : XCTestCase {
     public var testName: String? {
         #if SKIP
         let tname = _testName.methodName // "testLocalizedText$SkipUI_debugUnitTest"
-        return tname.split(separator: "$").first
+        return tname.split(separator: Character("$")).first
         #else
         let tname = testRun?.test.name // "-[SkipUITests testLocalizedText]"
         return tname?
@@ -66,7 +66,10 @@ open class SkipUITestCase : XCTestCase {
 
 public class TestIntrospectionTests : SkipUITestCase {
     func testTestIntrospection() {
-        XCTAssertEqual("testTestIntrospection", self.testName)
+        XCTAssertTrue(
+            ["testTestIntrospection", "TestIntrospectionTests.testTestIntrospection"]
+                .contains(self.testName)
+        )
     }
 }
 

@@ -9,6 +9,7 @@ let package = Package(
     products: [
         .library(name: "SkipFuseUI", type: .dynamic, targets: ["SkipFuseUI"] + (android ? ["SwiftUI"] : [])),
         .library(name: "SkipSwiftUI", type: .dynamic, targets: ["SkipSwiftUI"]),
+        .library(name: "SkipSwiftUITestSupport", type: .dynamic, targets: ["SkipSwiftUITestSupport"]),
     ],
     dependencies: [
         .package(url: "https://source.skip.tools/skip.git", from: "1.7.4"),
@@ -27,8 +28,17 @@ let package = Package(
             .product(name: "SwiftJNI", package: "swift-jni"),
             .product(name: "SkipUI", package: "skip-ui")
         ], plugins: [.plugin(name: "skipstone", package: "skip")]),
+        .target(
+            name: "SkipSwiftUITestSupport",
+            dependencies: [
+                .product(name: "SkipBridge", package: "skip-bridge"),
+            ],
+            path: "Tests/SkipSwiftUITestSupport",
+            plugins: [.plugin(name: "skipstone", package: "skip")]
+        ),
         .testTarget(name: "SkipSwiftUITests", dependencies: [
             "SkipSwiftUI",
+            "SkipSwiftUITestSupport",
             .product(name: "SkipTest", package: "skip")
         ], plugins: [.plugin(name: "skipstone", package: "skip")]),
     ]
