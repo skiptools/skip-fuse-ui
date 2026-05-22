@@ -1,4 +1,4 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.1
 import PackageDescription
 
 let android = Context.environment["TARGET_OS_ANDROID"] ?? "0" != "0"

@@ -386,7 +386,7 @@ public final class UNNotificationSound {
     }
 }
 
-public struct UNNotificationSoundName: RawRepresentable, Hashable {
+public struct UNNotificationSoundName: RawRepresentable, Hashable, Sendable {
     public let rawValue: String
 
     public init(rawValue: String) {
