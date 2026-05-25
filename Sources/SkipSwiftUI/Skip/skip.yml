@@ -1,3 +1,4 @@
 # Configuration file for Skip (https://skip.dev) project
 skip:
   mode: 'native'
+  package: 'skip.swift.ui'
