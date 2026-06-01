@@ -543,9 +543,8 @@ extension View {
         stubView()
     }
 
-    @available(*, unavailable)
     nonisolated public func simultaneousGesture<T>(_ gesture: T, including mask: GestureMask = .all) -> some View where T : Gesture {
-        stubView()
+        return self.simultaneousGesture(gesture, isEnabled: !mask.isEmpty)
     }
 
     nonisolated public func gesture<T>(_ gesture: T, isEnabled: Bool) -> some View where T : Gesture {
@@ -559,9 +558,10 @@ extension View {
         stubView()
     }
 
-    @available(*, unavailable)
     nonisolated public func simultaneousGesture<T>(_ gesture: T, isEnabled: Bool) -> some View where T : Gesture {
-        stubView()
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.bridgedSimultaneousGesture(gesture.Java_gesture, isEnabled: isEnabled)
+        }
     }
 }
 
@@ -575,8 +575,7 @@ extension View {
         stubView()
     }
 
-    @available(*, unavailable)
     nonisolated public func simultaneousGesture<T>(_ gesture: T, name: String, isEnabled: Bool = true) -> some View where T : Gesture {
-        stubView()
+        return self.simultaneousGesture(gesture, isEnabled: isEnabled)
     }
 }
