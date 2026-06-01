@@ -114,6 +114,24 @@ extension EnvironmentValues {
         case "verticalSizeClass":
             let rawValue = bridgedValue as? Int
             return rawValue == nil ? nil : UserInterfaceSizeClass(rawValue: rawValue!) ?? .regular
+        case "accessibilityEnabled", "accessibilityInvertColors", "accessibilityReduceMotion",
+            "accessibilityReduceTransparency", "accessibilitySwitchControlEnabled", "accessibilityVoiceOverEnabled":
+            return bridgedValue as? Bool ?? false
+        case "legibilityWeight":
+            guard let legibilityWeight = bridgedValue as? SkipUI.LegibilityWeight else {
+                return nil
+            }
+            switch legibilityWeight {
+            case .bold:
+                return LegibilityWeight.bold
+            case .regular:
+                return LegibilityWeight.regular
+            default:
+                return nil
+            }
+        case "colorSchemeContrast":
+            let rawValue = bridgedValue as? Int
+            return rawValue == ColorSchemeContrast.increased.rawValue ? ColorSchemeContrast.increased : ColorSchemeContrast.standard
         default:
             return nil
         }
@@ -194,6 +212,23 @@ extension EnvironmentValues {
             return (value as? TimeZone ?? TimeZone.current).identifier
         case "verticalSizeClass":
             return (value as? UserInterfaceSizeClass)?.rawValue
+        case "accessibilityEnabled", "accessibilityInvertColors", "accessibilityReduceMotion",
+            "accessibilityReduceTransparency", "accessibilitySwitchControlEnabled", "accessibilityVoiceOverEnabled":
+            return value as? Bool
+        case "legibilityWeight":
+            guard let legibilityWeight = value as? LegibilityWeight else {
+                return nil
+            }
+            switch legibilityWeight {
+            case .bold:
+                return SkipUI.LegibilityWeight.bold
+            case .regular:
+                return SkipUI.LegibilityWeight.regular
+            default:
+                return nil
+            }
+        case "colorSchemeContrast":
+            return (value as? ColorSchemeContrast)?.rawValue
         default:
             return nil
         }
@@ -219,6 +254,14 @@ extension EnvironmentValues {
         keys[\EnvironmentValues.scrollDismissesKeyboardMode] = "scrollDismissesKeyboardMode"
         keys[\EnvironmentValues.timeZone] = "timeZone"
         keys[\EnvironmentValues.verticalSizeClass] = "verticalSizeClass"
+        keys[\EnvironmentValues.accessibilityEnabled] = "accessibilityEnabled"
+        keys[\EnvironmentValues.accessibilityInvertColors] = "accessibilityInvertColors"
+        keys[\EnvironmentValues.accessibilityReduceMotion] = "accessibilityReduceMotion"
+        keys[\EnvironmentValues.accessibilityReduceTransparency] = "accessibilityReduceTransparency"
+        keys[\EnvironmentValues.accessibilitySwitchControlEnabled] = "accessibilitySwitchControlEnabled"
+        keys[\EnvironmentValues.accessibilityVoiceOverEnabled] = "accessibilityVoiceOverEnabled"
+        keys[\EnvironmentValues.legibilityWeight] = "legibilityWeight"
+        keys[\EnvironmentValues.colorSchemeContrast] = "colorSchemeContrast"
         return keys
     }()
 
@@ -506,8 +549,7 @@ extension EnvironmentValues {
 }
 
 extension EnvironmentValues {
-    @available(*, unavailable)
-    public var legibilityWeight: Any? /* LegibilityWeight? */ {
+    public var legibilityWeight: LegibilityWeight? {
         get { fatalError("Read via @Environment property wrapper") }
         set { fatalError("Set via dedicated View modifier") }
     }
@@ -538,8 +580,32 @@ extension EnvironmentValues {
 }
 
 extension EnvironmentValues {
-    @available(*, unavailable)
     public var accessibilityEnabled: Bool {
+        get { fatalError("Read via @Environment property wrapper") }
+        set { fatalError("Set via dedicated View modifier") }
+    }
+
+    public var accessibilityInvertColors: Bool {
+        get { fatalError("Read via @Environment property wrapper") }
+        set { fatalError("Set via dedicated View modifier") }
+    }
+
+    public var accessibilityReduceMotion: Bool {
+        get { fatalError("Read via @Environment property wrapper") }
+        set { fatalError("Set via dedicated View modifier") }
+    }
+
+    public var accessibilityReduceTransparency: Bool {
+        get { fatalError("Read via @Environment property wrapper") }
+        set { fatalError("Set via dedicated View modifier") }
+    }
+
+    public var accessibilitySwitchControlEnabled: Bool {
+        get { fatalError("Read via @Environment property wrapper") }
+        set { fatalError("Set via dedicated View modifier") }
+    }
+
+    public var accessibilityVoiceOverEnabled: Bool {
         get { fatalError("Read via @Environment property wrapper") }
         set { fatalError("Set via dedicated View modifier") }
     }
@@ -548,24 +614,6 @@ extension EnvironmentValues {
 extension EnvironmentValues {
     @available(*, unavailable)
     public var accessibilityDifferentiateWithoutColor: Bool {
-        get { fatalError("Read via @Environment property wrapper") }
-        set { fatalError("Set via dedicated View modifier") }
-    }
-
-    @available(*, unavailable)
-    public var accessibilityReduceTransparency: Bool {
-        get { fatalError("Read via @Environment property wrapper") }
-        set { fatalError("Set via dedicated View modifier") }
-    }
-
-    @available(*, unavailable)
-    public var accessibilityReduceMotion: Bool {
-        get { fatalError("Read via @Environment property wrapper") }
-        set { fatalError("Set via dedicated View modifier") }
-    }
-
-    @available(*, unavailable)
-    public var accessibilityInvertColors: Bool {
         get { fatalError("Read via @Environment property wrapper") }
         set { fatalError("Set via dedicated View modifier") }
     }
@@ -599,8 +647,7 @@ extension EnvironmentValues {
         set { fatalError("Set via dedicated View modifier") }
     }
 
-    @available(*, unavailable)
-    public var colorSchemeContrast: Any /* ColorSchemeContrast */ {
+    public var colorSchemeContrast: ColorSchemeContrast {
         get { fatalError("Read via @Environment property wrapper") }
         set { fatalError("Set via dedicated View modifier") }
     }
