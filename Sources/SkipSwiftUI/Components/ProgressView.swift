@@ -130,12 +130,14 @@ extension ProgressViewStyle {
 }
 
 public struct LinearProgressViewStyle : ProgressViewStyle {
+    let tint: Color?
+
     public init() {
+        self.tint = nil
     }
 
-    @available(*, unavailable)
     public init(tint: Color) {
-        fatalError()
+        self.tint = tint
     }
 
     @MainActor @preconcurrency public func makeBody(configuration: LinearProgressViewStyle.Configuration) -> some View {
@@ -152,12 +154,14 @@ extension ProgressViewStyle where Self == LinearProgressViewStyle {
 }
 
 public struct CircularProgressViewStyle : ProgressViewStyle {
+    let tint: Color?
+
     public init() {
+        self.tint = nil
     }
 
-    @available(*, unavailable)
     public init(tint: Color) {
-        fatalError()
+        self.tint = tint
     }
 
     @MainActor @preconcurrency public func makeBody(configuration: LinearProgressViewStyle.Configuration) -> some View {
@@ -210,8 +214,17 @@ public struct DefaultDateProgressLabel : View {
 
 extension View {
     nonisolated public func progressViewStyle<S>(_ style: S) -> some View where S : ProgressViewStyle {
-        return ModifierView(target: self) {
+        let styled = ModifierView(target: self) {
             $0.Java_viewOrEmpty.progressViewStyle(bridgedStyle: style.identifier)
         }
+        // SwiftUI's CircularProgressViewStyle(tint:)/LinearProgressViewStyle(tint:)
+        // carry an indicator color. The style itself only bridges by identifier, so
+        // surface the tint through the tint environment value, which ProgressView's
+        // circular/linear renderers already read for the indicator color.
+        let tint = (style as? CircularProgressViewStyle)?.tint ?? (style as? LinearProgressViewStyle)?.tint
+        if let tint {
+            return AnyView(styled.tint(tint))
+        }
+        return AnyView(styled)
     }
 }
