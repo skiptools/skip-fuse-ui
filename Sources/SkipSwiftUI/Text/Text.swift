@@ -11,8 +11,26 @@ import SkipUI
     let spec: TextSpec
     var modifierChain: [@Sendable (any View) -> any View] = []
 
+    // Styling captured as *data* (in addition to `modifierChain`) so that `Text + Text`
+    // concatenation can rebuild each operand's style as a Compose `SpanStyle`. The styling
+    // modifiers append to `modifierChain` (used to render a standalone styled `Text`) *and*
+    // record into `capturedStyle` here. See `+` and the concatenation branch of `Java_view`.
+    var capturedStyle = TextRunStyle()
+    // Non-nil once this `Text` is the result of one or more `+` concatenations: the flattened
+    // list of styled runs to render as a single `AnnotatedString`.
+    var runs: [TextRun]? = nil
+
     init(spec: TextSpec) {
         self.spec = spec
+    }
+
+    /// The flattened styled runs that make up this text: the explicit `runs` if this is a
+    /// concatenation, otherwise this text treated as a single run carrying `capturedStyle`.
+    var flattenedRuns: [TextRun] {
+        if let runs {
+            return runs
+        }
+        return [TextRun(spec: spec, style: capturedStyle)]
     }
 
     /* @inlinable */ public init(verbatim content: String) {
@@ -37,12 +55,112 @@ struct TextSpec : Equatable, @unchecked Sendable {
     var bundle: Bundle?
 }
 
+/// Per-run styling captured from the `Text` styling modifiers, for `Text + Text` concatenation.
+/// Only attributes representable as a Compose `SpanStyle` are captured. The foreground is stored
+/// as a deferred bridge of whatever `ShapeStyle` was applied (`.foregroundColor` solid colors or
+/// `.foregroundStyle` gradients), resolved to a Compose color or brush at render time in SkipUI.
+struct TextRunStyle : Sendable {
+    // Deferred bridge of the run's foreground `ShapeStyle` (a `Color` or a gradient) to its SkipUI
+    // counterpart; nil means inherit. A closure (rather than the resolved view) keeps capture cheap
+    // and side-effect-free, mirroring how the styling modifiers defer to `modifierChain`.
+    var foreground: (@Sendable () -> any SkipUI.View)? = nil
+    var fontSize: CGFloat? = nil
+    var fontWeight: Font.Weight? = nil
+    var italic = false
+    var monospaced = false
+    var underline = false
+    var strikethrough = false
+}
+
+/// One styled segment of a concatenated `Text`.
+struct TextRun : Sendable {
+    let spec: TextSpec
+    var style: TextRunStyle
+}
+
+extension TextRunStyle {
+    /// Capture the point size, weight, design (monospaced), and italic of a `.font(...)` so the
+    /// run can be styled in a Compose `SpanStyle`. Semantic system styles (e.g. `.body`) carry no
+    /// explicit point size, so `fontSize` is left unset and the run inherits the environment size.
+    mutating func captureFont(_ font: Font?) {
+        guard let font else {
+            // `.font(nil)` resets to the inherited font.
+            fontSize = nil
+            fontWeight = nil
+            return
+        }
+        let spec = font.spec
+        switch spec.type {
+        case .systemSize(let size, let design, let weight):
+            fontSize = size
+            if let weight { fontWeight = weight }
+            if design == .monospaced { monospaced = true }
+        case .system(_, let design, let weight):
+            if let weight { fontWeight = weight }
+            if design == .monospaced { monospaced = true }
+        case .customSize(_, let size):
+            fontSize = size
+        case .customRelativeSize(_, let size, _):
+            fontSize = size
+        case .customFixedSize(_, let size):
+            fontSize = size
+        case .java:
+            break
+        }
+        // Spec-level overrides applied by chained `Font` modifiers (.weight(), .pointSize(), …).
+        if let size = spec.size { fontSize = size }
+        if let weight = spec.weight { fontWeight = weight }
+        if let design = spec.design { monospaced = (design == .monospaced) }
+        if spec.isItalic { italic = true }
+    }
+}
+
 extension Text : View {
     public typealias Body = Never
 }
 
 extension Text : SkipUIBridging {
     public var Java_view: any SkipUI.View {
+        if let runs {
+            // Concatenation (`Text + Text`): bridge each run as primitive descriptors and let
+            // SkipUI fold them into a single `AnnotatedString`. Each run's base text is bridged
+            // (for its localized string); its captured style crosses as parallel primitive arrays.
+            var runViews: [any SkipUI.View] = []
+            var colors: [any SkipUI.View] = []
+            var fontSizes: [Double] = []
+            var fontWeights: [Int] = []
+            var flags: [Int] = []
+            for run in runs {
+                runViews.append(Text(spec: run.spec).Java_view)
+                var flag = 0
+                if let foreground = run.style.foreground {
+                    // A bridged ShapeStyle (Color or gradient); SkipUI resolves it to a color or brush.
+                    colors.append(foreground())
+                    flag |= 1 // hasForeground
+                } else {
+                    colors.append(SkipUI.Color._clear)
+                }
+                if let fontSize = run.style.fontSize {
+                    fontSizes.append(Double(fontSize))
+                    flag |= 2 // hasFontSize
+                } else {
+                    fontSizes.append(0)
+                }
+                if let fontWeight = run.style.fontWeight {
+                    // Map the bridge weight index (-3...5) to a Compose font weight (100...900).
+                    fontWeights.append((fontWeight.value + 4) * 100)
+                    flag |= 4 // hasFontWeight
+                } else {
+                    fontWeights.append(0)
+                }
+                if run.style.italic { flag |= 8 }
+                if run.style.monospaced { flag |= 16 }
+                if run.style.underline { flag |= 32 }
+                if run.style.strikethrough { flag |= 64 }
+                flags.append(flag)
+            }
+            return SkipUI.Text(bridgedRuns: runViews, colors: colors, fontSizes: fontSizes, fontWeights: fontWeights, flags: flags)
+        }
         guard modifierChain.isEmpty else {
             var view: any View = Text(spec: self.spec) // No modifiers
             for modifier in modifierChain {
@@ -229,9 +347,27 @@ extension Text {
 }
 
 extension Text {
-    @available(*, unavailable)
     public static func + (lhs: Text, rhs: Text) -> Text {
-        fatalError()
+        let allRuns = lhs.flattenedRuns + rhs.flattenedRuns
+        // Keep a plain-text seed in `spec` so `==` (which compares `spec`) distinguishes
+        // concatenations with different content; rendering uses `runs`.
+        let joined = allRuns.map { TextRun.plainText(of: $0.spec) }.joined()
+        var text = Text(spec: TextSpec(verbatim: joined))
+        text.runs = allRuns
+        return text
+    }
+}
+
+extension TextRun {
+    /// A best-effort plain string for a run's spec, used only for concatenation identity/equality.
+    static func plainText(of spec: TextSpec) -> String {
+        if let verbatim = spec.verbatim {
+            return verbatim
+        }
+        if let key = spec.key {
+            return key.interpolation.pattern
+        }
+        return ""
     }
 }
 
@@ -267,6 +403,11 @@ extension Text {
 extension Text {
     nonisolated public func foregroundColor(_ color: Color?) -> Text {
         var text = self
+        if let color {
+            text.capturedStyle.foreground = { color.Java_view }
+        } else {
+            text.capturedStyle.foreground = nil
+        }
         text.modifierChain.append {
             $0.foregroundColor(color)
         }
@@ -275,6 +416,7 @@ extension Text {
 
     nonisolated public func foregroundStyle<S>(_ style: S) -> Text where S : ShapeStyle {
         var text = self
+        text.capturedStyle.foreground = { style.Java_view }
         text.modifierChain.append {
             $0.foregroundStyle(style)
         }
@@ -283,6 +425,7 @@ extension Text {
 
     nonisolated public func font(_ font: Font?) -> Text {
         var text = self
+        text.capturedStyle.captureFont(font)
         text.modifierChain.append {
             $0.font(font)
         }
@@ -291,6 +434,7 @@ extension Text {
 
     nonisolated public func fontWeight(_ weight: Font.Weight?) -> Text {
         var text = self
+        text.capturedStyle.fontWeight = weight
         text.modifierChain.append {
             $0.fontWeight(weight)
         }
@@ -308,6 +452,7 @@ extension Text {
 
     nonisolated public func bold(_ isActive: Bool) -> Text {
         var text = self
+        text.capturedStyle.fontWeight = isActive ? .bold : .regular
         text.modifierChain.append {
             $0.bold(isActive)
         }
@@ -320,6 +465,7 @@ extension Text {
 
     nonisolated public func italic(_ isActive: Bool) -> Text {
         var text = self
+        text.capturedStyle.italic = isActive
         text.modifierChain.append {
             $0.italic(isActive)
         }
@@ -328,6 +474,7 @@ extension Text {
 
     nonisolated public func monospaced(_ isActive: Bool = true) -> Text {
         var text = self
+        text.capturedStyle.monospaced = isActive
         text.modifierChain.append {
             $0.monospaced(isActive)
         }
@@ -336,6 +483,7 @@ extension Text {
 
     nonisolated public func fontDesign(_ design: Font.Design?) -> Text {
         var text = self
+        text.capturedStyle.monospaced = (design == .monospaced)
         text.modifierChain.append {
             $0.fontDesign(design)
         }
@@ -349,6 +497,7 @@ extension Text {
 
     nonisolated public func strikethrough(_ isActive: Bool = true, pattern: Text.LineStyle.Pattern = .solid, color: Color? = nil) -> Text {
         var text = self
+        text.capturedStyle.strikethrough = isActive
         text.modifierChain.append {
             $0.strikethrough(isActive, pattern: pattern, color: color)
         }
@@ -357,6 +506,7 @@ extension Text {
 
     nonisolated public func underline(_ isActive: Bool = true, pattern: Text.LineStyle.Pattern = .solid, color: Color? = nil) -> Text {
         var text = self
+        text.capturedStyle.underline = isActive
         text.modifierChain.append {
             $0.underline(isActive, pattern: pattern, color: color)
         }
