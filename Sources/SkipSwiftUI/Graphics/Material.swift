@@ -51,8 +51,9 @@ public struct Material : ShapeStyle, RawRepresentable, Hashable, Sendable {
     /// A material matching the style of system toolbars.
     public static let bar = Material(rawValue: 5)
 
-    /// Returns the opacity for this material (light mode values).
-    /// Note: This is a simplified replica - no blur effect, just semi-transparent white overlay.
+    /// Returns the scrim opacity for this material level. Thicker materials are
+    /// more opaque. Simplified replica — no Gaussian blur, just a translucent
+    /// scrim over the adaptive surface color (see `Java_view`).
     private var materialOpacity: Double {
         switch rawValue {
         case Self.ultraThin.rawValue:
@@ -71,7 +72,11 @@ public struct Material : ShapeStyle, RawRepresentable, Hashable, Sendable {
     }
 
     public var Java_view: any SkipUI.View {
-        return SkipUI.Color._white.opacity(materialOpacity)
+        // Use the adaptive surface color (MaterialTheme surface) rather than a
+        // fixed white so materials read correctly in dark mode — a translucent
+        // dark scrim, matching iOS's dark-appearance materials — and in light
+        // mode. A fixed white overlay looked washed-out / too light on dark UIs.
+        return SkipUI.Color._background.opacity(materialOpacity)
     }
 }
 
