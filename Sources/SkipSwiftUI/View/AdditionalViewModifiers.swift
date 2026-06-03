@@ -406,6 +406,22 @@ extension View {
 }
 
 extension View {
+    nonisolated public func androidVerticalOverscrollPullDown(
+        isEnabled: Bool,
+        onPull: @escaping (CGFloat) -> Void,
+        onEnd: @escaping () -> Void
+    ) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.androidVerticalOverscrollPullDown(
+                isEnabled: isEnabled,
+                onPull: onPull,
+                onEnd: onEnd
+            )
+        }
+    }
+}
+
+extension View {
     /* @inlinable */ nonisolated public func opacity(_ opacity: Double) -> some View {
         return ModifierView(target: self) {
             $0.Java_viewOrEmpty.opacity(opacity)
