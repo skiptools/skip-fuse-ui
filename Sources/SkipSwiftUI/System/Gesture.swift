@@ -480,8 +480,7 @@ extension TapGesture : Gesture {
         self.rawValue = rawValue
     }
 
-    @available(*, unavailable)
-    public static let none = GestureMask(rawValue: 1) // For bridging
+    public static let none = GestureMask(rawValue: 0) // For bridging
 
     @available(*, unavailable)
     public static let gesture = GestureMask(rawValue: 2) // For bridging
@@ -543,6 +542,15 @@ extension View {
         stubView()
     }
 
+    /// Adds a gesture that may recognize at the same time as the view's other
+    /// SkipUI-supported gestures.
+    ///
+    /// Android support is partial. This currently attaches the supplied
+    /// gesture as an additional observer on the same rendered view, which is
+    /// enough for simple callback observation such as `DragGesture`. Only
+    /// `.all` and `.none` have meaningful mask behavior; `.gesture` and
+    /// `.subviews` are not distinguished. This does not implement
+    /// `highPriorityGesture` or full SwiftUI/UIKit gesture arbitration.
     nonisolated public func simultaneousGesture<T>(_ gesture: T, including mask: GestureMask = .all) -> some View where T : Gesture {
         return self.simultaneousGesture(gesture, isEnabled: !mask.isEmpty)
     }
@@ -558,6 +566,12 @@ extension View {
         stubView()
     }
 
+    /// Adds a gesture that may recognize at the same time as the view's other
+    /// SkipUI-supported gestures when `isEnabled` is true.
+    ///
+    /// Android support is partial. This is intended as a first step toward
+    /// fuller `simultaneousGesture` parity, not a complete SwiftUI gesture
+    /// arbitration implementation.
     nonisolated public func simultaneousGesture<T>(_ gesture: T, isEnabled: Bool) -> some View where T : Gesture {
         return ModifierView(target: self) {
             $0.Java_viewOrEmpty.bridgedSimultaneousGesture(gesture.Java_gesture, isEnabled: isEnabled)
@@ -575,6 +589,11 @@ extension View {
         stubView()
     }
 
+    /// Adds a named gesture that may recognize at the same time as the view's
+    /// other SkipUI-supported gestures.
+    ///
+    /// Android support is partial; the `name` is currently accepted for API
+    /// compatibility and does not alter gesture arbitration.
     nonisolated public func simultaneousGesture<T>(_ gesture: T, name: String, isEnabled: Bool = true) -> some View where T : Gesture {
         return self.simultaneousGesture(gesture, isEnabled: isEnabled)
     }
