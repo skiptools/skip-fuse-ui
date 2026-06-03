@@ -126,6 +126,8 @@ SkipFuseUI mirrors the SwiftUI API surface for iOS 16+, including:
 
 For the full list of supported SwiftUI components, see the [SkipUI documentation](https://skip.dev/docs/modules/skip-ui/#supported-swiftui).
 
+`simultaneousGesture` support follows SkipUI's current Android limitations: it can observe supported gestures on the same rendered view, including drag observation while scroll views continue scrolling, but only `.all` and `.none` have meaningful mask behavior. `.gesture` and `.subviews` masks are not distinguished.
+
 ### Text Selection
 
 SkipFuseUI supports programmatic text selection for editable text controls that expose a `TextSelection` binding, such as `TextField` and `TextEditor`.
