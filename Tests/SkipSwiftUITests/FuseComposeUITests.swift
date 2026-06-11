@@ -29,6 +29,9 @@ import androidx.compose.ui.unit.width
 final class FuseComposeUITests: XCTestCase {
     // SKIP INSERT: @get:org.junit.Rule val composeRule = createComposeRule()
 
+    /// Whether bridged main-actor calls can run on this host (see `prepareJVMHostedTesting`).
+    var mainActorRelaxed = true
+
     override func setUp() {
         #if SKIP
         // Replicate the Fuse app bootstrap that Main.kt performs at launch, and like the
@@ -42,7 +45,19 @@ final class FuseComposeUITests: XCTestCase {
             let context = ProcessInfo.processInfo.androidContext
             try! AndroidBridgeBootstrap.initAndroidBridge(filesDir: context.getFilesDir().getAbsolutePath(), cacheDir: context.getCacheDir().getAbsolutePath())
         }
+        // Under Robolectric the JVM test thread is never the platform main queue, so bridged
+        // main-actor calls need the runtime's checkIsolated hook relaxed before the first
+        // bridged view is constructed.
+        mainActorRelaxed = SkipSwiftUITestSupport.prepareJVMHostedTesting()
         #endif
+    }
+
+    /// Skip (rather than crash) on host Swift runtimes where bridged main-actor calls
+    /// cannot be relaxed.
+    private func requireBridgedMainActor() throws {
+        if !mainActorRelaxed {
+            throw XCTSkip("host Swift runtime lacks swift_task_checkIsolated_hook; bridged main-actor calls would trap")
+        }
     }
 
     /// Smoke test: a bridged native view renders into the Compose tree at all.
@@ -50,6 +65,7 @@ final class FuseComposeUITests: XCTestCase {
         #if !SKIP
         throw XCTSkip("Compose UI testing is Android-only")
         #else
+        try requireBridgedMainActor()
         composeRule.setContent {
             LabelTestFixture().Compose()
         }
@@ -65,6 +81,7 @@ final class FuseComposeUITests: XCTestCase {
         #if !SKIP
         throw XCTSkip("Compose UI testing is Android-only")
         #else
+        try requireBridgedMainActor()
         composeRule.mainClock.autoAdvance = false
         composeRule.setContent {
             AnimatedSquaresTestFixture().Compose()
@@ -109,6 +126,7 @@ final class FuseComposeUITests: XCTestCase {
         #if !SKIP
         throw XCTSkip("Compose UI testing is Android-only")
         #else
+        try requireBridgedMainActor()
         composeRule.setContent {
             AnimatedSquaresTestFixture().Compose()
         }
