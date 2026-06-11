@@ -6,9 +6,7 @@ import Darwin
 import Glibc
 #endif
 
-/// Native test-only support for the transpiled test target's Compose UI tests.
-/// Lives in the module for the same packaging reason as `TestFixtures.swift`. Not API.
-// SKIP @bridge
+/// Native support for the transpiled `SkipSwiftUISamplesTests` Compose UI tests.
 public final class SkipSwiftUITestSupport {
     /// Prepare a JVM-hosted (Robolectric) test environment for bridged main-actor calls.
     ///
@@ -23,7 +21,6 @@ public final class SkipSwiftUITestSupport {
     ///
     /// Returns false when the relaxation could not be installed (a host Swift runtime that
     /// predates the hook); callers should skip bridged-UI tests in that case rather than crash.
-    // SKIP @bridge
     public static func prepareJVMHostedTesting() -> Bool {
         #if os(Android)
         return true

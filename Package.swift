@@ -9,6 +9,7 @@ let package = Package(
     products: [
         .library(name: "SkipFuseUI", type: .dynamic, targets: ["SkipFuseUI"] + (android ? ["SwiftUI"] : [])),
         .library(name: "SkipSwiftUI", type: .dynamic, targets: ["SkipSwiftUI"]),
+        .library(name: "SkipSwiftUISamples", type: .dynamic, targets: ["SkipSwiftUISamples"]),
     ],
     dependencies: [
         .package(url: "https://source.skip.tools/skip.git", from: "1.7.4"),
@@ -30,6 +31,16 @@ let package = Package(
         ], plugins: [.plugin(name: "skipstone", package: "skip")]),
         .testTarget(name: "SkipSwiftUITests", dependencies: [
             "SkipSwiftUI",
+            .product(name: "SkipTest", package: "skip")
+        ], plugins: [.plugin(name: "skipstone", package: "skip")]),
+        // Native bridged sample views used by the transpiled Compose UI tests. A separate
+        // module (rather than fixtures inside SkipSwiftUI) so the test target can fold into
+        // the :SkipSwiftUISamples gradle module without creating a circular task graph.
+        .target(name: "SkipSwiftUISamples", dependencies: [
+            "SkipSwiftUI"
+        ], plugins: [.plugin(name: "skipstone", package: "skip")]),
+        .testTarget(name: "SkipSwiftUISamplesTests", dependencies: [
+            "SkipSwiftUISamples",
             .product(name: "SkipBridge", package: "skip-bridge"),
             .product(name: "SkipAndroidBridge", package: "skip-android-bridge"),
             .product(name: "SkipTest", package: "skip")

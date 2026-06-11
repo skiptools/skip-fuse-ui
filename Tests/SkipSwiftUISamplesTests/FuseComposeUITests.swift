@@ -4,12 +4,13 @@ import Foundation
 import XCTest
 import SkipBridge
 import SkipAndroidBridge
-import SkipSwiftUI
+import SkipSwiftUISamples
 
 #if SKIP
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
@@ -22,7 +23,7 @@ import androidx.compose.ui.unit.width
 ///
 /// The module under test is compiled native Swift, but this test target is transpiled, so it
 /// runs as Kotlin/JUnit with the Compose test rule available. Each test constructs the
-/// generated bridged facade of a fixture view from `SkipSwiftUI` itself (see `TestFixtures.swift`), renders it via
+/// generated bridged facade of a sample view from `SkipSwiftUISamples`, renders it via
 /// `createComposeRule`, and drives it through Compose semantics — exercising the complete
 /// native loop: bridged body evaluation, native `@State` storage, `withAnimation` provenance
 /// priming, and the SkipUI Compose rendering of the bridged tree.
@@ -41,7 +42,7 @@ final class FuseComposeUITests: XCTestCase {
         // the main looper — together making the main-actor assumptions of bridged calls
         // during composition hold on-device.
         composeRule.runOnUiThread {
-            try! loadPeerLibrary(packageName: "skip-fuse-ui", moduleName: "SkipSwiftUI")
+            try! loadPeerLibrary(packageName: "skip-fuse-ui", moduleName: "SkipSwiftUISamples")
             let context = ProcessInfo.processInfo.androidContext
             try! AndroidBridgeBootstrap.initAndroidBridge(filesDir: context.getFilesDir().getAbsolutePath(), cacheDir: context.getCacheDir().getAbsolutePath())
         }
@@ -70,6 +71,52 @@ final class FuseComposeUITests: XCTestCase {
             LabelTestFixture().Compose()
         }
         composeRule.onNodeWithTag("native-label").assertIsDisplayed()
+        #endif
+    }
+
+    /// State-driven text updates through the bridge: each click increments native `@State`
+    /// and the recomposed label must reflect the new value.
+    func testCounterIncrements() throws {
+        #if !SKIP
+        throw XCTSkip("Compose UI testing is Android-only")
+        #else
+        try requireBridgedMainActor()
+        composeRule.setContent {
+            CounterTestFixture().Compose()
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("counter-label").assertTextEquals("count: 0")
+
+        composeRule.onNodeWithTag("increment-button").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("counter-label").assertTextEquals("count: 1")
+
+        composeRule.onNodeWithTag("increment-button").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("counter-label").assertTextEquals("count: 2")
+        #endif
+    }
+
+    /// Structural recomposition through the bridge: toggling native `@State` must insert
+    /// and remove a node from the Compose tree, not just update values.
+    func testConditionalContentTogglesExistence() throws {
+        #if !SKIP
+        throw XCTSkip("Compose UI testing is Android-only")
+        #else
+        try requireBridgedMainActor()
+        composeRule.setContent {
+            ConditionalContentTestFixture().Compose()
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("conditional-label").assertDoesNotExist()
+
+        composeRule.onNodeWithTag("toggle-button").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("conditional-label").assertIsDisplayed()
+
+        composeRule.onNodeWithTag("toggle-button").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("conditional-label").assertDoesNotExist()
         #endif
     }
 
