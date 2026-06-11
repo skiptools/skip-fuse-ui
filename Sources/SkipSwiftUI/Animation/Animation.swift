@@ -474,10 +474,23 @@ public struct AnimationCompletionCriteria : Hashable, Sendable {
 }
 
 public func withAnimation<Result>(_ animation: Animation? = .default, _ body: () throws -> Result) rethrows -> Result {
-    let isNested = SkipUI.Animation.preBodyWithAnimation(animation?.Java_animation)
+    // The native StateProvenance stack stamps per-slot provenance onto @State writes inside
+    // the body, which animatable modifiers later capture to decide animate-vs-snap. The
+    // bridged pre/post pair additionally maintains the Kotlin-side marker that render-path
+    // values (e.g. Shape.fill) fall back to.
+    //
+    // Every push must be paired with a pop — the bridge uses a per-thread stack of (token,
+    // hadAnimation) entries to match push/pop and decide whether to mark the delayed-clear
+    // window on exit. The previous "skip post when nested" behaviour was a workaround for the
+    // legacy global boolean and would leak the inner push onto the stack.
+    if let animation {
+        StateProvenance.pushAnimation(animation)
+    }
+    _ = SkipUI.Animation.preBodyWithAnimation(animation?.Java_animation)
     defer {
-        if !isNested {
-            SkipUI.Animation.postBodyWithAnimation()
+        SkipUI.Animation.postBodyWithAnimation()
+        if animation != nil {
+            StateProvenance.popAnimation()
         }
     }
     return try body()

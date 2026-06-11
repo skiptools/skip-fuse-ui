@@ -83,8 +83,19 @@ extension View {
 
 extension View {
     /* @inlinable */ nonisolated public func blur(radius: CGFloat, opaque: Bool = false) -> some View {
+        // Animatable modifiers capture per-slot animation provenance at entry: arguments are
+        // evaluated before the call, so a stamped @State read in the caller's value expression
+        // has just recorded the withAnimation scope (if any) that changed it. The captured
+        // animation is primed into the Kotlin read cursor right before the bridged modifier
+        // call so the SkipUI impl's own entry capture consumes it — nil primes explicitly,
+        // making un-animated inputs snap.
+        let primedAnimation = StateProvenance.capturePrimedAnimation()
         return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.blur(radius: radius, opaque: opaque)
+            // Materialize the receiver chain first — nested animatable modifiers prime
+            // their own provenance and would clobber ours if we primed before them.
+            let Java_target = $0.Java_viewOrEmpty
+            SkipUI.Animation.primeBridgedProvenance(primedAnimation)
+            return Java_target.blur(radius: radius, opaque: opaque)
         }
     }
 }
@@ -125,32 +136,52 @@ extension View {
 
 extension View {
     nonisolated public func brightness(_ amount: Double) -> some View {
+        let primedAnimation = StateProvenance.capturePrimedAnimation()
         return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.brightness(amount)
+            // Materialize the receiver chain first — nested animatable modifiers prime
+            // their own provenance and would clobber ours if we primed before them.
+            let Java_target = $0.Java_viewOrEmpty
+            SkipUI.Animation.primeBridgedProvenance(primedAnimation)
+            return Java_target.brightness(amount)
         }
     }
 }
 
 extension View {
     nonisolated public func contrast(_ amount: Double) -> some View {
+        let primedAnimation = StateProvenance.capturePrimedAnimation()
         return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.contrast(amount)
+            // Materialize the receiver chain first — nested animatable modifiers prime
+            // their own provenance and would clobber ours if we primed before them.
+            let Java_target = $0.Java_viewOrEmpty
+            SkipUI.Animation.primeBridgedProvenance(primedAnimation)
+            return Java_target.contrast(amount)
         }
     }
 }
 
 extension View {
     nonisolated public func saturation(_ amount: Double) -> some View {
+        let primedAnimation = StateProvenance.capturePrimedAnimation()
         return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.saturation(amount)
+            // Materialize the receiver chain first — nested animatable modifiers prime
+            // their own provenance and would clobber ours if we primed before them.
+            let Java_target = $0.Java_viewOrEmpty
+            SkipUI.Animation.primeBridgedProvenance(primedAnimation)
+            return Java_target.saturation(amount)
         }
     }
 }
 
 extension View {
     nonisolated public func hueRotation(_ angle: Angle) -> some View {
+        let primedAnimation = StateProvenance.capturePrimedAnimation()
         return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.hueRotation(bridgedAngle: angle.radians)
+            // Materialize the receiver chain first — nested animatable modifiers prime
+            // their own provenance and would clobber ours if we primed before them.
+            let Java_target = $0.Java_viewOrEmpty
+            SkipUI.Animation.primeBridgedProvenance(primedAnimation)
+            return Java_target.hueRotation(bridgedAngle: angle.radians)
         }
     }
 }
@@ -270,8 +301,13 @@ extension View {
 
 extension View {
     /* @inlinable */ nonisolated public func frame(width: CGFloat? = nil, height: CGFloat? = nil, alignment: Alignment = .center) -> some View {
+        let primedAnimation = StateProvenance.capturePrimedAnimation()
         return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.frame(width: width, height: height, horizontalAlignmentKey: alignment.horizontal.key, verticalAlignmentKey: alignment.vertical.key)
+            // Materialize the receiver chain first — nested animatable modifiers prime
+            // their own provenance and would clobber ours if we primed before them.
+            let Java_target = $0.Java_viewOrEmpty
+            SkipUI.Animation.primeBridgedProvenance(primedAnimation)
+            return Java_target.frame(width: width, height: height, horizontalAlignmentKey: alignment.horizontal.key, verticalAlignmentKey: alignment.vertical.key)
         }
     }
 
@@ -289,8 +325,13 @@ extension View {
 
 extension View {
     /* @inlinable */ nonisolated public func grayscale(_ amount: Double) -> some View {
+        let primedAnimation = StateProvenance.capturePrimedAnimation()
         return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.grayscale(amount)
+            // Materialize the receiver chain first — nested animatable modifiers prime
+            // their own provenance and would clobber ours if we primed before them.
+            let Java_target = $0.Java_viewOrEmpty
+            SkipUI.Animation.primeBridgedProvenance(primedAnimation)
+            return Java_target.grayscale(amount)
         }
     }
 }
@@ -342,8 +383,13 @@ extension View {
     }
 
     /* @inlinable */ nonisolated public func offset(x: CGFloat = 0, y: CGFloat = 0) -> some View {
+        let primedAnimation = StateProvenance.capturePrimedAnimation()
         return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.offset(x: x, y: y)
+            // Materialize the receiver chain first — nested animatable modifiers prime
+            // their own provenance and would clobber ours if we primed before them.
+            let Java_target = $0.Java_viewOrEmpty
+            SkipUI.Animation.primeBridgedProvenance(primedAnimation)
+            return Java_target.offset(x: x, y: y)
         }
     }
 
@@ -407,8 +453,13 @@ extension View {
 
 extension View {
     /* @inlinable */ nonisolated public func opacity(_ opacity: Double) -> some View {
+        let primedAnimation = StateProvenance.capturePrimedAnimation()
         return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.opacity(opacity)
+            // Materialize the receiver chain first — nested animatable modifiers prime
+            // their own provenance and would clobber ours if we primed before them.
+            let Java_target = $0.Java_viewOrEmpty
+            SkipUI.Animation.primeBridgedProvenance(primedAnimation)
+            return Java_target.opacity(opacity)
         }
     }
 }
@@ -474,16 +525,26 @@ extension View {
     }
 
     /* @inlinable */ nonisolated public func position(x: CGFloat = 0, y: CGFloat = 0) -> some View {
+        let primedAnimation = StateProvenance.capturePrimedAnimation()
         return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.position(x: x, y: y)
+            // Materialize the receiver chain first — nested animatable modifiers prime
+            // their own provenance and would clobber ours if we primed before them.
+            let Java_target = $0.Java_viewOrEmpty
+            SkipUI.Animation.primeBridgedProvenance(primedAnimation)
+            return Java_target.position(x: x, y: y)
         }
     }
 }
 
 extension View {
     /* @inlinable */ nonisolated public func rotationEffect(_ angle: Angle, anchor: UnitPoint = .center) -> some View {
+        let primedAnimation = StateProvenance.capturePrimedAnimation()
         return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.rotationEffect(bridgedAngle: angle.radians, anchorX: anchor.x, anchorY: anchor.y)
+            // Materialize the receiver chain first — nested animatable modifiers prime
+            // their own provenance and would clobber ours if we primed before them.
+            let Java_target = $0.Java_viewOrEmpty
+            SkipUI.Animation.primeBridgedProvenance(primedAnimation)
+            return Java_target.rotationEffect(bridgedAngle: angle.radians, anchorX: anchor.x, anchorY: anchor.y)
         }
     }
 }
@@ -497,8 +558,13 @@ extension View {
 
 extension View {
     /* @inlinable */ nonisolated public func rotation3DEffect(_ angle: Angle, axis: (x: CGFloat, y: CGFloat, z: CGFloat), anchor: UnitPoint = .center, anchorZ: CGFloat = 0, perspective: CGFloat = 1) -> some View {
+        let primedAnimation = StateProvenance.capturePrimedAnimation()
         return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.rotation3DEffect(bridgedAngle: angle.radians, axis: axis, anchorX: anchor.x, anchorY: anchor.y, anchorZ: anchorZ, perspective: perspective)
+            // Materialize the receiver chain first — nested animatable modifiers prime
+            // their own provenance and would clobber ours if we primed before them.
+            let Java_target = $0.Java_viewOrEmpty
+            SkipUI.Animation.primeBridgedProvenance(primedAnimation)
+            return Java_target.rotation3DEffect(bridgedAngle: angle.radians, axis: axis, anchorX: anchor.x, anchorY: anchor.y, anchorZ: anchorZ, perspective: perspective)
         }
     }
 }
@@ -513,8 +579,13 @@ extension View {
     }
 
     /* @inlinable */ nonisolated public func scaleEffect(x: CGFloat = 1.0, y: CGFloat = 1.0, anchor: UnitPoint = .center) -> some View {
+        let primedAnimation = StateProvenance.capturePrimedAnimation()
         return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.scaleEffect(x: x, y: y, anchorX: anchor.x, anchorY: anchor.y)
+            // Materialize the receiver chain first — nested animatable modifiers prime
+            // their own provenance and would clobber ours if we primed before them.
+            let Java_target = $0.Java_viewOrEmpty
+            SkipUI.Animation.primeBridgedProvenance(primedAnimation)
+            return Java_target.scaleEffect(x: x, y: y, anchorX: anchor.x, anchorY: anchor.y)
         }
     }
 }
