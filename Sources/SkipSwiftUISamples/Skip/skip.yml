@@ -1,0 +1,8 @@
+# Configuration file for Skip (https://skip.dev) project
+#
+# Native (Skip Fuse) sample views with all public API auto-bridged, used by the transpiled
+# `SkipSwiftUISamplesTests` Compose UI test suite.
+skip:
+  mode: 'native'
+  bridging: true
+  package: 'skip.swift.ui.samples'

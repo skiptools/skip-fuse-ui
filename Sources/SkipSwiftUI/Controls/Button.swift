@@ -22,7 +22,7 @@ extension Button : SkipUIBridging {
     public var Java_view: any SkipUI.View {
         let action = self.action
         #if compiler(>=6.0)
-        let isolatedAction = { MainActor.assumeIsolated { action() } }
+        let isolatedAction = { assumeMainActorUnchecked { action() } }
         #else
         let isolatedAction = action
         #endif
