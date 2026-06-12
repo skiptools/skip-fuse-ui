@@ -1,6 +1,7 @@
 // Copyright 2025–2026 Skip
 // SPDX-License-Identifier: MPL-2.0
 import Foundation
+import SkipAndroidBridge
 import SkipUI
 
 /// Native mirror of SkipModel's `StateTracking` provenance machinery, pairing `withAnimation`
@@ -29,8 +30,28 @@ enum StateProvenance {
     /// the JVM test thread, not the platform main thread, so a thread check would misfire
     /// where the actor confinement is in fact sound.
     static func pushAnimation(_ animation: Animation) {
+        _ = installObservationHook
         animationStack.append(animation)
     }
+
+    /// One-time wiring of bridged `@Observable` property accesses into this provenance
+    /// tracker (see `BridgedObservationProvenance`): observable property writes stamp their
+    /// per-keyPath slot with the innermost active animation and reads feed the same read
+    /// cursor that `@State` reads do, so the modifier-entry capture pairs them identically.
+    /// Installed lazily at the first `withAnimation` — stamps can only exist after an
+    /// animation-scoped write, so earlier reads have nothing to record.
+    private static let installObservationHook: Void = {
+        #if SKIP_BRIDGE
+        BridgedObservationProvenance.currentToken = {
+            return StateProvenance.currentAnimation
+        }
+        BridgedObservationProvenance.recordRead = { token in
+            if let animation = token as? Animation {
+                StateProvenance.recordRead(animation)
+            }
+        }
+        #endif
+    }()
 
     /// Pop the most recently entered `withAnimation` scope.
     static func popAnimation() {

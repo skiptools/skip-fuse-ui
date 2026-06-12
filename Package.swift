@@ -5,7 +5,7 @@ let android = Context.environment["TARGET_OS_ANDROID"] ?? "0" != "0"
 
 let package = Package(
     name: "skip-fuse-ui",
-    platforms: [.iOS(.v16), .macOS(.v13), .tvOS(.v16), .watchOS(.v9), .macCatalyst(.v16)],
+    platforms: [.iOS(.v17), .macOS(.v14), .tvOS(.v17), .watchOS(.v10), .macCatalyst(.v17)],
     products: [
         .library(name: "SkipFuseUI", type: .dynamic, targets: ["SkipFuseUI"] + (android ? ["SwiftUI"] : [])),
         .library(name: "SkipSwiftUI", type: .dynamic, targets: ["SkipSwiftUI"]),
@@ -16,7 +16,8 @@ let package = Package(
         .package(url: "https://source.skip.tools/skip-fuse.git", from: "1.0.2"),
         //.package(url: "https://source.skip.tools/skip-bridge.git", "0.16.7"..<"2.0.0"),
         .package(url: "https://source.skip.tools/skip-bridge.git", branch: "transaction-propagation"), // REMOVEME
-        .package(url: "https://source.skip.tools/skip-android-bridge.git", "0.6.1"..<"2.0.0"),
+        //.package(url: "https://source.skip.tools/skip-android-bridge.git", "0.6.1"..<"2.0.0"),
+        .package(url: "https://source.skip.tools/skip-android-bridge.git", branch: "transaction-propagation"), // REMOVEME
         .package(url: "https://source.skip.tools/swift-jni.git", "0.3.1"..<"2.0.0"),
         //.package(url: "https://source.skip.tools/skip-ui.git", from: "1.50.0")
         .package(url: "https://source.skip.tools/skip-ui.git", branch: "transaction-propagation") // REMOVEME

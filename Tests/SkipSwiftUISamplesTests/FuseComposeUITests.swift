@@ -168,6 +168,79 @@ final class FuseComposeUITests: XCTestCase {
         #endif
     }
 
+    /// The two-square invariant for `@Observable` reference objects in Fuse: a property
+    /// mutated inside `withAnimation` must interpolate while a sibling property mutated
+    /// outside it in the same handler must snap.
+    func testObservablePropertyAnimatesWhileUnrelatedSnaps() throws {
+        #if !SKIP
+        throw XCTSkip("Compose UI testing is Android-only")
+        #else
+        try requireBridgedMainActor()
+        composeRule.mainClock.autoAdvance = false
+        composeRule.setContent {
+            ObservableSquaresTestFixture().Compose()
+        }
+        composeRule.mainClock.advanceTimeByFrame()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("obs-animated-rect").assertWidthIsEqualTo(100.0.dp)
+        composeRule.onNodeWithTag("obs-unrelated-rect").assertWidthIsEqualTo(100.0.dp)
+
+        composeRule.onNodeWithTag("obs-animate-button").performClick()
+        composeRule.mainClock.advanceTimeBy(48)
+        composeRule.waitForIdle()
+
+        // Sample mid-flight at ~300ms of the 1s linear ramp: the animated property must have
+        // left the start but not reached the target, while the un-animated property must
+        // already be at its target (snapped, not animating).
+        composeRule.mainClock.advanceTimeBy(250)
+        composeRule.waitForIdle()
+        let animatedMid = composeRule.onNodeWithTag("obs-animated-rect").getUnclippedBoundsInRoot().width.value
+        XCTAssertGreaterThan(Double(animatedMid), 105.0, "animated property should have started interpolating")
+        XCTAssertLessThan(Double(animatedMid), 290.0, "animated property should not have snapped to the target")
+        composeRule.onNodeWithTag("obs-unrelated-rect").assertWidthIsEqualTo(300.0.dp)
+
+        composeRule.mainClock.advanceTimeBy(900)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("obs-animated-rect").assertWidthIsEqualTo(300.0.dp)
+        #endif
+    }
+
+    /// Same invariant when the observable is handed to the reading child through the SwiftUI
+    /// environment instead of an initializer parameter.
+    func testEnvironmentObservablePropertyAnimatesWhileUnrelatedSnaps() throws {
+        #if !SKIP
+        throw XCTSkip("Compose UI testing is Android-only")
+        #else
+        try requireBridgedMainActor()
+        composeRule.mainClock.autoAdvance = false
+        composeRule.setContent {
+            ObservableEnvironmentSquaresTestFixture().Compose()
+        }
+        composeRule.mainClock.advanceTimeByFrame()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("obs-env-animated-rect").assertWidthIsEqualTo(100.0.dp)
+        composeRule.onNodeWithTag("obs-env-unrelated-rect").assertWidthIsEqualTo(100.0.dp)
+
+        composeRule.onNodeWithTag("obs-env-animate-button").performClick()
+        composeRule.mainClock.advanceTimeBy(48)
+        composeRule.waitForIdle()
+
+        // Sample mid-flight at ~300ms of the 1s linear ramp: the animated property must have
+        // left the start but not reached the target, while the un-animated property must
+        // already be at its target (snapped, not animating).
+        composeRule.mainClock.advanceTimeBy(250)
+        composeRule.waitForIdle()
+        let animatedMid = composeRule.onNodeWithTag("obs-env-animated-rect").getUnclippedBoundsInRoot().width.value
+        XCTAssertGreaterThan(Double(animatedMid), 105.0, "animated property should have started interpolating")
+        XCTAssertLessThan(Double(animatedMid), 290.0, "animated property should not have snapped to the target")
+        composeRule.onNodeWithTag("obs-env-unrelated-rect").assertWidthIsEqualTo(300.0.dp)
+
+        composeRule.mainClock.advanceTimeBy(900)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("obs-env-animated-rect").assertWidthIsEqualTo(300.0.dp)
+        #endif
+    }
+
     /// A plain toggle with no withAnimation must land at the target without interpolation.
     func testPlainToggleSnaps() throws {
         #if !SKIP

@@ -79,6 +79,82 @@ public struct CounterTestFixture: View {
     }
 }
 
+/// Observable model for the `@Observable` provenance samples.
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+@Observable
+final class ObservableSquaresModel {
+    var animatedWidth = 100.0
+    var unrelatedWidth = 100.0
+}
+
+/// Sample: two rects driven by properties of an `@Observable` model held in `@State`; the
+/// button mutates one property inside `withAnimation` and one outside in the same handler.
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+public struct ObservableSquaresTestFixture: View {
+    @State var model = ObservableSquaresModel()
+
+    public init() {
+    }
+
+    public var body: some View {
+        VStack {
+            Color.red
+                .frame(width: model.animatedWidth, height: 50.0)
+                .accessibilityIdentifier("obs-animated-rect")
+            Color.green
+                .frame(width: model.unrelatedWidth, height: 50.0)
+                .accessibilityIdentifier("obs-unrelated-rect")
+            Button("animate") {
+                model.unrelatedWidth = 300.0
+                withAnimation(.linear(duration: 1.0)) {
+                    model.animatedWidth = 300.0
+                }
+            }
+            .accessibilityIdentifier("obs-animate-button")
+        }
+    }
+}
+
+/// Sample: same two-square invariant, but the reading child receives the observable through
+/// the SwiftUI environment (`.environment(model)` + `@Environment(Model.self)`).
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+public struct ObservableEnvironmentSquaresTestFixture: View {
+    @State var model = ObservableSquaresModel()
+
+    public init() {
+    }
+
+    public var body: some View {
+        VStack {
+            ObservableEnvironmentTile()
+            Button("animate") {
+                model.unrelatedWidth = 300.0
+                withAnimation(.linear(duration: 1.0)) {
+                    model.animatedWidth = 300.0
+                }
+            }
+            .accessibilityIdentifier("obs-env-animate-button")
+        }
+        .environment(model)
+    }
+}
+
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+struct ObservableEnvironmentTile: View {
+    @Environment(ObservableSquaresModel.self) var model: ObservableSquaresModel
+
+    var body: some View {
+        VStack {
+            Color.red
+                .frame(width: model.animatedWidth, height: 50.0)
+                .accessibilityIdentifier("obs-env-animated-rect")
+            Color.green
+                .frame(width: model.unrelatedWidth, height: 50.0)
+                .accessibilityIdentifier("obs-env-unrelated-rect")
+        }
+    }
+}
+
 /// Sample: a button that toggles whether a label exists in the tree at all — verifies
 /// structural recomposition (bridged node insertion and removal), not just value updates.
 public struct ConditionalContentTestFixture: View {
