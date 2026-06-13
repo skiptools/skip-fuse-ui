@@ -5,7 +5,7 @@ let android = Context.environment["TARGET_OS_ANDROID"] ?? "0" != "0"
 
 let package = Package(
     name: "skip-fuse-ui",
-    platforms: [.iOS(.v17), .macOS(.v14), .tvOS(.v17), .watchOS(.v10), .macCatalyst(.v17)],
+    platforms: [.iOS(.v16), .macOS(.v13), .tvOS(.v16), .watchOS(.v9), .macCatalyst(.v16)],
     products: [
         .library(name: "SkipFuseUI", type: .dynamic, targets: ["SkipFuseUI"] + (android ? ["SwiftUI"] : [])),
         .library(name: "SkipSwiftUI", type: .dynamic, targets: ["SkipSwiftUI"]),
