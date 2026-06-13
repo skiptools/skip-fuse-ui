@@ -5,4 +5,6 @@
 @_exported import SkipSwiftUI
 #elseif canImport(SwiftUI)
 @_exported import SwiftUI
+@_exported import struct SkipSwiftUI.TextSelectionIndex
+@_exported import struct SkipSwiftUI.TextSelectionRange
 #endif
