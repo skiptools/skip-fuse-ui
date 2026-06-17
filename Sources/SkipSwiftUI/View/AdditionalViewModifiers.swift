@@ -145,6 +145,16 @@ extension View {
             return $0.saturation(amount)
         }
     }
+
+    nonisolated public func fixedSize(horizontal: Bool, vertical: Bool) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.fixedSize(horizontal: horizontal, vertical: vertical)
+        }
+    }
+
+    nonisolated public func fixedSize() -> some View {
+        return fixedSize(horizontal: true, vertical: true)
+    }
 }
 
 extension View {
