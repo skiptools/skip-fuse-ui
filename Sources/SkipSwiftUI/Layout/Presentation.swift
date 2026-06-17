@@ -432,9 +432,10 @@ extension View {
         stubView()
     }
 
-    @available(*, unavailable)
     nonisolated public func presentationDragIndicator(_ visibility: Visibility) -> some View {
-        stubView()
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.presentationDragIndicator(bridgedVisibility: visibility.rawValue)
+        }
     }
 }
 
