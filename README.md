@@ -120,11 +120,13 @@ SkipFuseUI mirrors the SwiftUI API surface for iOS 16+, including:
 - **State**: `@State`, `@Binding`, `@Environment`, `@AppStorage`, `@FocusState`
 - **Modifiers**: `.padding`, `.frame`, `.background`, `.overlay`, `.opacity`, `.rotation`, `.shadow`, `.clipShape`, `.sheet`, `.alert`, `.onAppear`, `.task`, and many more
 - **Navigation**: `NavigationStack`, `NavigationLink`, `NavigationPath`, `.navigationTitle`, `.toolbar`
-- **Gestures**: `TapGesture`, `LongPressGesture`, `DragGesture`
+- **Gestures**: `TapGesture`, `LongPressGesture`, `DragGesture`, plus partial `.simultaneousGesture` bridging for supported gesture observers
 - **Animation**: `withAnimation`, `.animation`, `.transition`, `Spring`
 - **UIKit compatibility**: `UIApplication`, `UIColor`, `UIImage`, `UIPasteboard`
 
 For the full list of supported SwiftUI components, see the [SkipUI documentation](https://skip.dev/docs/modules/skip-ui/#supported-swiftui).
+
+`simultaneousGesture` support follows SkipUI's current Android limitations: it can observe supported gestures on the same rendered view, including drag observation while scroll views continue scrolling, but only `.all` and `.none` have meaningful mask behavior. `.gesture` and `.subviews` masks are not distinguished.
 
 ## Related Documentation
 
