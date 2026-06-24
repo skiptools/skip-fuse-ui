@@ -151,7 +151,7 @@ extension EnvironmentValues {
                 return nil
             }
             #if compiler(>=6.0)
-            return SkipUI.DismissAction(action: { MainActor.assumeIsolated { action() } })
+            return SkipUI.DismissAction(action: { assumeMainActorUnchecked { action() } })
             #else
             return SkipUI.DismissAction(action: action)
             #endif
@@ -175,7 +175,7 @@ extension EnvironmentValues {
             }
             let javaHandler: (URL) -> SkipUI.OpenURLAction.Result = { url in
                 #if compiler(>=6.0)
-                let result = MainActor.assumeIsolated { openURLAction.handler(url) }
+                let result = assumeMainActorUnchecked { openURLAction.handler(url) }
                 #else
                 let result = openURLAction.handler(url)
                 #endif
@@ -184,7 +184,7 @@ extension EnvironmentValues {
             if let javaSystemHandler = openURLAction.systemHandler {
                 return SkipUI.OpenURLAction(handler: javaHandler, systemHandler: { url in
                     #if compiler(>=6.0)
-                    try MainActor.assumeIsolated { try javaSystemHandler(url) }
+                    try assumeMainActorUnchecked { try javaSystemHandler(url) }
                     #else
                     try javaSystemHandler(url)
                     #endif

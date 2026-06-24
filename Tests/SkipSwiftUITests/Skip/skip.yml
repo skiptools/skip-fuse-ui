@@ -1,2 +1,6 @@
+# Configuration file for Skip (https://skip.dev) project
+#
+# The SkipSwiftUI module itself is native (Skip Fuse), but the test target is transpiled so
+# the suite runs as Kotlin/JUnit against the bridged native module.
 skip:
   mode: 'transpiled'

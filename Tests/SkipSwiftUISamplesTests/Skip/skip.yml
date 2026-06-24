@@ -1,0 +1,18 @@
+# Configuration file for Skip (https://skip.dev) project
+#
+# The SkipSwiftUISamples module is native (Skip Fuse), but this test target is transpiled so
+# the suite runs as Kotlin/JUnit with full access to Compose testing APIs against the bridged
+# native sample views.
+skip:
+  mode: 'transpiled'
+
+build:
+  contents:
+    - block: 'dependencies'
+      contents:
+        - 'testImplementation(libs.androidx.compose.ui.test)'
+        - 'androidTestImplementation(libs.androidx.compose.ui.test)'
+        - 'testImplementation(libs.androidx.compose.ui.test.junit4)'
+        - 'androidTestImplementation(libs.androidx.compose.ui.test.junit4)'
+        - 'testImplementation(libs.androidx.compose.ui.test.manifest)'
+        - 'androidTestImplementation(libs.androidx.compose.ui.test.manifest)'

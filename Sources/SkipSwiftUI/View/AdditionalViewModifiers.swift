@@ -83,8 +83,8 @@ extension View {
 
 extension View {
     /* @inlinable */ nonisolated public func blur(radius: CGFloat, opaque: Bool = false) -> some View {
-        return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.blur(radius: radius, opaque: opaque)
+        return ModifierView(animatableTarget: self) {
+            return $0.blur(radius: radius, opaque: opaque)
         }
     }
 }
@@ -125,32 +125,42 @@ extension View {
 
 extension View {
     nonisolated public func brightness(_ amount: Double) -> some View {
-        return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.brightness(amount)
+        return ModifierView(animatableTarget: self) {
+            return $0.brightness(amount)
         }
     }
 }
 
 extension View {
     nonisolated public func contrast(_ amount: Double) -> some View {
-        return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.contrast(amount)
+        return ModifierView(animatableTarget: self) {
+            return $0.contrast(amount)
         }
     }
 }
 
 extension View {
     nonisolated public func saturation(_ amount: Double) -> some View {
-        return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.saturation(amount)
+        return ModifierView(animatableTarget: self) {
+            return $0.saturation(amount)
         }
+    }
+
+    nonisolated public func fixedSize(horizontal: Bool, vertical: Bool) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.fixedSize(horizontal: horizontal, vertical: vertical)
+        }
+    }
+
+    nonisolated public func fixedSize() -> some View {
+        return fixedSize(horizontal: true, vertical: true)
     }
 }
 
 extension View {
     nonisolated public func hueRotation(_ angle: Angle) -> some View {
-        return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.hueRotation(bridgedAngle: angle.radians)
+        return ModifierView(animatableTarget: self) {
+            return $0.hueRotation(bridgedAngle: angle.radians)
         }
     }
 }
@@ -270,8 +280,8 @@ extension View {
 
 extension View {
     /* @inlinable */ nonisolated public func frame(width: CGFloat? = nil, height: CGFloat? = nil, alignment: Alignment = .center) -> some View {
-        return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.frame(width: width, height: height, horizontalAlignmentKey: alignment.horizontal.key, verticalAlignmentKey: alignment.vertical.key)
+        return ModifierView(animatableTarget: self) {
+            return $0.frame(width: width, height: height, horizontalAlignmentKey: alignment.horizontal.key, verticalAlignmentKey: alignment.vertical.key)
         }
     }
 
@@ -289,8 +299,8 @@ extension View {
 
 extension View {
     /* @inlinable */ nonisolated public func grayscale(_ amount: Double) -> some View {
-        return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.grayscale(amount)
+        return ModifierView(animatableTarget: self) {
+            return $0.grayscale(amount)
         }
     }
 }
@@ -342,8 +352,8 @@ extension View {
     }
 
     /* @inlinable */ nonisolated public func offset(x: CGFloat = 0, y: CGFloat = 0) -> some View {
-        return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.offset(x: x, y: y)
+        return ModifierView(animatableTarget: self) {
+            return $0.offset(x: x, y: y)
         }
     }
 
@@ -406,9 +416,25 @@ extension View {
 }
 
 extension View {
-    /* @inlinable */ nonisolated public func opacity(_ opacity: Double) -> some View {
+    nonisolated public func androidVerticalOverscrollPullDown(
+        isEnabled: Bool,
+        onPull: @escaping (CGFloat) -> Void,
+        onEnd: @escaping () -> Void
+    ) -> some View {
         return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.opacity(opacity)
+            $0.Java_viewOrEmpty.androidVerticalOverscrollPullDown(
+                isEnabled: isEnabled,
+                onPull: onPull,
+                onEnd: onEnd
+            )
+        }
+    }
+}
+
+extension View {
+    /* @inlinable */ nonisolated public func opacity(_ opacity: Double) -> some View {
+        return ModifierView(animatableTarget: self) {
+            return $0.opacity(opacity)
         }
     }
 }
@@ -474,16 +500,16 @@ extension View {
     }
 
     /* @inlinable */ nonisolated public func position(x: CGFloat = 0, y: CGFloat = 0) -> some View {
-        return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.position(x: x, y: y)
+        return ModifierView(animatableTarget: self) {
+            return $0.position(x: x, y: y)
         }
     }
 }
 
 extension View {
     /* @inlinable */ nonisolated public func rotationEffect(_ angle: Angle, anchor: UnitPoint = .center) -> some View {
-        return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.rotationEffect(bridgedAngle: angle.radians, anchorX: anchor.x, anchorY: anchor.y)
+        return ModifierView(animatableTarget: self) {
+            return $0.rotationEffect(bridgedAngle: angle.radians, anchorX: anchor.x, anchorY: anchor.y)
         }
     }
 }
@@ -497,8 +523,8 @@ extension View {
 
 extension View {
     /* @inlinable */ nonisolated public func rotation3DEffect(_ angle: Angle, axis: (x: CGFloat, y: CGFloat, z: CGFloat), anchor: UnitPoint = .center, anchorZ: CGFloat = 0, perspective: CGFloat = 1) -> some View {
-        return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.rotation3DEffect(bridgedAngle: angle.radians, axis: axis, anchorX: anchor.x, anchorY: anchor.y, anchorZ: anchorZ, perspective: perspective)
+        return ModifierView(animatableTarget: self) {
+            return $0.rotation3DEffect(bridgedAngle: angle.radians, axis: axis, anchorX: anchor.x, anchorY: anchor.y, anchorZ: anchorZ, perspective: perspective)
         }
     }
 }
@@ -513,8 +539,8 @@ extension View {
     }
 
     /* @inlinable */ nonisolated public func scaleEffect(x: CGFloat = 1.0, y: CGFloat = 1.0, anchor: UnitPoint = .center) -> some View {
-        return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.scaleEffect(x: x, y: y, anchorX: anchor.x, anchorY: anchor.y)
+        return ModifierView(animatableTarget: self) {
+            return $0.scaleEffect(x: x, y: y, anchorX: anchor.x, anchorY: anchor.y)
         }
     }
 }
