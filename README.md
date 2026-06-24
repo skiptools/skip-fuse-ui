@@ -126,7 +126,37 @@ SkipFuseUI mirrors the SwiftUI API surface for iOS 16+, including:
 
 For the full list of supported SwiftUI components, see the [SkipUI documentation](https://skip.dev/docs/modules/skip-ui/#supported-swiftui).
 
-`simultaneousGesture` support follows SkipUI's current Android limitations: it can observe supported gestures on the same rendered view, including drag observation while scroll views continue scrolling, but only `.all` and `.none` have meaningful mask behavior. `.gesture` and `.subviews` masks are not distinguished.
+### Text Selection
+
+SkipFuseUI supports programmatic text selection for editable text controls that expose a `TextSelection` binding, such as `TextField` and `TextEditor`.
+
+Use `TextSelectionRange` and `TextSelectionIndex` when creating a `TextSelection` from `String.Index` values:
+
+```swift
+import SkipFuseUI
+
+@State private var text = "https://skip.tools"
+@State private var selection: TextSelection?
+
+var body: some View {
+    TextField("URL", text: $text, selection: $selection)
+        .onAppear {
+            selection = TextSelection(
+                range: TextSelectionRange(text.startIndex..<text.endIndex, in: text)
+            )
+        }
+}
+```
+
+For insertion points, use `TextSelectionIndex`:
+
+```swift
+selection = TextSelection(
+    insertionPoint: TextSelectionIndex(text.startIndex, in: text)
+)
+```
+
+These wrapper types keep the source shape close to SwiftUI's native `TextSelection(range:)` and `TextSelection(insertionPoint:)` initializers while allowing SkipFuseUI to validate and bridge string positions consistently on Android.
 
 ## Related Documentation
 
