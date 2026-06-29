@@ -18,12 +18,18 @@ let package = Package(
         //.package(url: "https://source.skip.tools/skip-android-bridge.git", "0.6.1"..<"2.0.0"),
         //.package(url: "https://source.skip.tools/swift-jni.git", "0.3.1"..<"2.0.0"),
         .package(url: "https://source.skip.tools/skip-fuse.git", branch: "swift-java-jni-cutover"), // ### REMOVEME
+        .package(url: "https://source.skip.tools/skip-bridge.git", branch: "swift-java-jni-cutover"), // ### REMOVEME
+        .package(url: "https://source.skip.tools/skip-android-bridge.git", branch: "swift-java-jni-cutover"), // ### REMOVEME
+        .package(url: "https://source.skip.tools/swift-jni.git", branch: "swift-java-jni-cutover"), // ### REMOVEME
         .package(url: "https://source.skip.tools/skip-ui.git", from: "1.50.0"),
     ],
     targets: [
         .target(name: "SkipFuseUI", dependencies: ["SkipSwiftUI"]),
         .target(name: "SkipSwiftUI", dependencies: [
             .product(name: "SkipFuse", package: "skip-fuse"),
+            .product(name: "SkipBridge", package: "skip-bridge"),
+            .product(name: "SkipAndroidBridge", package: "skip-android-bridge"),
+            .product(name: "SwiftJNI", package: "swift-jni"),
             .product(name: "SkipUI", package: "skip-ui")
         ], plugins: [.plugin(name: "skipstone", package: "skip")]),
         .testTarget(name: "SkipSwiftUITests", dependencies: [
@@ -38,6 +44,8 @@ let package = Package(
         ], plugins: [.plugin(name: "skipstone", package: "skip")]),
         .testTarget(name: "SkipSwiftUISamplesTests", dependencies: [
             "SkipSwiftUISamples",
+            .product(name: "SkipBridge", package: "skip-bridge"),
+            .product(name: "SkipAndroidBridge", package: "skip-android-bridge"),
             .product(name: "SkipTest", package: "skip")
         ], plugins: [.plugin(name: "skipstone", package: "skip")]),
     ]
