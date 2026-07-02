@@ -478,3 +478,11 @@ extension View {
         }
     }
 }
+
+extension View {
+    nonisolated public func textFieldContentPadding(top: Double, leading: Double, bottom: Double, trailing: Double) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.textFieldContentPadding(bridgedTop: top, bridgedLeading: leading, bridgedBottom: bottom, bridgedTrailing: trailing)
+        }
+    }
+}
