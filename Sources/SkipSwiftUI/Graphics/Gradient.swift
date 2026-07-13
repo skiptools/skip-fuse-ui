@@ -227,34 +227,36 @@ extension ShapeStyle where Self == EllipticalGradient {
 }
 
 @frozen public struct AngularGradient : ShapeStyle, Sendable {
-    @available(*, unavailable)
-    public init(gradient: Gradient, center: UnitPoint, startAngle: Angle = .zero, endAngle: Angle = .zero) {
-        fatalError()
+    let gradient: Gradient
+    let center: UnitPoint
+    let startAngle: Angle
+    let endAngle: Angle
+
+    public init(gradient: Gradient, center: UnitPoint, startAngle: Angle = .zero, endAngle: Angle = .degrees(360)) {
+        self.gradient = gradient
+        self.center = center
+        self.startAngle = startAngle
+        self.endAngle = endAngle
     }
 
-    @available(*, unavailable)
     public init(colors: [Color], center: UnitPoint, startAngle: Angle, endAngle: Angle) {
-        fatalError()
+        self.init(gradient: Gradient(colors: colors), center: center, startAngle: startAngle, endAngle: endAngle)
     }
 
-    @available(*, unavailable)
     public init(stops: [Gradient.Stop], center: UnitPoint, startAngle: Angle, endAngle: Angle) {
-        fatalError()
+        self.init(gradient: Gradient(stops: stops), center: center, startAngle: startAngle, endAngle: endAngle)
     }
 
-    @available(*, unavailable)
     public init(gradient: Gradient, center: UnitPoint, angle: Angle = .zero) {
-        fatalError()
+        self.init(gradient: gradient, center: center, startAngle: angle, endAngle: Angle(radians: angle.radians + 2.0 * Double.pi))
     }
 
-    @available(*, unavailable)
     public init(colors: [Color], center: UnitPoint, angle: Angle = .zero) {
-        fatalError()
+        self.init(gradient: Gradient(colors: colors), center: center, angle: angle)
     }
 
-    @available(*, unavailable)
     public init(stops: [Gradient.Stop], center: UnitPoint, angle: Angle = .zero) {
-        fatalError()
+        self.init(gradient: Gradient(stops: stops), center: center, angle: angle)
     }
 
 //    public typealias Resolved = Never
@@ -266,55 +268,46 @@ extension AngularGradient : View {
 
 extension AngularGradient : SkipUIBridging {
     public var Java_view: any SkipUI.View {
-        fatalError()
+        let colors = gradient.stops.map { Color.Java_color(for: $0.color.spec) }
+        let locations = gradient.stops.map(\.location)
+        return SkipUI.AngularGradient(colors: colors, locations: locations, centerX: center.x, centerY: center.y, startAngle: startAngle.radians, endAngle: endAngle.radians)
     }
 }
 
-@available(*, unavailable)
 extension ShapeStyle where Self == AngularGradient {
-    @available(*, unavailable)
     public static func angularGradient(_ gradient: Gradient, center: UnitPoint, startAngle: Angle, endAngle: Angle) -> AngularGradient {
-        fatalError()
+        return AngularGradient(gradient: gradient, center: center, startAngle: startAngle, endAngle: endAngle)
     }
 
-    @available(*, unavailable)
     public static func angularGradient(colors: [Color], center: UnitPoint, startAngle: Angle, endAngle: Angle) -> AngularGradient {
-        fatalError()
+        return AngularGradient(colors: colors, center: center, startAngle: startAngle, endAngle: endAngle)
     }
 
-    @available(*, unavailable)
     public static func angularGradient(stops: [Gradient.Stop], center: UnitPoint, startAngle: Angle, endAngle: Angle) -> AngularGradient {
-        fatalError()
+        return AngularGradient(stops: stops, center: center, startAngle: startAngle, endAngle: endAngle)
     }
 }
 
-@available(*, unavailable)
 extension ShapeStyle where Self == AngularGradient {
-    @available(*, unavailable)
     public static func conicGradient(_ gradient: Gradient, center: UnitPoint, angle: Angle = .zero) -> AngularGradient {
-        fatalError()
+        return AngularGradient(gradient: gradient, center: center, angle: angle)
     }
 
-    @available(*, unavailable)
     public static func conicGradient(colors: [Color], center: UnitPoint, angle: Angle = .zero) -> AngularGradient {
-        fatalError()
+        return AngularGradient(colors: colors, center: center, angle: angle)
     }
 
-    @available(*, unavailable)
     public static func conicGradient(stops: [Gradient.Stop], center: UnitPoint, angle: Angle = .zero) -> AngularGradient {
-        fatalError()
+        return AngularGradient(stops: stops, center: center, angle: angle)
     }
 }
 
-@available(*, unavailable)
 extension ShapeStyle where Self == AngularGradient {
-    @available(*, unavailable)
     public static func angularGradient(_ gradient: AnyGradient, center: UnitPoint = .center, startAngle: Angle, endAngle: Angle) -> some ShapeStyle {
-        stubShapeStyle()
+        return AngularGradient(gradient: gradient.gradient, center: center, startAngle: startAngle, endAngle: endAngle)
     }
 
-    @available(*, unavailable)
     public static func conicGradient(_ gradient: AnyGradient, center: UnitPoint = .center, angle: Angle = .zero) -> some ShapeStyle {
-        stubShapeStyle()
+        return AngularGradient(gradient: gradient.gradient, center: center, angle: angle)
     }
 }
