@@ -9,6 +9,7 @@ public struct TextField<Label> where Label : View {
     private let prompt: Text?
     private let label: Label
     private var selection: Binding<TextSelection?>? = nil
+    private var axis = Axis.horizontal
 }
 
 extension TextField : View {
@@ -17,7 +18,7 @@ extension TextField : View {
 
 extension TextField : SkipUIBridging {
     public var Java_view: any SkipUI.View {
-        return SkipUI.TextField(getText: { text.wrappedValue }, setText: { text.wrappedValue = $0 }, getSelection: { selection?.wrappedValue }, setSelection: { selection?.wrappedValue = $0 }, prompt: prompt?.Java_view as? SkipUI.Text, isSecure: false, bridgedLabel: label.Java_viewOrEmpty)
+        return SkipUI.TextField(getText: { text.wrappedValue }, setText: { text.wrappedValue = $0 }, getSelection: { selection?.wrappedValue }, setSelection: { selection?.wrappedValue = $0 }, prompt: prompt?.Java_view as? SkipUI.Text, isSecure: false, bridgedAxis: Int(axis.rawValue), bridgedLabel: label.Java_viewOrEmpty)
     }
 }
 
@@ -221,41 +222,46 @@ extension TextField where Label == Text {
 }
 
 extension TextField where Label == Text {
-    @available(*, unavailable)
     public init(_ titleKey: LocalizedStringKey, text: Binding<String>, axis: Axis) {
-        fatalError()
+        self.init(titleKey, text: text, prompt: nil, axis: axis)
     }
 
-    @available(*, unavailable)
     public init(_ titleKey: LocalizedStringKey, text: Binding<String>, prompt: Text?, axis: Axis) {
-        fatalError()
+        self.text = text
+        self.label = Text(titleKey)
+        self.prompt = prompt
+        self.axis = axis
     }
 
-    @available(*, unavailable)
     @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, text: Binding<String>, axis: Axis) {
-        fatalError()
+        self.init(titleResource, text: text, prompt: nil, axis: axis)
     }
 
-    @available(*, unavailable)
     @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, text: Binding<String>, prompt: Text?, axis: Axis) {
-        fatalError()
+        self.text = text
+        self.label = Text(titleResource)
+        self.prompt = prompt
+        self.axis = axis
     }
 
-    @available(*, unavailable)
     @_disfavoredOverload public init<S>(_ title: S, text: Binding<String>, axis: Axis) where S : StringProtocol {
-        fatalError()
+        self.init(title, text: text, prompt: nil, axis: axis)
     }
 
-    @available(*, unavailable)
     @_disfavoredOverload public init<S>(_ title: S, text: Binding<String>, prompt: Text?, axis: Axis) where S : StringProtocol {
-        fatalError()
+        self.text = text
+        self.label = Text(title)
+        self.prompt = prompt
+        self.axis = axis
     }
 }
 
 extension TextField {
-    @available(*, unavailable)
     public init(text: Binding<String>, prompt: Text? = nil, axis: Axis, @ViewBuilder label: () -> Label) {
-        fatalError()
+        self.text = text
+        self.label = label()
+        self.prompt = prompt
+        self.axis = axis
     }
 }
 
@@ -293,6 +299,7 @@ extension TextField where Label == Text {
         self.label = Text(titleKey)
         self.prompt = prompt
         self.selection = selection
+        self.axis = axis ?? Axis.horizontal
     }
 
     @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, text: Binding<String>, selection: Binding<TextSelection?>, prompt: Text? = nil, axis: Axis? = nil) {
@@ -300,6 +307,7 @@ extension TextField where Label == Text {
         self.label = Text(titleResource)
         self.prompt = prompt
         self.selection = selection
+        self.axis = axis ?? Axis.horizontal
     }
 
     @_disfavoredOverload public init<S>(_ title: S, text: Binding<String>, selection: Binding<TextSelection?>, prompt: Text? = nil, axis: Axis? = nil) where S : StringProtocol {
@@ -307,6 +315,7 @@ extension TextField where Label == Text {
         self.label = Text(title)
         self.prompt = prompt
         self.selection = selection
+        self.axis = axis ?? Axis.horizontal
     }
 }
 

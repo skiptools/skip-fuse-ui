@@ -16,7 +16,7 @@ extension SecureField : View {
 
 extension SecureField : SkipUIBridging {
     public var Java_view: any SkipUI.View {
-        return SkipUI.TextField(getText: { text.wrappedValue }, setText: { text.wrappedValue = $0 }, getSelection: { selection?.wrappedValue }, setSelection: { selection?.wrappedValue = $0 }, prompt: prompt?.Java_view as? SkipUI.Text, isSecure: true, bridgedLabel: label.Java_viewOrEmpty)
+        return SkipUI.TextField(getText: { text.wrappedValue }, setText: { text.wrappedValue = $0 }, getSelection: { selection?.wrappedValue }, setSelection: { selection?.wrappedValue = $0 }, prompt: prompt?.Java_view as? SkipUI.Text, isSecure: true, bridgedAxis: Int(Axis.horizontal.rawValue), bridgedLabel: label.Java_viewOrEmpty)
     }
 }
 
