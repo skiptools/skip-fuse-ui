@@ -11,6 +11,15 @@ final class SkipSwiftUITests: XCTestCase {
     }
 
     #if !SKIP
+    func testAccessibilityOptionSetEmptyInitDoesNotRecurse() throws {
+        // `init() { self = [] }` recursed infinitely: for an OptionSet, `[]` is built
+        // via `init()`. `init(rawValue: 0)` breaks the cycle (issue #130).
+        XCTAssertEqual(AccessibilityTraits().rawValue, 0)
+        XCTAssertEqual(AccessibilityTechnologies().rawValue, 0)
+        // OptionSet semantics still work without the redundant SetAlgebra conformance.
+        XCTAssertTrue(AccessibilityTraits([.isButton, .isHeader]).contains(.isButton))
+    }
+
     func testTypedEnvironmentKeyPathsRemainAvailable() throws {
         let legibilityWeightKeyPath: WritableKeyPath<EnvironmentValues, LegibilityWeight?> = \.legibilityWeight
         let colorSchemeContrastKeyPath: WritableKeyPath<EnvironmentValues, ColorSchemeContrast> = \.colorSchemeContrast
