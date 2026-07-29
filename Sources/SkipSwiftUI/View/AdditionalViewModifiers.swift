@@ -285,20 +285,6 @@ extension View {
         }
     }
 
-    /// Experimental modifier that supplies source dimensions for a view's first Android render.
-    nonisolated public func experimentalFirstRenderFrame(width: CGFloat, height: CGFloat, sourceWidth: CGFloat, sourceHeight: CGFloat, alignment: Alignment = .center) -> some View {
-        return ModifierView(animatableTarget: self) {
-            return $0.experimentalFirstRenderFrame(
-                width: width,
-                height: height,
-                sourceWidth: sourceWidth,
-                sourceHeight: sourceHeight,
-                horizontalAlignmentKey: alignment.horizontal.key,
-                verticalAlignmentKey: alignment.vertical.key
-            )
-        }
-    }
-
     @available(*, deprecated, message: "Please pass one or more parameters.")
     /* @inlinable */ nonisolated public func frame() -> some View {
         stubView()
@@ -368,13 +354,6 @@ extension View {
     /* @inlinable */ nonisolated public func offset(x: CGFloat = 0, y: CGFloat = 0) -> some View {
         return ModifierView(animatableTarget: self) {
             return $0.offset(x: x, y: y)
-        }
-    }
-
-    /// Experimental modifier that supplies a source offset for a view's first Android render.
-    nonisolated public func experimentalFirstRenderOffset(x: CGFloat, y: CGFloat, sourceX: CGFloat, sourceY: CGFloat) -> some View {
-        return ModifierView(animatableTarget: self) {
-            return $0.experimentalFirstRenderOffset(x: x, y: y, sourceX: sourceX, sourceY: sourceY)
         }
     }
 
@@ -459,12 +438,6 @@ extension View {
         }
     }
 
-    /// Experimental modifier that supplies a source opacity for a view's first Android render.
-    nonisolated public func experimentalFirstRenderOpacity(_ opacity: Double, sourceOpacity: Double) -> some View {
-        return ModifierView(animatableTarget: self) {
-            return $0.experimentalFirstRenderOpacity(opacity, sourceOpacity: sourceOpacity)
-        }
-    }
 }
 
 extension View {
@@ -592,19 +565,6 @@ extension View {
         }
     }
 
-    /// Experimental modifier that supplies a source scale for a view's first Android render.
-    nonisolated public func experimentalFirstRenderScaleEffect(x: CGFloat, y: CGFloat, sourceX: CGFloat, sourceY: CGFloat, anchor: UnitPoint = .center) -> some View {
-        return ModifierView(animatableTarget: self) {
-            return $0.experimentalFirstRenderScaleEffect(
-                x: x,
-                y: y,
-                sourceX: sourceX,
-                sourceY: sourceY,
-                anchorX: anchor.x,
-                anchorY: anchor.y
-            )
-        }
-    }
 }
 
 extension View {
