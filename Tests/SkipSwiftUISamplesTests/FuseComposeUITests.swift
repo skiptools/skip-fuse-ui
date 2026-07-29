@@ -120,6 +120,26 @@ final class FuseComposeUITests: XCTestCase {
         #endif
     }
 
+    /// A bridged `Identifiable & Equatable` override must compare its complete Swift value rather
+    /// than collapsing to its stable ID.
+    func testAndroidEquatablePreservesSwiftEqualityBeyondIdentifiableID() throws {
+        #if !SKIP
+        throw XCTSkip("Compose UI testing is Android-only")
+        #else
+        try requireBridgedMainActor()
+        composeRule.setContent {
+            AndroidEquatableIdentityTestFixture().Compose()
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("android-equatable-identity-title").assertTextEquals("A")
+
+        composeRule.onNodeWithTag("android-equatable-identity-update").performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithTag("android-equatable-identity-title").assertTextEquals("B")
+        #endif
+    }
+
     /// The two-square invariant, end-to-end through the bridge: clicking the button toggles
     /// `animated` inside `withAnimation(.linear(duration: 1))` and `unrelated` outside it.
     /// The unrelated rect must snap to its target immediately while the animated rect
