@@ -144,6 +144,8 @@ Think of `id` like SwiftUI view identity and `inputs` as the values used to upda
 
 State owned inside the boundary can update independently without changing `inputs`. On Apple platforms, `androidCompositionBoundary` returns the original view unchanged.
 
+The boundary inherits the current Compose composition locals, including bridged SwiftUI environment values. It is a composition and lifecycle boundary, not a layout boundary: modifiers and constraints outside the boundary continue to measure the same retained host and child. Resizing native-backed content therefore does not recreate or re-bridge it, but it still changes the native view's measured bounds.
+
 Avoid stacking both modifiers around the same subtree without a measured need. An unchanged composition boundary already prevents its child projection from being reevaluated and re-bridged.
 
 ## What SkipFuseUI Covers
