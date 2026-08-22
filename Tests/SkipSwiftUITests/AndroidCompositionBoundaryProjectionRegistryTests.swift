@@ -40,6 +40,36 @@ final class AndroidCompositionBoundaryProjectionRegistryTests: XCTestCase {
         XCTAssertEqual(secondProjection, "second")
     }
 
+    func testChangedInputsReleasePreviousProjectionWithinSameInstance() {
+        let registry = AndroidCompositionBoundaryProjectionRegistry<ProjectionProbe>()
+        weak var releasedFirstProjection: ProjectionProbe?
+        weak var retainedSecondProjection: ProjectionProbe?
+
+        do {
+            let firstProjection = ProjectionProbe()
+            releasedFirstProjection = firstProjection
+            _ = registry.prepare(instanceID: "instance-1", inputs: "tab-1") {
+                firstProjection
+            }
+        }
+
+        XCTAssertNotNil(releasedFirstProjection)
+
+        do {
+            let secondProjection = ProjectionProbe()
+            retainedSecondProjection = secondProjection
+            _ = registry.prepare(instanceID: "instance-1", inputs: "tab-2") {
+                secondProjection
+            }
+        }
+
+        XCTAssertNil(releasedFirstProjection)
+        XCTAssertNotNil(retainedSecondProjection)
+
+        registry.release(instanceID: "instance-1")
+        XCTAssertNil(retainedSecondProjection)
+    }
+
     func testSeparateComposeInstancesDoNotShareProjection() {
         let registry = AndroidCompositionBoundaryProjectionRegistry<String>()
 

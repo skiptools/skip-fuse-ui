@@ -90,7 +90,9 @@ extension View {
     /// Think of the boundary as a separate hosting container. Keeping `id` stable preserves that
     /// container and its state. Changing `inputs` updates content inside the existing container;
     /// changing `id` disposes it and creates a new one. State owned inside the boundary can update
-    /// independently without changing `inputs`.
+    /// independently without changing `inputs`. The boundary inherits environment values and is
+    /// transparent to parent measurement: new constraints remeasure the same retained host and
+    /// child rather than changing their identity.
     ///
     /// Use this for content such as a WebView, map, or video surface that needs an independently
     /// retained lifecycle. To only skip reevaluating ordinary UI while a value remains equal, use
