@@ -9,6 +9,11 @@ import SkipUI
     @frozen public struct Stop : Hashable, Sendable {
         public var color: Color
         public var location: CGFloat
+
+        public init(color: Color, location: CGFloat) {
+            self.color = color
+            self.location = location
+        }
     }
 
     public var stops: [Gradient.Stop]

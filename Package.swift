@@ -12,11 +12,11 @@ let package = Package(
         .library(name: "SkipSwiftUISamples", type: .dynamic, targets: ["SkipSwiftUISamples"]),
     ],
     dependencies: [
-        .package(url: "https://source.skip.tools/skip.git", from: "1.9.4"),
-        .package(url: "https://source.skip.tools/skip-fuse.git", from: "1.0.2"),
-        .package(url: "https://source.skip.tools/skip-bridge.git", "0.17.2"..<"2.0.0"),
-        .package(url: "https://source.skip.tools/skip-android-bridge.git", "0.6.4"..<"2.0.0"),
-        .package(url: "https://source.skip.tools/swift-jni.git", "0.5.0"..<"2.0.0"),
+        .package(url: "https://github.com/skiptools/skip.git", from: "1.9.4"),
+        .package(url: "https://github.com/skiptools/skip-fuse.git", from: "1.0.2"),
+        .package(url: "https://github.com/skiptools/skip-bridge.git", "0.17.2"..<"2.0.0"),
+        .package(url: "https://github.com/skiptools/skip-android-bridge.git", "0.6.4"..<"2.0.0"),
+        .package(url: "https://github.com/skiptools/swift-jni.git", "0.5.0"..<"2.0.0"),
         .package(url: "https://github.com/fhasse95/skip-ui.git", branch: "searchable-is-presented"),
     ],
     targets: [
