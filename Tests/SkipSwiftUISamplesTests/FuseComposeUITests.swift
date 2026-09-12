@@ -97,6 +97,38 @@ final class FuseComposeUITests: XCTestCase {
         #endif
     }
 
+    /// Custom button styles through the bridge: the native style body renders around the label,
+    /// actions fire through both `ButtonStyle` and `PrimitiveButtonStyle`, and `@Environment`
+    /// values declared on the style itself track the button's environment.
+    func testCustomButtonStyles() throws {
+        #if !SKIP
+        throw XCTSkip("Compose UI testing is Android-only")
+        #else
+        try requireBridgedMainActor()
+        composeRule.setContent {
+            ButtonStyleTestFixture().Compose()
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("styled-button-state", useUnmergedTree: true).assertTextEquals("enabled")
+
+        composeRule.onNodeWithTag("styled-button").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("style-counter-label").assertTextEquals("count: 1")
+
+        composeRule.onNodeWithTag("primitive-button").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("style-counter-label").assertTextEquals("count: 11")
+
+        composeRule.onNodeWithTag("disable-button").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("styled-button-state", useUnmergedTree: true).assertTextEquals("disabled")
+
+        composeRule.onNodeWithTag("styled-button").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("style-counter-label").assertTextEquals("count: 11")
+        #endif
+    }
+
     /// Structural recomposition through the bridge: toggling native `@State` must insert
     /// and remove a node from the Compose tree, not just update values.
     func testConditionalContentTogglesExistence() throws {
