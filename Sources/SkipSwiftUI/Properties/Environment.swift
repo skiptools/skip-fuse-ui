@@ -39,6 +39,32 @@ import SkipUI
 //extension Environment : Sendable where Value : Sendable {
 //}
 
+/// An `@Environment` property whose value is synced from Compose by key.
+protocol EnvironmentSupportSyncable {
+    var key: String { get }
+    func Java_syncEnvironmentSupport(_ support: EnvironmentSupport?)
+}
+
+extension Environment : EnvironmentSupportSyncable {
+}
+
+/// The keys of the `@Environment` properties declared by a value that is not itself a bridged view, such as a custom style.
+func Java_environmentKeys(of value: Any) -> [String] {
+    return Mirror(reflecting: value).children.compactMap { ($0.value as? EnvironmentSupportSyncable)?.key }
+}
+
+/// Sync the `@Environment` properties declared by a value that is not itself a bridged view, such as a custom style.
+///
+/// Skip generates this syncing for `View` and `ViewModifier` types, but other types that declare `@Environment`
+/// properties must be synced manually before use, or reading the property will crash.
+func Java_syncEnvironment(of value: Any, support: (String) -> EnvironmentSupport?) {
+    for child in Mirror(reflecting: value).children {
+        if let environment = child.value as? EnvironmentSupportSyncable {
+            environment.Java_syncEnvironmentSupport(support(environment.key))
+        }
+    }
+}
+
 @available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
 extension Environment {
     public init(_ objectType: Value.Type) where Value : AnyObject, Value : Observable {
