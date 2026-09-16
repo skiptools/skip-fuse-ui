@@ -46,36 +46,24 @@ internal final class AndroidCompositionBoundaryProjectionRegistry<Projection>: @
     }
 }
 
-/// Owns a projection factory only until SkipUI prepares the current Compose instance.
+/// Retains a reusable factory for the lifetime of the bridged boundary view.
+///
+/// A lazy container can dispose a composition and later render the same bridged view in a new
+/// instance. Keep the factory available so that instance can create its own projection.
 internal final class AndroidCompositionBoundaryProjectionSource<Projection>: @unchecked Sendable {
-    private let lock = NSLock()
-    private var create: (() -> Projection)?
+    private let create: () -> Projection
 
     internal init(create: @escaping () -> Projection) {
         self.create = create
     }
 
-    /// Prepares the instance projection, then drops the captured native view graph.
+    /// Reuses a live instance's projection or creates one for a new instance or changed inputs.
     internal func prepare(
         in registry: AndroidCompositionBoundaryProjectionRegistry<Projection>,
         instanceID: String,
         inputs: String
     ) -> Projection {
-        lock.lock()
-        let create = self.create
-        lock.unlock()
-
-        let prepared = registry.prepare(instanceID: instanceID, inputs: inputs) {
-            guard let create else {
-                preconditionFailure("Missing projection source for changed boundary inputs")
-            }
-            return create()
-        }
-
-        lock.lock()
-        self.create = nil
-        lock.unlock()
-        return prepared
+        return registry.prepare(instanceID: instanceID, inputs: inputs, create: create)
     }
 }
 
