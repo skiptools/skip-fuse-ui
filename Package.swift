@@ -47,6 +47,9 @@ let package = Package(
             .product(name: "SkipAndroidBridge", package: "skip-android-bridge"),
             .product(name: "SkipTest", package: "skip")
         ], plugins: [.plugin(name: "skipstone", package: "skip")]),
+        // Apple SwiftUI reference rendering for the animation-lifetime experiment.
+        // No Skip plugin: AppKit pixel sampling must never be transpiled.
+        .testTarget(name: "AnimationLifetimeReferenceTests", dependencies: ["SkipSwiftUISamples"]),
     ]
 )
 
@@ -58,6 +61,17 @@ if android {
 // `.package(path: ROOT/<repo>)` checkout, letting developers iterate against unreleased
 // Skip library changes; in CI/normal builds the variable is unset and remote versions
 // resolve as usual.
+if let skipUIPath = Context.environment["SKIP_UI_PATH"] {
+    // Narrow local override for experiments that change the native/Compose UI boundary.
+    package.dependencies = package.dependencies.map { dependency in
+        if case .sourceControl(_, let location, _) = dependency.kind,
+           location.hasSuffix("/skip-ui.git") {
+            return .package(path: skipUIPath)
+        }
+        return dependency
+    }
+}
+
 if let dependencyRoot = Context.environment["SKIP_DEPENDENCY_ROOT"] {
     package.dependencies = package.dependencies.map { dep in
         switch dep.kind {

@@ -17,6 +17,8 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.width
+import androidx.compose.foundation.layout.Row
+import androidx.compose.ui.window.Dialog
 #endif
 
 /// Compose UI tests for the native (Skip Fuse) SkipSwiftUI module.
@@ -260,6 +262,245 @@ final class FuseComposeUITests: XCTestCase {
         composeRule.onNodeWithTag("obs-env-animated-rect").assertWidthIsEqualTo(300.0.dp)
         #endif
     }
+
+    /// Both siblings must animate the shared write, then immediately follow a later plain drag.
+    func testAnimationLifetimeStateSiblingsAndPlainDrag() throws {
+        #if !SKIP
+        throw XCTSkip("Compose UI testing is Android-only")
+        #else
+        try checkAnimationLifetime(useObservable: false)
+        #endif
+    }
+
+    /// The same combined-offset case with an observable anchor and separate value-state drag.
+    func testAnimationLifetimeObservableSiblingsAndPlainDrag() throws {
+        #if !SKIP
+        throw XCTSkip("Compose UI testing is Android-only")
+        #else
+        try checkAnimationLifetime(useObservable: true)
+        #endif
+    }
+
+    func testAnimationLifetimeDeferredStateConsumer() throws {
+        #if SKIP
+        try checkAnimationLifetime(useObservable: false, deferred: true)
+        #else
+        throw XCTSkip("Compose UI testing is Android-only")
+        #endif
+    }
+
+    func testAnimationLifetimeDeferredObservableConsumer() throws {
+        #if SKIP
+        try checkAnimationLifetime(useObservable: true, deferred: true)
+        #else
+        throw XCTSkip("Compose UI testing is Android-only")
+        #endif
+    }
+
+    /// Accept the interruption jump, but require immediate following and a fresh animation.
+    func testAnimationLifetimeStateInterruptionSnapsAndRecovers() throws {
+        #if SKIP
+        try checkAnimationLifetime(useObservable: false, interrupt: true)
+        #else
+        throw XCTSkip("Compose UI testing is Android-only")
+        #endif
+    }
+
+    /// Observable stamps must also stay expired after interruption without blocking new writes.
+    func testAnimationLifetimeObservableInterruptionSnapsAndRecovers() throws {
+        #if SKIP
+        try checkAnimationLifetime(useObservable: true, interrupt: true)
+        #else
+        throw XCTSkip("Compose UI testing is Android-only")
+        #endif
+    }
+
+    /// Separate native bodies observe the shared property without a parent capturing it.
+    func testAnimationLifetimeIndependentChildren() throws {
+        #if SKIP
+        try checkIndependentConsumers(dialog: false)
+        #else
+        throw XCTSkip("Compose UI testing is Android-only")
+        #endif
+    }
+
+    /// A mounted dialog and its underlying screen update from the same animated write.
+    func testAnimationLifetimeDialogAndScreen() throws {
+        #if SKIP
+        try checkIndependentConsumers(dialog: true)
+        #else
+        throw XCTSkip("Compose UI testing is Android-only")
+        #endif
+    }
+
+    /// Reverse root placement so a pass cannot depend on which consumer is composed first.
+    func testAnimationLifetimeScreenAndDialog() throws {
+        #if SKIP
+        try checkIndependentConsumers(dialog: true, reverse: true)
+        #else
+        throw XCTSkip("Compose UI testing is Android-only")
+        #endif
+    }
+
+    #if SKIP
+    /// No deferred reads, sleeping consumers, or manually invoked expiry callbacks: both
+    /// consumers subscribe before mutation and Compose chooses their recomposition order.
+    private func checkIndependentConsumers(dialog: Bool, reverse: Bool = false) throws {
+        try requireBridgedMainActor()
+        composeRule.mainClock.autoAdvance = false
+        let driver = composeRule.runOnUiThread { SharedAnimationLifetimeDriver() }
+        composeRule.setContent {
+            if dialog {
+                SharedAnimationLifetimeConsumer(driver: driver, first: !reverse).Compose()
+                Dialog(onDismissRequest: {}) {
+                    SharedAnimationLifetimeConsumer(driver: driver, first: reverse).Compose()
+                }
+            } else {
+                Row {
+                    SharedAnimationLifetimeConsumer(driver: driver, first: true).Compose()
+                    SharedAnimationLifetimeConsumer(driver: driver, first: false).Compose()
+                }
+            }
+        }
+        composeRule.mainClock.advanceTimeBy(128)
+        composeRule.waitForIdle()
+        let initial = lifetimePositions()
+        var middles: [[Double]] = []
+        var endings: [[Double]] = []
+        var drags: [[Double]] = []
+        for _ in 0..<2 {
+            composeRule.runOnUiThread { driver.animateAnchor() }
+            composeRule.mainClock.advanceTimeBy(300)
+            composeRule.waitForIdle()
+            middles.append(lifetimePositions())
+            composeRule.mainClock.advanceTimeBy(900)
+            composeRule.waitForIdle()
+            endings.append(lifetimePositions())
+            composeRule.runOnUiThread { driver.advanceDrag() }
+            composeRule.mainClock.advanceTimeBy(80)
+            composeRule.waitForIdle()
+            drags.append(lifetimePositions())
+        }
+        print("animation-lifetime independent dialog=\(dialog) reverse=\(reverse) initial=\(initial) mid=\(middles) end=\(endings) drag=\(drags)")
+        for cycle in 0..<2 {
+            let start = Double(cycle * 120)
+            for index in 0..<2 {
+                XCTAssertGreaterThan(middles[cycle][index] - initial[index], start + 5)
+                XCTAssertLessThan(middles[cycle][index] - initial[index], start + 75,
+                    "Every already-observing consumer must animate the shared write")
+                XCTAssertEqual(endings[cycle][index] - initial[index], start + 80, accuracy: 2)
+                XCTAssertEqual(drags[cycle][index] - initial[index], start + 120, accuracy: 2)
+            }
+        }
+    }
+
+    private func lifetimePositions() -> [Double] {
+        let first = composeRule.onNodeWithTag("lifetime-first").getUnclippedBoundsInRoot().top.value
+        let second = composeRule.onNodeWithTag("lifetime-second").getUnclippedBoundsInRoot().top.value
+        return [Double(first), Double(second)]
+    }
+
+    /// Measure rendered positions before asserting so a failure cannot hide later phases.
+    /// Settled updates match Apple; active interruption deliberately uses Android's accepted
+    /// snap behavior instead of claiming parity with Apple's continuing anchor animation.
+    private func checkAnimationLifetime(useObservable: Bool, deferred: Bool = false, interrupt: Bool = false) throws {
+        try requireBridgedMainActor()
+        composeRule.mainClock.autoAdvance = false
+        // The bridged initializer is main-actor isolated just like its mutation methods.
+        let driver = composeRule.runOnUiThread { AnimationLifetimeDriver() }
+        composeRule.setContent {
+            AnimationLifetimeFixture(driver: driver, useObservable: useObservable, deferSecondConsumer: deferred).Compose()
+        }
+        composeRule.mainClock.advanceTimeBy(64)
+        composeRule.waitForIdle()
+        XCTAssertTrue(composeRule.runOnUiThread { driver.isReady })
+        let initial = lifetimePositions()
+        composeRule.runOnUiThread { driver.animateAnchor() }
+        composeRule.mainClock.advanceTimeBy(300)
+        composeRule.waitForIdle()
+        let middle = lifetimePositions()
+        if interrupt {
+            composeRule.runOnUiThread { driver.advanceDrag() }
+            composeRule.mainClock.advanceTimeBy(80)
+            composeRule.waitForIdle()
+            let interrupted = lifetimePositions()
+            var continued: [[Double]] = []
+            for _ in 0..<2 {
+                composeRule.runOnUiThread { driver.advanceDrag() }
+                composeRule.mainClock.advanceTimeBy(80)
+                composeRule.waitForIdle()
+                continued.append(lifetimePositions())
+            }
+            // Run beyond the cancelled animation's original deadline. It must not resume
+            // and overwrite either of the newer plain positions.
+            composeRule.mainClock.advanceTimeBy(1100)
+            composeRule.waitForIdle()
+            let stable = lifetimePositions()
+            composeRule.runOnUiThread { driver.animateAnchor() }
+            composeRule.mainClock.advanceTimeBy(300)
+            composeRule.waitForIdle()
+            let freshMiddle = lifetimePositions()
+            composeRule.mainClock.advanceTimeBy(900)
+            composeRule.waitForIdle()
+            let freshEnd = lifetimePositions()
+            composeRule.runOnUiThread { driver.advanceDrag() }
+            composeRule.mainClock.advanceTimeBy(80)
+            composeRule.waitForIdle()
+            let finalDrag = lifetimePositions()
+            print("animation-lifetime interruption recovery observable=\(useObservable) initial=\(initial) mid=\(middle) interrupted=\(interrupted) continued=\(continued) stable=\(stable) freshMid=\(freshMiddle) freshEnd=\(freshEnd) finalDrag=\(finalDrag)")
+            for index in 0..<2 {
+                XCTAssertGreaterThan(middle[index] - initial[index], 5)
+                XCTAssertLessThan(middle[index] - initial[index], 75)
+                // The combined modifier has one target. A plain update cancels interpolation
+                // and snaps the entire sum; preserving Apple's per-input motion is out of scope.
+                XCTAssertEqual(interrupted[index] - initial[index], 120, accuracy: 2)
+                XCTAssertEqual(continued[0][index] - initial[index], 160, accuracy: 2)
+                XCTAssertEqual(continued[1][index] - initial[index], 200, accuracy: 2)
+                XCTAssertEqual(stable[index] - initial[index], 200, accuracy: 2)
+                XCTAssertGreaterThan(freshMiddle[index] - initial[index], 205)
+                XCTAssertLessThan(freshMiddle[index] - initial[index], 275)
+                XCTAssertEqual(freshEnd[index] - initial[index], 280, accuracy: 2)
+                XCTAssertEqual(finalDrag[index] - initial[index], 320, accuracy: 2)
+            }
+            return
+        }
+        composeRule.mainClock.advanceTimeBy(900)
+        composeRule.waitForIdle()
+        let settled = lifetimePositions()
+        var dragged: [[Double]] = []
+        for _ in 1...3 {
+            composeRule.runOnUiThread { driver.advanceDrag() }
+            composeRule.mainClock.advanceTimeBy(80)
+            composeRule.waitForIdle()
+            dragged.append(lifetimePositions())
+        }
+        // Also observe a settled interval before testing a new animated write.
+        composeRule.mainClock.advanceTimeBy(1100)
+        composeRule.waitForIdle()
+        composeRule.runOnUiThread { driver.animateAnchor() }
+        composeRule.mainClock.advanceTimeBy(300)
+        composeRule.waitForIdle()
+        let repeated = lifetimePositions()
+        composeRule.mainClock.advanceTimeBy(900)
+        composeRule.waitForIdle()
+        let final = lifetimePositions()
+        print("animation-lifetime compose observable=\(useObservable) deferred=\(deferred) initial=\(initial) mid=\(middle) settled=\(settled) dragged=\(dragged) repeated=\(repeated) final=\(final)")
+        for index in 0..<2 {
+            XCTAssertGreaterThan(middle[index] - initial[index], 5)
+            XCTAssertLessThan(middle[index] - initial[index], 75)
+            XCTAssertEqual(settled[index] - initial[index], 80, accuracy: 2)
+            XCTAssertGreaterThan(repeated[index] - initial[index], 205)
+            XCTAssertLessThan(repeated[index] - initial[index], 275)
+            XCTAssertEqual(final[index] - initial[index], 280, accuracy: 2)
+        }
+        for step in 0..<3 {
+            for index in 0..<2 {
+                XCTAssertEqual(dragged[step][index] - initial[index], Double(120 + step * 40), accuracy: 2,
+                    "Plain drag must snap after the shared anchor animation has settled")
+            }
+        }
+    }
+    #endif
 
     /// A plain toggle with no withAnimation must land at the target without interpolation.
     func testPlainToggleSnaps() throws {
