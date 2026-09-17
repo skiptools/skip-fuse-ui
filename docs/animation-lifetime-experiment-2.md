@@ -120,20 +120,26 @@ it isolates expiry from the additional committed SkipUI improvements.
 
 ## Reproduce
 
-Set `SKIP_UI_PATH` to the absolute local SkipUI checkout. This narrow package
-override is needed to generate the new callback overload without changing other
-framework dependencies. From the SkipFuseUI package:
+The recorded runs used a temporary `SKIP_UI_PATH` override to select local SkipUI
+without changing other dependencies. That experiment-only override has since
+been removed from `Package.swift` to keep it out of the upstream submission.
+
+To reproduce with the declared GitHub dependency, first publish the matching
+SkipUI commit on `experimental_animation-performance` and resolve that revision.
+Alternatively, use upstream's existing `SKIP_DEPENDENCY_ROOT` with an absolute
+directory containing complete checkouts of all required Skip dependencies. The
+current monorepo's empty dependency directories do not satisfy that requirement.
+From the SkipFuseUI package, with the matching dependency selected:
 
 ```sh
-SKIP_UI_PATH=/Users/hugo/Swishly/Projects/webvideocast/platforms/skip/libs_os/skip-ui \
 SKIP_ACTION=none \
 /Users/hugo/Swishly/Projects/webvideocast/platforms/skip/scripts/with-android-toolchain \
   swift test --filter 'AnimationLifetimeReferenceTests|StateProvenanceTests'
 ```
 
-From the generated Gradle root documented in experiment 1, use the same
-`SKIP_UI_PATH` and `ANDROID_SERIAL=R5CXC1DKRNA`, the repository build coordinator,
-and `scripts/gradle` with:
+From the generated Gradle root documented in experiment 1, use the same dependency
+selection and `ANDROID_SERIAL=R5CXC1DKRNA`, the repository build coordinator, and
+`scripts/gradle` with:
 
 ```text
 :SkipSwiftUISamples:connectedDebugAndroidTest
