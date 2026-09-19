@@ -160,7 +160,7 @@ extension ToggleStyle where Self == SwitchToggleStyle {
 }
 
 public struct ToggleStyleConfiguration {
-    public struct Label : View {
+    public struct Label {
         public typealias Body = Never
 
         let Java_label: any SkipUI.View
