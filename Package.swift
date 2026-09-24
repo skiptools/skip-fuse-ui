@@ -20,7 +20,7 @@ let package = Package(
         .package(url: "https://github.com/skiptools/skip-bridge.git", "0.17.3"..<"2.0.0"),
         .package(url: "https://github.com/skiptools/skip-android-bridge.git", "0.6.6"..<"2.0.0"),
         .package(url: "https://github.com/skiptools/swift-jni.git", "0.5.0"..<"2.0.0"),
-        .package(url: "https://github.com/skiptools/skip-ui.git", from: "1.59.3"),
+        .package(url: "https://github.com/skiptools/skip-ui.git", from: "1.60.0"),
     ],
     targets: [
         .target(name: "SkipFuseUI", dependencies: ["SkipSwiftUI"]),
@@ -47,6 +47,9 @@ let package = Package(
             .product(name: "SkipAndroidBridge", package: "skip-android-bridge"),
             .product(name: "SkipTest", package: "skip")
         ], plugins: [.plugin(name: "skipstone", package: "skip")]),
+        // Apple SwiftUI reference rendering for the animation-lifetime experiment.
+        // No Skip plugin: AppKit pixel sampling must never be transpiled.
+        .testTarget(name: "AnimationLifetimeReferenceTests", dependencies: ["SkipSwiftUISamples"]),
     ]
 )
 

@@ -26,7 +26,7 @@ public final class BridgedStateBox<Value> {
         set {
             // Stamp the slot with the active withAnimation scope's animation; a plain write
             // clears a stale stamp so later reads don't wrongly animate.
-            let animation = StateProvenance.currentAnimation
+            let animation = StateProvenance.makeWriteStamp()
             if animation != nil || _value.lastWriteAnimation != nil {
                 _value.lastWriteAnimation = animation
             }
