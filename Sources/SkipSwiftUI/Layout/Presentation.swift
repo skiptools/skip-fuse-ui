@@ -467,6 +467,13 @@ extension View {
 }
 
 extension View {
+    /// Sets a solid background on sheet or full-screen cover content; clear reveals the presenting view.
+    nonisolated public func presentationBackground(_ color: Color) -> some View {
+        ModifierView(target: self) {
+            $0.Java_viewOrEmpty.presentationBackground(color.Java_view as? SkipUI.Color ?? SkipUI.Color._clear)
+        }
+    }
+
     @available(*, unavailable)
     nonisolated public func presentationBackground<S>(_ style: S) -> some View where S : ShapeStyle {
         stubView()
