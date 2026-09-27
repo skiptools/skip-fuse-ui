@@ -109,6 +109,16 @@
 //extension GestureState : Sendable where Value : Sendable {
 //}
 
+extension GestureState : BridgedStateProperty {
+    public func Java_initStateSupport() -> StateSupport {
+        return _valueBox.Java_initStateSupport()
+    }
+
+    public func Java_syncStateSupport(_ support: StateSupport) {
+        _valueBox.Java_syncStateSupport(support)
+    }
+}
+
 extension GestureState where Value : ExpressibleByNilLiteral {
     public init(resetTransaction: Transaction = Transaction()) where Value : Equatable {
         self.init(wrappedValue: nil)
