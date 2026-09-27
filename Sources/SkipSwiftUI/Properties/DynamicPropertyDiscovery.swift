@@ -140,66 +140,54 @@ private func withDynamicProperty<V, R>(_ view: V, _ index: Int, _ body: (Dynamic
     }
 }
 
-// Each property is loaded as a copy of its wrapper; the wrappers keep their storage in shared
-// boxes, so the copy syncs the view's live state.
-
-private func load<P: BridgedStateProperty>(_ type: P.Type, _ pointer: UnsafeRawPointer) -> any BridgedStateProperty {
-    return pointer.load(as: P.self)
-}
-
-private func load<P: BridgedAppStorageProperty>(_ type: P.Type, _ pointer: UnsafeRawPointer) -> any BridgedAppStorageProperty {
-    return pointer.load(as: P.self)
-}
-
-private func load<P: BridgedEnvironmentProperty>(_ type: P.Type, _ pointer: UnsafeRawPointer) -> any BridgedEnvironmentProperty {
-    return pointer.load(as: P.self)
-}
-
 /// One kind code per state or environment property of the view, in index order: `0` state,
 /// `1` app storage, `2` environment.
 public func Java_dynamicPropertyKinds<V>(_ view: V) -> String {
     return withViewStorage(view) { type, _ in DynamicPropertyDescriptors.shared.descriptor(for: type).kinds }
 }
 
+// Each property is loaded as a copy of its wrapper; the wrappers keep their storage in shared
+// boxes, so the copy syncs the view's live state.
+
 public func Java_initDynamicState<V>(_ view: V, _ index: Int) -> StateSupport {
     return withDynamicProperty(view, index) { accessor, pointer in
         guard case .state(let type) = accessor else { fatalError("Property \(index) of \(V.self) is not state") }
-        return load(type, pointer).Java_initStateSupport()
+        return pointer.load(as: type).Java_initStateSupport()
     }
 }
 
 public func Java_syncDynamicState<V>(_ view: V, _ index: Int, _ support: StateSupport) {
     withDynamicProperty(view, index) { accessor, pointer in
         guard case .state(let type) = accessor else { fatalError("Property \(index) of \(V.self) is not state") }
-        load(type, pointer).Java_syncStateSupport(support)
+        pointer.load(as: type).Java_syncStateSupport(support)
     }
 }
 
 public func Java_initDynamicAppStorage<V>(_ view: V, _ index: Int) -> AppStorageSupport {
     return withDynamicProperty(view, index) { accessor, pointer in
         guard case .appStorage(let type) = accessor else { fatalError("Property \(index) of \(V.self) is not app storage") }
-        return load(type, pointer).Java_initStateSupport()
+        return pointer.load(as: type).Java_initStateSupport()
     }
 }
 
 public func Java_syncDynamicAppStorage<V>(_ view: V, _ index: Int, _ support: AppStorageSupport) {
     withDynamicProperty(view, index) { accessor, pointer in
         guard case .appStorage(let type) = accessor else { fatalError("Property \(index) of \(V.self) is not app storage") }
-        load(type, pointer).Java_syncStateSupport(support)
+        pointer.load(as: type).Java_syncStateSupport(support)
     }
 }
 
 public func Java_dynamicEnvironmentKey<V>(_ view: V, _ index: Int) -> String {
     return withDynamicProperty(view, index) { accessor, pointer in
         guard case .environment(let type) = accessor else { fatalError("Property \(index) of \(V.self) is not environment") }
-        return load(type, pointer).key
+        return pointer.load(as: type).key
     }
 }
 
 public func Java_syncDynamicEnvironment<V>(_ view: V, _ index: Int, _ support: EnvironmentSupport?) {
     withDynamicProperty(view, index) { accessor, pointer in
         guard case .environment(let type) = accessor else { fatalError("Property \(index) of \(V.self) is not environment") }
-        load(type, pointer).Java_syncEnvironmentSupport(support)
+        pointer.load(as: type).Java_syncEnvironmentSupport(support)
     }
 }
 #endif
