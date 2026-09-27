@@ -16,7 +16,11 @@ import SkipUI
 @_spi(Reflection) import Swift
 
 private func forEachField(of type: Any.Type, body: (_ offset: Int, _ fieldType: Any.Type) -> Void) {
-    _ = _forEachField(of: type) { _, offset, fieldType, _ in
+    // `_forEachField` visits nothing unless `.classType` matches whether `type` is a class. That
+    // option is a stdlib `static var`, which strict concurrency won't let us read, so spell it
+    // by its raw value.
+    let options = type is AnyObject.Type ? _EachFieldOptions(rawValue: 1 << 0) : []
+    _ = _forEachField(of: type, options: options) { _, offset, fieldType, _ in
         body(offset, fieldType)
         return true
     }
