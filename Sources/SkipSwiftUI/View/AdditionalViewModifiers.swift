@@ -694,6 +694,19 @@ extension View {
         }
     }
 
+    nonisolated public func headerProminence(_ prominence: Prominence) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.headerProminence(bridgedIncreased: prominence == .increased)
+        }
+    }
+
+    /// Prevents this `List` row from being selected.
+    nonisolated public func selectionDisabled(_ isDisabled: Bool = true) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.selectionDisabled(isDisabled)
+        }
+    }
+
     /* @inlinable */ nonisolated public func badgeProminence(_ prominence: BadgeProminence) -> some View {
         return ModifierView(target: self) {
             $0.Java_viewOrEmpty.badgeProminence(bridgedRawValue: prominence.rawValue)
