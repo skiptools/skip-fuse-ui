@@ -73,19 +73,37 @@ public struct SearchSuggestionsPlacement : Equatable, Sendable {
 }
 
 public struct SearchUnavailableContent {
-    @available(*, unavailable)
     public struct Label : View {
+        let text: String?
+
         public typealias Body = Never
     }
 
-    @available(*, unavailable)
     public struct Description : View {
         public typealias Body = Never
     }
 
-    @available(*, unavailable)
     public struct Actions : View {
         public typealias Body = Never
+    }
+}
+
+extension SearchUnavailableContent.Label : SkipUIBridging {
+    public var Java_view: any SkipUI.View {
+        let title = text.map { "No Results for \u{201C}\($0)\u{201D}" } ?? "No Results"
+        return SkipSwiftUI.Label(title, systemImage: "magnifyingglass").Java_view
+    }
+}
+
+extension SearchUnavailableContent.Description : SkipUIBridging {
+    public var Java_view: any SkipUI.View {
+        return Text("Check the spelling or try a new search.").Java_view
+    }
+}
+
+extension SearchUnavailableContent.Actions : SkipUIBridging {
+    public var Java_view: any SkipUI.View {
+        return SkipUI.EmptyView()
     }
 }
 
@@ -97,7 +115,7 @@ public struct FindContext : Sendable {
 extension View {
     nonisolated public func searchable(text: Binding<String>, placement: SearchFieldPlacement = .automatic, prompt: Text? = nil) -> some View {
         return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.searchable(getText: text.get, setText: text.set, prompt: prompt?.Java_view as? SkipUI.Text)
+            $0.Java_viewOrEmpty.searchable(getText: text.get, setText: text.set, prompt: prompt?.Java_view as? SkipUI.Text, bridgedPlacement: placement.identifier)
         }
     }
 
