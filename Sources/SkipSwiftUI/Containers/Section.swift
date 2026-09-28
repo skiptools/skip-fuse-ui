@@ -7,11 +7,18 @@ public struct Section<Parent, Content, Footer> {
     private let content: Content
     private let header: Parent?
     private let footer: Footer?
+    private var isExpanded: Binding<Bool>? = nil
 }
 
 extension Section : SkipUIBridging {
     public var Java_view: any SkipUI.View {
-        return SkipUI.Section(bridgedContent: (content as? SkipUIBridging)?.Java_view ?? SkipUI.EmptyView(), bridgedHeader: (header as? SkipUIBridging)?.Java_view, bridgedFooter: (footer as? SkipUIBridging)?.Java_view)
+        let bridgedContent = (content as? SkipUIBridging)?.Java_view ?? SkipUI.EmptyView()
+        let bridgedHeader = (header as? SkipUIBridging)?.Java_view
+        let bridgedFooter = (footer as? SkipUIBridging)?.Java_view
+        guard let isExpanded else {
+            return SkipUI.Section(bridgedContent: bridgedContent, bridgedHeader: bridgedHeader, bridgedFooter: bridgedFooter)
+        }
+        return SkipUI.Section(bridgedContent: bridgedContent, bridgedHeader: bridgedHeader, bridgedFooter: bridgedFooter, getExpanded: { isExpanded.wrappedValue }, setExpanded: { isExpanded.wrappedValue = $0 })
     }
 }
 
@@ -72,26 +79,26 @@ extension Section where Parent == Text, Content : View, Footer == EmptyView {
 }
 
 extension Section where Parent == Text, Content : View, Footer == EmptyView {
-    @available(*, unavailable)
     public init(_ titleKey: LocalizedStringKey, isExpanded: Binding<Bool>, @ViewBuilder content: () -> Content) {
-        fatalError()
+        self.init(titleKey, content: content)
+        self.isExpanded = isExpanded
     }
 
-    @available(*, unavailable)
     @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, isExpanded: Binding<Bool>, @ViewBuilder content: () -> Content) {
-        fatalError()
+        self.init(titleResource, content: content)
+        self.isExpanded = isExpanded
     }
 
-    @available(*, unavailable)
     @_disfavoredOverload public init<S>(_ title: S, isExpanded: Binding<Bool>, @ViewBuilder content: () -> Content) where S : StringProtocol {
-        fatalError()
+        self.init(title, content: content)
+        self.isExpanded = isExpanded
     }
 }
 
 extension Section where Parent : View, Content : View, Footer == EmptyView {
-    @available(*, unavailable)
     public init(isExpanded: Binding<Bool>, @ViewBuilder content: () -> Content, @ViewBuilder header: () -> Parent) {
-        fatalError()
+        self.init(content: content, header: header)
+        self.isExpanded = isExpanded
     }
 }
 
