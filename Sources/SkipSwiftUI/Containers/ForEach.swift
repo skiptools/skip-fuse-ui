@@ -11,6 +11,7 @@ public struct ForEach<Data, ID, Content> : ForEachProtocol where Data : RandomAc
 
     var onDelete: ((IndexSet) -> Void)?
     var onMove: ((IndexSet, Int) -> Void)?
+    var onDrop: ForEachDropAction?
 }
 
 extension ForEach : SkipUIBridging {
@@ -31,6 +32,9 @@ extension ForEach : SkipUIBridging {
         if let onMove {
             forEach = forEach.onMoveArray(bridgedAction: { onMove(IndexSet($0), $1) })
         }
+        if let onDrop {
+            forEach = forEach.dropDestination(bridgedAccepts: onDrop.accepts, bridgedAction: onDrop.action)
+        }
         return forEach
     }
 }
@@ -38,6 +42,7 @@ extension ForEach : SkipUIBridging {
 protocol ForEachProtocol {
     var onDelete: ((IndexSet) -> Void)? { get set }
     var onMove: ((IndexSet, Int) -> Void)? { get set }
+    var onDrop: ForEachDropAction? { get set }
 }
 
 extension ForEach : DynamicViewContent where Content : View {

@@ -4,13 +4,27 @@ import SkipFuse
 import SkipUI
 
 public struct SearchFieldPlacement : Sendable {
-    public static let automatic = SearchFieldPlacement()
+    let identifier: Int // For bridging
+
+    public static let automatic = SearchFieldPlacement(identifier: 0)
 
     @available(*, unavailable)
-    public static let toolbar = SearchFieldPlacement()
+    public static let toolbar = SearchFieldPlacement(identifier: 1)
 
     @available(*, unavailable)
-    public static let sidebar = SearchFieldPlacement()
+    public static let sidebar = SearchFieldPlacement(identifier: 2)
+
+    public static let navigationBarDrawer = SearchFieldPlacement(identifier: 3)
+
+    /// With `.always`, the search field stays visible instead of scrolling away with the content.
+    public static func navigationBarDrawer(displayMode: SearchFieldPlacement.NavigationBarDrawerDisplayMode) -> SearchFieldPlacement {
+        return SearchFieldPlacement(identifier: displayMode == .always ? 4 : 3)
+    }
+
+    public enum NavigationBarDrawerDisplayMode : Sendable {
+        case automatic
+        case always
+    }
 }
 
 public struct SearchPresentationToolbarBehavior {
@@ -25,18 +39,18 @@ public struct SearchPresentationToolbarBehavior {
 }
 
 public struct SearchScopeActivation {
+    let identifier: Int // For bridging
+
     public static var automatic: SearchScopeActivation {
-        return  SearchScopeActivation()
+        return SearchScopeActivation(identifier: 0)
     }
 
-    @available(*, unavailable)
     public static var onTextEntry: SearchScopeActivation {
-        fatalError()
+        return SearchScopeActivation(identifier: 1)
     }
 
-    @available(*, unavailable)
     public static var onSearchPresentation: SearchScopeActivation {
-        fatalError()
+        return SearchScopeActivation(identifier: 2)
     }
 }
 
@@ -45,14 +59,12 @@ public struct SearchSuggestionsPlacement : Equatable, Sendable {
         return SearchSuggestionsPlacement()
     }
 
-    @available(*, unavailable)
     public static var menu: SearchSuggestionsPlacement {
-        fatalError()
+        return SearchSuggestionsPlacement()
     }
 
-    @available(*, unavailable)
     public static var content: SearchSuggestionsPlacement {
-        fatalError()
+        return SearchSuggestionsPlacement()
     }
 
     public struct Set : OptionSet, Sendable {
@@ -73,19 +85,37 @@ public struct SearchSuggestionsPlacement : Equatable, Sendable {
 }
 
 public struct SearchUnavailableContent {
-    @available(*, unavailable)
     public struct Label : View {
+        let text: String?
+
         public typealias Body = Never
     }
 
-    @available(*, unavailable)
     public struct Description : View {
         public typealias Body = Never
     }
 
-    @available(*, unavailable)
     public struct Actions : View {
         public typealias Body = Never
+    }
+}
+
+extension SearchUnavailableContent.Label : SkipUIBridging {
+    public var Java_view: any SkipUI.View {
+        let title = text.map { "No Results for \u{201C}\($0)\u{201D}" } ?? "No Results"
+        return SkipSwiftUI.Label(title, systemImage: "magnifyingglass").Java_view
+    }
+}
+
+extension SearchUnavailableContent.Description : SkipUIBridging {
+    public var Java_view: any SkipUI.View {
+        return Text("Check the spelling or try a new search.").Java_view
+    }
+}
+
+extension SearchUnavailableContent.Actions : SkipUIBridging {
+    public var Java_view: any SkipUI.View {
+        return SkipUI.EmptyView()
     }
 }
 
@@ -97,7 +127,7 @@ public struct FindContext : Sendable {
 extension View {
     nonisolated public func searchable(text: Binding<String>, placement: SearchFieldPlacement = .automatic, prompt: Text? = nil) -> some View {
         return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.searchable(getText: text.get, setText: text.set, prompt: prompt?.Java_view as? SkipUI.Text)
+            $0.Java_viewOrEmpty.searchable(getText: text.get, setText: text.set, prompt: prompt?.Java_view as? SkipUI.Text, bridgedPlacement: placement.identifier)
         }
     }
 
@@ -137,24 +167,59 @@ extension View {
 }
 
 extension View {
-    @available(*, unavailable)
     nonisolated public func searchable<S>(text: Binding<String>, placement: SearchFieldPlacement = .automatic, prompt: Text? = nil, @ViewBuilder suggestions: () -> S) -> some View where S : View {
-        stubView()
+        return searchable(text: text, placement: placement, prompt: prompt).searchSuggestions(suggestions)
     }
 
-    @available(*, unavailable)
     nonisolated public func searchable<S>(text: Binding<String>, placement: SearchFieldPlacement = .automatic, prompt: LocalizedStringKey, @ViewBuilder suggestions: () -> S) -> some View where S : View {
-        stubView()
+        return searchable(text: text, placement: placement, prompt: Text(prompt), suggestions: suggestions)
     }
 
-    @available(*, unavailable)
     @_disfavoredOverload nonisolated public func searchable<S>(text: Binding<String>, placement: SearchFieldPlacement = .automatic, prompt: AndroidLocalizedStringResource, @ViewBuilder suggestions: () -> S) -> some View where S : View {
-        stubView()
+        return searchable(text: text, placement: placement, prompt: Text(prompt), suggestions: suggestions)
     }
 
-    @available(*, unavailable)
     @_disfavoredOverload nonisolated public func searchable<V, S>(text: Binding<String>, placement: SearchFieldPlacement = .automatic, prompt: S, @ViewBuilder suggestions: () -> V) -> some View where V : View, S : StringProtocol {
-        stubView()
+        return searchable(text: text, placement: placement, prompt: Text(prompt), suggestions: suggestions)
+    }
+}
+
+extension View {
+    /// Suggestions replace a searchable `List`'s rows while its search field is focused.
+    nonisolated public func searchSuggestions<S>(@ViewBuilder _ suggestions: () -> S) -> some View where S : View {
+        let suggestions = suggestions()
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.searchSuggestions(bridgedSuggestions: suggestions.Java_viewOrEmpty)
+        }
+    }
+
+    nonisolated public func searchSuggestions(_ visibility: Visibility, for placements: SearchSuggestionsPlacement.Set) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.searchSuggestions(bridgedVisibility: visibility.rawValue, bridgedPlacements: placements.rawValue)
+        }
+    }
+
+    /// Tapping this suggestion replaces the search text with `completion` and submits the search.
+    nonisolated public func searchCompletion(_ completion: String) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.searchCompletion(completion)
+        }
+    }
+
+    nonisolated public func searchScopes<V, S>(_ scope: Binding<V>, @ViewBuilder scopes: () -> S) -> some View where V : Hashable, S : View {
+        return searchScopes(scope, activation: .automatic, scopes)
+    }
+
+    /// Scopes render as a segmented picker below the search field.
+    nonisolated public func searchScopes<V, S>(_ scope: Binding<V>, activation: SearchScopeActivation, @ViewBuilder _ scopes: () -> S) -> some View where V : Hashable, S : View {
+        let scopes = scopes()
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.searchScopes(getScope: { Java_swiftHashable(for: scope.wrappedValue) }, setScope: {
+                if let value: V = Java_bridgedTagValue($0) {
+                    scope.wrappedValue = value
+                }
+            }, bridgedActivation: activation.identifier, bridgedScopes: scopes.Java_viewOrEmpty)
+        }
     }
 }
 
