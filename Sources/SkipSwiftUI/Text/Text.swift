@@ -19,8 +19,10 @@ import SkipUI
         self.init(spec: TextSpec(verbatim: content))
     }
 
+    // SwiftUI documents this overload as displaying a stored string without localization,
+    // so the content must not be looked up in the string catalog again (#135).
     @_disfavoredOverload public init<S>(_ content: S) where S : StringProtocol {
-        self.init(spec: TextSpec(key: LocalizedStringKey(String(content))))
+        self.init(spec: TextSpec(verbatim: String(content)))
     }
 
     public static func == (lhs: Text, rhs: Text) -> Bool {
