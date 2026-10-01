@@ -483,9 +483,28 @@ extension View {
         }
     }
 
-    @available(*, unavailable)
+    nonisolated public func lineLimit(_ limit: PartialRangeFrom<Int>) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.lineLimit(bridgedMinimum: limit.lowerBound, maximum: nil)
+        }
+    }
+
+    nonisolated public func lineLimit(_ limit: PartialRangeThrough<Int>) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.lineLimit(bridgedMinimum: nil, maximum: limit.upperBound)
+        }
+    }
+
+    nonisolated public func lineLimit(_ limit: ClosedRange<Int>) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.lineLimit(bridgedMinimum: limit.lowerBound, maximum: limit.upperBound)
+        }
+    }
+
     nonisolated public func lineLimit(_ limit: Range<Int>) -> some View {
-        stubView()
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.lineLimit(bridgedMinimum: limit.lowerBound, maximum: limit.upperBound - 1)
+        }
     }
 
     nonisolated public func lineLimit(_ limit: Int, reservesSpace: Bool) -> some View {
