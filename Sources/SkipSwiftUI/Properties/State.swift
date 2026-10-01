@@ -44,6 +44,16 @@ import SkipBridge
 //extension State : Sendable where Value : Sendable {
 //}
 
+extension State : BridgedStateProperty {
+    public func Java_initStateSupport() -> StateSupport {
+        return valueBox.Java_initStateSupport()
+    }
+
+    public func Java_syncStateSupport(_ support: StateSupport) {
+        valueBox.Java_syncStateSupport(support)
+    }
+}
+
 extension State where Value : ExpressibleByNilLiteral {
     public init() {
         self.init(wrappedValue: nil)
