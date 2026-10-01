@@ -7,10 +7,14 @@ public struct Section<Parent, Content, Footer> {
     private let content: Content
     private let header: Parent?
     private let footer: Footer?
+    private var isExpanded: Binding<Bool>? = nil
 }
 
 extension Section : SkipUIBridging {
     public var Java_view: any SkipUI.View {
+        if let isExpanded {
+            return SkipUI.Section(getExpanded: { isExpanded.wrappedValue }, setExpanded: { isExpanded.wrappedValue = $0 }, bridgedContent: (content as? SkipUIBridging)?.Java_view ?? SkipUI.EmptyView(), bridgedHeader: (header as? SkipUIBridging)?.Java_view ?? SkipUI.EmptyView())
+        }
         return SkipUI.Section(bridgedContent: (content as? SkipUIBridging)?.Java_view ?? SkipUI.EmptyView(), bridgedHeader: (header as? SkipUIBridging)?.Java_view, bridgedFooter: (footer as? SkipUIBridging)?.Java_view)
     }
 }
@@ -72,26 +76,25 @@ extension Section where Parent == Text, Content : View, Footer == EmptyView {
 }
 
 extension Section where Parent == Text, Content : View, Footer == EmptyView {
-    @available(*, unavailable)
     public init(_ titleKey: LocalizedStringKey, isExpanded: Binding<Bool>, @ViewBuilder content: () -> Content) {
-        fatalError()
+        self.init(isExpanded: isExpanded, content: content, header: { Text(titleKey) })
     }
 
-    @available(*, unavailable)
     @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, isExpanded: Binding<Bool>, @ViewBuilder content: () -> Content) {
-        fatalError()
+        self.init(isExpanded: isExpanded, content: content, header: { Text(titleResource) })
     }
 
-    @available(*, unavailable)
     @_disfavoredOverload public init<S>(_ title: S, isExpanded: Binding<Bool>, @ViewBuilder content: () -> Content) where S : StringProtocol {
-        fatalError()
+        self.init(isExpanded: isExpanded, content: content, header: { Text(title) })
     }
 }
 
 extension Section where Parent : View, Content : View, Footer == EmptyView {
-    @available(*, unavailable)
     public init(isExpanded: Binding<Bool>, @ViewBuilder content: () -> Content, @ViewBuilder header: () -> Parent) {
-        fatalError()
+        self.content = content()
+        self.header = header()
+        self.footer = nil
+        self.isExpanded = isExpanded
     }
 }
 
