@@ -176,3 +176,29 @@ public struct ConditionalContentTestFixture: View {
         }
     }
 }
+
+/// Verifies that `androidEquatable` preserves full Swift equality when an `Identifiable` value
+/// changes without changing its ID.
+public struct AndroidEquatableIdentityTestFixture: View {
+    struct Model: Identifiable, Equatable {
+        let id: Int
+        var title: String
+    }
+
+    @State var model = Model(id: 1, title: "A")
+
+    public init() {
+    }
+
+    public var body: some View {
+        VStack {
+            Text(model.title)
+                .accessibilityIdentifier("android-equatable-identity-title")
+                .androidEquatable(recomposeOverride: model)
+            Button("update title") {
+                model.title = "B"
+            }
+            .accessibilityIdentifier("android-equatable-identity-update")
+        }
+    }
+}
