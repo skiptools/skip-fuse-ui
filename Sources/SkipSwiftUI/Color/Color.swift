@@ -67,6 +67,31 @@ enum ColorType : Hashable, Sendable {
     indirect case saturate(ColorSpec, Double)
 }
 
+extension ColorSpec {
+    var rgbaComponents: (red: Double, green: Double, blue: Double, opacity: Double)? {
+        guard let components = type.rgbaComponents else {
+            return nil
+        }
+        return (components.red, components.green, components.blue, components.opacity * opacity)
+    }
+}
+
+extension ColorType {
+    var rgbaComponents: (red: Double, green: Double, blue: Double, opacity: Double)? {
+        switch self {
+        case .rgb(let red, let green, let blue, let opacity):
+            return (red, green, blue, opacity)
+        case .w(let white, let opacity):
+            return (white, white, white, opacity)
+        case .hsb(let hue, let saturation, let brightness, let opacity):
+            let (red, green, blue) = Color.rgbFrom(h: hue, s: saturation, b: brightness)
+            return (red, green, blue, opacity)
+        default:
+            return nil
+        }
+    }
+}
+
 extension Color : View {
     public typealias Body = Never
 }
@@ -226,7 +251,7 @@ extension Color {
             self.init(spec: .init(.systemBackground))
             return
         }
-        self.init(spec: .init(.rgb(Double(uiColor.red), Double(uiColor.green), Double(uiColor.blue), Double(uiColor.alpha))))
+        self.init(spec: uiColor.colorSpec)
     }
 }
 
