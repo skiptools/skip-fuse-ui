@@ -42,16 +42,18 @@ public struct ScrollAnchorRole : Hashable, Sendable {
 }
 
 public struct ScrollBounceBehavior : Sendable {
+    let identifier: Int // For bridging
+
     public static var automatic: ScrollBounceBehavior {
-        return ScrollBounceBehavior()
+        return ScrollBounceBehavior(identifier: 0)
     }
 
     public static var always: ScrollBounceBehavior {
-        return ScrollBounceBehavior()
+        return ScrollBounceBehavior(identifier: 1)
     }
 
     public static var basedOnSize: ScrollBounceBehavior {
-        return ScrollBounceBehavior()
+        return ScrollBounceBehavior(identifier: 2)
     }
 }
 
@@ -86,14 +88,16 @@ public struct ScrollDismissesKeyboardMode : Hashable, Sendable {
 }
 
 public struct ScrollEdgeEffectStyle : Hashable, Sendable {
+    let identifier: Int // For bridging
+
     public static var automatic: ScrollEdgeEffectStyle {
-        return ScrollEdgeEffectStyle()
+        return ScrollEdgeEffectStyle(identifier: 0)
     }
     public static var hard: ScrollEdgeEffectStyle {
-        return ScrollEdgeEffectStyle()
+        return ScrollEdgeEffectStyle(identifier: 1)
     }
     public static var soft: ScrollEdgeEffectStyle {
-        return ScrollEdgeEffectStyle()
+        return ScrollEdgeEffectStyle(identifier: 2)
     }
 }
 
@@ -103,14 +107,13 @@ public struct ScrollGeometry : Equatable, Sendable {
     public var contentInsets = EdgeInsets()
     public var containerSize = CGSize()
 
-    @available(*, unavailable)
+    /// The content rectangle currently visible in the container.
     public var visibleRect: CGRect {
-        fatalError()
+        return CGRect(origin: contentOffset, size: containerSize)
     }
 
-    @available(*, unavailable)
     public var bounds: CGRect {
-        fatalError()
+        return CGRect(origin: CGPoint(x: -contentInsets.leading, y: -contentInsets.top), size: containerSize)
     }
 
     public init() {
@@ -121,6 +124,11 @@ public struct ScrollGeometry : Equatable, Sendable {
         self.contentSize = contentSize
         self.contentInsets = contentInsets
         self.containerSize = containerSize
+    }
+
+    /// Content offset, content size, insets (top, leading, bottom, trailing), and container size.
+    init(bridgedValues values: [Double]) {
+        self.init(contentOffset: CGPoint(x: values[0], y: values[1]), contentSize: CGSize(width: values[2], height: values[3]), contentInsets: EdgeInsets(top: values[4], leading: values[5], bottom: values[6], trailing: values[7]), containerSize: CGSize(width: values[8], height: values[9]))
     }
 }
 
@@ -444,25 +452,27 @@ extension ScrollTargetBehavior where Self == ViewAlignedScrollTargetBehavior {
 }
 
 public struct ScrollTransitionConfiguration : Sendable {
+    let identifier: Int // For bridging: 0 identity, 1 animated, 2 interactive
+
     public static func animated(_ animation: Animation = .default) -> ScrollTransitionConfiguration {
-        return ScrollTransitionConfiguration()
+        return .animated
     }
 
-    public static let animated = ScrollTransitionConfiguration()
+    public static let animated = ScrollTransitionConfiguration(identifier: 1)
 
     public static func interactive(timingCurve: UnitCurve = .easeInOut) -> ScrollTransitionConfiguration {
-        return ScrollTransitionConfiguration()
+        return .interactive
     }
 
-    public static let interactive = ScrollTransitionConfiguration()
-    public static let identity = ScrollTransitionConfiguration()
+    public static let interactive = ScrollTransitionConfiguration(identifier: 2)
+    public static let identity = ScrollTransitionConfiguration(identifier: 0)
 
     public func animation(_ animation: Animation) -> ScrollTransitionConfiguration {
-        return ScrollTransitionConfiguration()
+        return self
     }
 
     public func threshold(_ threshold: ScrollTransitionConfiguration.Threshold) -> ScrollTransitionConfiguration {
-        return ScrollTransitionConfiguration()
+        return self
     }
 }
 
@@ -580,9 +590,10 @@ extension View {
         return contentMargins(.all, length, for: placement)
     }
 
-    @available(*, unavailable)
     nonisolated public func scrollBounceBehavior(_ behavior: ScrollBounceBehavior, axes: Axis.Set = [.vertical]) -> some View {
-        stubView()
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.scrollBounceBehavior(bridgedBehavior: behavior.identifier)
+        }
     }
 
     @available(*, unavailable)
@@ -614,14 +625,64 @@ extension View {
         }
     }
 
-    @available(*, unavailable)
+    /// Briefly shows a `List`'s scroll indicator whenever `value` changes.
     nonisolated public func scrollIndicatorsFlash(trigger value: some Equatable) -> some View {
-        stubView()
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.scrollIndicatorsFlash(bridgedTrigger: Java_swiftEquatable(for: value), unusedp: nil)
+        }
     }
 
-    @available(*, unavailable)
+    /// Briefly shows a `List`'s scroll indicator when it appears.
     nonisolated public func scrollIndicatorsFlash(onAppear: Bool) -> some View {
-        stubView()
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.scrollIndicatorsFlash(onAppear: onAppear)
+        }
+    }
+
+    /// Treats a `List`'s content as it scrolls under an edge: `.soft` fades it out, `.hard` shows a crisp dividing edge.
+    nonisolated public func scrollEdgeEffectStyle(_ style: ScrollEdgeEffectStyle?, for edges: Edge.Set) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.scrollEdgeEffectStyle(bridgedStyle: style?.identifier, bridgedEdges: Int(edges.rawValue))
+        }
+    }
+
+    /// The initial scroll position of a `List`; `.bottom` starts at the end and stays there as rows are added.
+    nonisolated public func defaultScrollAnchor(_ anchor: UnitPoint?) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.defaultScrollAnchor(anchorX: anchor?.x, anchorY: anchor?.y)
+        }
+    }
+
+    /// Calls `action` when the value that `transform` derives from a `List`'s scroll geometry changes.
+    nonisolated public func onScrollGeometryChange<T>(for type: T.Type, of transform: @escaping (ScrollGeometry) -> T, action: @escaping (_ oldValue: T, _ newValue: T) -> Void) -> some View where T : Equatable {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.onScrollGeometryChange(bridgedTransform: { Java_swiftEquatable(for: transform(ScrollGeometry(bridgedValues: $0))) }, bridgedAction: { oldValue, newValue in
+                guard let oldValue = (oldValue as? SwiftEquatable)?.value as? T, let newValue = (newValue as? SwiftEquatable)?.value as? T else {
+                    return
+                }
+                action(oldValue, newValue)
+            })
+        }
+    }
+
+    /// Calls `action` when at least `threshold` of the view becomes visible, or stops being visible, in its scroll container.
+    nonisolated public func onScrollVisibilityChange(threshold: Double = 0.5, _ action: @escaping (Bool) -> Void) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.onScrollVisibilityChange(threshold: threshold, action)
+        }
+    }
+
+    /// Applies effects as the view scrolls into and out of its scroll container's visible region.
+    nonisolated public func scrollTransition(_ configuration: ScrollTransitionConfiguration = .interactive, axis: Axis? = nil, transition: @escaping (EmptyVisualEffect, ScrollTransitionPhase) -> some VisualEffect) -> some View {
+        return scrollTransition(topLeading: configuration, bottomTrailing: configuration, axis: axis, transition: transition)
+    }
+
+    nonisolated public func scrollTransition(topLeading: ScrollTransitionConfiguration, bottomTrailing: ScrollTransitionConfiguration, axis: Axis? = nil, transition: @escaping (EmptyVisualEffect, ScrollTransitionPhase) -> some VisualEffect) -> some View {
+        // Effects are resolved at each phase and interpolated in Compose
+        let effects: [Double] = [ScrollTransitionPhase.identity, .topLeading, .bottomTrailing].flatMap { (transition(EmptyVisualEffect(), $0) as? EmptyVisualEffect ?? EmptyVisualEffect()).bridgedValues }
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.scrollTransition(bridgedTopLeading: topLeading.identifier, bridgedBottomTrailing: bottomTrailing.identifier, bridgedAxis: Int(axis?.rawValue ?? Axis.vertical.rawValue), bridgedEffects: effects)
+        }
     }
 
     @available(*, unavailable)

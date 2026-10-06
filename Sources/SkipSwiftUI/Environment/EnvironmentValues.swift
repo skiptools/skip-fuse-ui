@@ -56,6 +56,17 @@ extension EnvironmentValues {
         case "colorScheme":
             let rawValue = bridgedValue as? Int
             return rawValue == nil ? ColorScheme.light : ColorScheme(rawValue: rawValue!) ?? .light
+        case "defaultMinListHeaderHeight":
+            return (bridgedValue as? Double).map { CGFloat($0) }
+        case "defaultMinListRowHeight":
+            return CGFloat(bridgedValue as? Double ?? 48.0)
+        case "editMode":
+            guard let editMode = bridgedValue as? SkipUI.EditModeBinding else {
+                return nil
+            }
+            return Binding<EditMode>(get: { EditMode(bridgedIndex: editMode.getMode()) }, set: { editMode.setMode($0.bridgedIndex) })
+        case "headerProminence":
+            return bridgedValue as? Bool == true ? Prominence.increased : Prominence.standard
         case "dismiss":
             let action = (bridgedValue as? SkipUI.DismissAction)?.action ?? { }
             let actionBox = UncheckedSendableBox(action)
@@ -146,6 +157,17 @@ extension EnvironmentValues {
             return (value as? any ShapeStyle)?.Java_view
         case "colorScheme":
             return (value as? ColorScheme)?.rawValue
+        case "defaultMinListHeaderHeight":
+            return (value as? CGFloat).map { Double($0) }
+        case "defaultMinListRowHeight":
+            return (value as? CGFloat).map { Double($0) }
+        case "editMode":
+            guard let editMode = value as? Binding<EditMode> else {
+                return nil
+            }
+            return SkipUI.EditModeBinding(getMode: { editMode.wrappedValue.bridgedIndex }, setMode: { editMode.wrappedValue = EditMode(bridgedIndex: $0) })
+        case "headerProminence":
+            return value as? Prominence == .increased
         case "dismiss":
             guard let action = (value as? DismissAction)?.action else {
                 return nil
@@ -240,7 +262,11 @@ extension EnvironmentValues {
         keys[\EnvironmentValues.autocorrectionDisabled] = "autocorrectionDisabled"
         keys[\EnvironmentValues.backgroundStyle] = "backgroundStyle"
         keys[\EnvironmentValues.colorScheme] = "colorScheme"
+        keys[\EnvironmentValues.defaultMinListHeaderHeight] = "defaultMinListHeaderHeight"
+        keys[\EnvironmentValues.defaultMinListRowHeight] = "defaultMinListRowHeight"
         keys[\EnvironmentValues.dismiss] = "dismiss"
+        keys[\EnvironmentValues.editMode] = "editMode"
+        keys[\EnvironmentValues.headerProminence] = "headerProminence"
         keys[\EnvironmentValues.font] = "font"
         keys[\EnvironmentValues.horizontalSizeClass] = "horizontalSizeClass"
         keys[\EnvironmentValues.isEnabled] = "isEnabled"
@@ -484,10 +510,26 @@ extension EnvironmentValues {
 }
 
 extension EnvironmentValues {
-    @available(*, unavailable)
-    public var headerProminence: Any /* Prominence */ {
+    public var headerProminence: Prominence {
         get { fatalError("Read via @Environment property wrapper") }
         set { fatalError("Set via dedicated View modifier") }
+    }
+}
+
+extension EnvironmentValues {
+    public var editMode: Binding<EditMode>? {
+        get { fatalError("Read via @Environment property wrapper") }
+        set { fatalError("Set via .environment(_:_:) View modifier") }
+    }
+
+    public var defaultMinListRowHeight: CGFloat {
+        get { fatalError("Read via @Environment property wrapper") }
+        set { fatalError("Set via .environment(_:_:) View modifier") }
+    }
+
+    public var defaultMinListHeaderHeight: CGFloat? {
+        get { fatalError("Read via @Environment property wrapper") }
+        set { fatalError("Set via .environment(_:_:) View modifier") }
     }
 }
 

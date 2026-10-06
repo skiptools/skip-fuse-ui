@@ -31,9 +31,9 @@ extension Toggle : SkipUIBridging {
 }
 
 extension Toggle where Label == ToggleStyleConfiguration.Label {
-    @available(*, unavailable)
     public init(_ configuration: ToggleStyleConfiguration) {
-        fatalError()
+        self.isOn = configuration.$isOn
+        self.label = configuration.label
     }
 }
 
@@ -89,22 +89,20 @@ extension Toggle where Label == SkipSwiftUI.Label<Text, Image> {
     }
 }
 
-//extension Toggle where Label == Label<Text, Image> {
-//    public init(_ titleKey: LocalizedStringKey, image: ImageResource, isOn: Binding<Bool>)
-//
-//    @_disfavoredOverload public init<S>(_ title: S, image: ImageResource, isOn: Binding<Bool>) where S : StringProtocol
-//
-//    public init<C>(_ titleKey: LocalizedStringKey, image: ImageResource, sources: C, isOn: KeyPath<C.Element, Binding<Bool>>) where C : RandomAccessCollection
-//
-//    public init<S, C>(_ title: S, image: ImageResource, sources: C, isOn: KeyPath<C.Element, Binding<Bool>>) where S : StringProtocol, C : RandomAccessCollection
-//}
-
 @MainActor @preconcurrency public protocol ToggleStyle {
     associatedtype Body : View
 
     @ViewBuilder @MainActor @preconcurrency func makeBody(configuration: Self.Configuration) -> Self.Body
 
     typealias Configuration = ToggleStyleConfiguration
+
+    nonisolated var identifier: Int { get } // For bridging
+}
+
+extension ToggleStyle {
+    nonisolated public var identifier: Int {
+        return -1 // Custom style
+    }
 }
 
 public struct ButtonToggleStyle : ToggleStyle {
@@ -116,6 +114,8 @@ public struct ButtonToggleStyle : ToggleStyle {
     @MainActor @preconcurrency public func makeBody(configuration: ButtonToggleStyle.Configuration) -> some View {
         stubView()
     }
+
+    public let identifier = 1 // For bridging
 }
 
 extension ToggleStyle where Self == ButtonToggleStyle {
@@ -129,9 +129,11 @@ public struct DefaultToggleStyle : ToggleStyle {
     public init() {
     }
 
-    @MainActor @preconcurrency public func makeBody(configuration: ButtonToggleStyle.Configuration) -> some View {
-        stubView()
+    @MainActor @preconcurrency public func makeBody(configuration: DefaultToggleStyle.Configuration) -> some View {
+        Toggle(configuration).toggleStyle(self)
     }
+
+    public let identifier = 0 // For bridging
 }
 
 extension ToggleStyle where Self == DefaultToggleStyle {
@@ -144,9 +146,11 @@ public struct SwitchToggleStyle : ToggleStyle {
     public init() {
     }
 
-    @MainActor @preconcurrency public func makeBody(configuration: ButtonToggleStyle.Configuration) -> some View {
-        stubView()
+    @MainActor @preconcurrency public func makeBody(configuration: SwitchToggleStyle.Configuration) -> some View {
+        Toggle(configuration).toggleStyle(self)
     }
+
+    public let identifier = 2 // For bridging
 }
 
 extension ToggleStyle where Self == SwitchToggleStyle {
@@ -156,8 +160,10 @@ extension ToggleStyle where Self == SwitchToggleStyle {
 }
 
 public struct ToggleStyleConfiguration {
-    public struct Label : View {
+    public struct Label {
         public typealias Body = Never
+
+        let Java_label: any SkipUI.View
     }
 
     public let label: ToggleStyleConfiguration.Label
@@ -165,11 +171,62 @@ public struct ToggleStyleConfiguration {
     @Binding public var isOn: Bool
 
     public var isMixed: Bool
+
+    init(Java_configuration: SkipUI.ToggleStyleBridgedConfiguration) {
+        let config = Java_configuration
+        self._isOn = Binding(get: { config.getIsOn() }, set: { config.setIsOn($0) })
+        self.label = Label(Java_label: Java_configuration.label)
+        self.isMixed = false
+    }
+}
+
+extension ToggleStyleConfiguration.Label : View, SkipUIBridging {
+    public var Java_view: any SkipUI.View {
+        return Java_label
+    }
 }
 
 extension View {
     nonisolated public func toggleStyle<S>(_ style: S) -> some View where S : ToggleStyle {
-        // Only automatic is @available, so safe to return self
-        return self
+        let identifier = style.identifier
+        let resolvedStyle = ResolvedToggleStyle(style) { style, Java_configuration in
+            style.makeBody(configuration: ToggleStyleConfiguration(Java_configuration: Java_configuration)).Java_viewOrEmpty
+        }
+        return ModifierView(target: self) {
+            guard identifier < 0 else {
+                return $0.Java_viewOrEmpty.toggleStyle(bridgedStyle: identifier)
+            }
+            return $0.Java_viewOrEmpty.toggleStyle(environmentKeys: resolvedStyle.environmentKeys, bridgedMakeBody: resolvedStyle.makeBody(Java_configuration:))
+        }
+    }
+}
+
+/// A natively-compiled `ToggleStyle` prepared for SkipUI.
+///
+/// SwiftUI resolves a style's dynamic properties before creating its body. Skip does not generate that resolution for
+/// styles, so the style's `@Environment` properties are synced from each toggle's Compose environment before its body
+/// is created.
+struct ResolvedToggleStyle<Style> : @unchecked Sendable {
+    /// The keys of the style's `@Environment` properties, which SkipUI reads at each toggle's position.
+    let environmentKeys: [String]
+    private let style: Style
+    private let makeStyleBody: @MainActor (Style, SkipUI.ToggleStyleBridgedConfiguration) -> any SkipUI.View
+
+    nonisolated init(_ style: Style, makeBody: @escaping @MainActor (Style, SkipUI.ToggleStyleBridgedConfiguration) -> any SkipUI.View) {
+        self.environmentKeys = Java_environmentKeys(of: style)
+        self.style = style
+        self.makeStyleBody = makeBody
+    }
+
+    /// Creates the style's body for a toggle.
+    ///
+    /// Styles are only used on the main thread during composition.
+    nonisolated func makeBody(Java_configuration: SkipUI.ToggleStyleBridgedConfiguration) -> any SkipUI.View {
+        let Java_configurationBox = UncheckedSendableBox(Java_configuration)
+        return assumeMainActorUnchecked {
+            let Java_configuration = Java_configurationBox.wrappedValue
+            Java_syncEnvironment(of: style) { Java_configuration.environmentSupport(forKey: $0) }
+            return UncheckedSendableBox(makeStyleBody(style, Java_configuration))
+        }.wrappedValue
     }
 }

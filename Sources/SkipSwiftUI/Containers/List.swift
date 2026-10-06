@@ -8,16 +8,48 @@ import SkipUI
 
 public struct List<SelectionValue, Content> where SelectionValue : Hashable, Content : View {
     private let content: Content
+    private var getSelection: (() -> Any?)? = nil
+    private var setSelection: ((Any?) -> Void)? = nil
 
-    @available(*, unavailable)
     public init(selection: Binding<Set<SelectionValue>>?, @ViewBuilder content: () -> Content) {
-        fatalError()
+        self.content = content()
+        bindSelection(selection)
     }
 
-    @available(*, unavailable)
     public init(selection: Binding<SelectionValue?>?, @ViewBuilder content: () -> Content) {
-        fatalError()
+        self.content = content()
+        bindSelection(selection)
     }
+
+    /// Bridge a `Set` selection as a `Set` of row tags.
+    private mutating func bindSelection(_ selection: Binding<Set<SelectionValue>>?) {
+        guard let selection else {
+            return
+        }
+        getSelection = { Set(selection.wrappedValue.map { Java_swiftHashable(for: $0) }) }
+        setSelection = { selection.wrappedValue = Java_bridgedTagValues($0) }
+    }
+
+    /// Bridge a single selection as its row tag.
+    private mutating func bindSelection(_ selection: Binding<SelectionValue?>?) {
+        guard let selection else {
+            return
+        }
+        getSelection = { selection.wrappedValue.map { Java_swiftHashable(for: $0) } }
+        setSelection = { selection.wrappedValue = Java_bridgedTagValue($0) }
+    }
+}
+
+/// Unwrap a row tag bridged back from Compose.
+func Java_bridgedTagValue<T>(_ tag: Any?) -> T? {
+    let base = (tag as? AnyHashable)?.base ?? tag
+    return (base as? SwiftHashable)?.base as? T ?? base as? T
+}
+
+/// Unwrap a `Set` of row tags bridged back from Compose.
+func Java_bridgedTagValues<T>(_ tags: Any?) -> Set<T> where T : Hashable {
+    let tags = tags as? Set<AnyHashable> ?? Set(tags as? [AnyHashable] ?? [])
+    return Set(tags.compactMap { Java_bridgedTagValue($0) })
 }
 
 extension List : View {
@@ -26,59 +58,49 @@ extension List : View {
 
 extension List : SkipUIBridging {
     public var Java_view: any SkipUI.View {
-        return SkipUI.List(bridgedContent: content.Java_viewOrEmpty)
+        return SkipUI.List(bridgedContent: content.Java_viewOrEmpty, getSelection: getSelection, setSelection: setSelection)
     }
 }
 
 extension List {
-    @available(*, unavailable)
     public init<Data, RowContent>(_ data: Data, selection: Binding<Set<SelectionValue>>?, @ViewBuilder rowContent: @escaping (Data.Element) -> RowContent) where Content == ForEach<Data, Data.Element.ID, RowContent>, Data : RandomAccessCollection, RowContent : View, Data.Element : Identifiable {
-        fatalError()
+        self.init(selection: selection) { ForEach(data, content: rowContent) }
     }
 
-    @available(*, unavailable)
-    public init<Data, RowContent>(_ data: Data, children: KeyPath<Data.Element, Data?>, selection: Binding<Set<SelectionValue>>?, @ViewBuilder rowContent: @escaping (Data.Element) -> RowContent) where /* Content == OutlineGroup<Data, Data.Element.ID, RowContent, RowContent, DisclosureGroup<RowContent, OutlineSubgroupChildren>>, */ Data : RandomAccessCollection, RowContent : View, Data.Element : Identifiable {
-        fatalError()
+    public init<Data, RowContent>(_ data: Data, children: KeyPath<Data.Element, Data?>, selection: Binding<Set<SelectionValue>>?, @ViewBuilder rowContent: @escaping (Data.Element) -> RowContent) where Content == OutlineGroup<Data, Data.Element.ID, RowContent, RowContent, DisclosureGroup<RowContent, OutlineSubgroupChildren>>, Data : RandomAccessCollection, RowContent : View, Data.Element : Identifiable {
+        self.init(selection: selection) { OutlineGroup(data, children: children, content: rowContent) }
     }
 
-    @available(*, unavailable)
     public init<Data, ID, RowContent>(_ data: Data, id: KeyPath<Data.Element, ID>, selection: Binding<Set<SelectionValue>>?, @ViewBuilder rowContent: @escaping (Data.Element) -> RowContent) where Content == ForEach<Data, ID, RowContent>, Data : RandomAccessCollection, ID : Hashable, RowContent : View {
-        fatalError()
+        self.init(selection: selection) { ForEach(data, id: id, content: rowContent) }
     }
 
-    @available(*, unavailable)
-    public init<Data, ID, RowContent>(_ data: Data, id: KeyPath<Data.Element, ID>, children: KeyPath<Data.Element, Data?>, selection: Binding<Set<SelectionValue>>?, @ViewBuilder rowContent: @escaping (Data.Element) -> RowContent) where /* Content == OutlineGroup<Data, ID, RowContent, RowContent, DisclosureGroup<RowContent, OutlineSubgroupChildren>>, */ Data : RandomAccessCollection, ID : Hashable, RowContent : View {
-        fatalError()
+    public init<Data, ID, RowContent>(_ data: Data, id: KeyPath<Data.Element, ID>, children: KeyPath<Data.Element, Data?>, selection: Binding<Set<SelectionValue>>?, @ViewBuilder rowContent: @escaping (Data.Element) -> RowContent) where Content == OutlineGroup<Data, ID, RowContent, RowContent, DisclosureGroup<RowContent, OutlineSubgroupChildren>>, Data : RandomAccessCollection, ID : Hashable, RowContent : View {
+        self.init(selection: selection) { OutlineGroup(data, id: id, children: children, content: rowContent) }
     }
 
-    @available(*, unavailable)
     public init<RowContent>(_ data: Range<Int>, selection: Binding<Set<SelectionValue>>?, @ViewBuilder rowContent: @escaping (Int) -> RowContent) where Content == ForEach<Range<Int>, Int, HStack<RowContent>>, RowContent : View {
-        fatalError()
+        self.init(selection: selection) { ForEach(data) { index in HStack { rowContent(index) } } }
     }
 
-    @available(*, unavailable)
     public init<Data, RowContent>(_ data: Data, selection: Binding<SelectionValue?>?, @ViewBuilder rowContent: @escaping (Data.Element) -> RowContent) where Content == ForEach<Data, Data.Element.ID, RowContent>, Data : RandomAccessCollection, RowContent : View, Data.Element : Identifiable {
-        fatalError()
+        self.init(selection: selection) { ForEach(data, content: rowContent) }
     }
 
-    @available(*, unavailable)
-    public init<Data, RowContent>(_ data: Data, children: KeyPath<Data.Element, Data?>, selection: Binding<SelectionValue?>?, @ViewBuilder rowContent: @escaping (Data.Element) -> RowContent) where /* Content == OutlineGroup<Data, Data.Element.ID, RowContent, RowContent, DisclosureGroup<RowContent, OutlineSubgroupChildren>>, */ Data : RandomAccessCollection, RowContent : View, Data.Element : Identifiable {
-        fatalError()
+    public init<Data, RowContent>(_ data: Data, children: KeyPath<Data.Element, Data?>, selection: Binding<SelectionValue?>?, @ViewBuilder rowContent: @escaping (Data.Element) -> RowContent) where Content == OutlineGroup<Data, Data.Element.ID, RowContent, RowContent, DisclosureGroup<RowContent, OutlineSubgroupChildren>>, Data : RandomAccessCollection, RowContent : View, Data.Element : Identifiable {
+        self.init(selection: selection) { OutlineGroup(data, children: children, content: rowContent) }
     }
 
-    @available(*, unavailable)
     public init<Data, ID, RowContent>(_ data: Data, id: KeyPath<Data.Element, ID>, selection: Binding<SelectionValue?>?, @ViewBuilder rowContent: @escaping (Data.Element) -> RowContent) where Content == ForEach<Data, ID, RowContent>, Data : RandomAccessCollection, ID : Hashable, RowContent : View {
-        fatalError()
+        self.init(selection: selection) { ForEach(data, id: id, content: rowContent) }
     }
 
-    @available(*, unavailable)
-    public init<Data, ID, RowContent>(_ data: Data, id: KeyPath<Data.Element, ID>, children: KeyPath<Data.Element, Data?>, selection: Binding<SelectionValue?>?, @ViewBuilder rowContent: @escaping (Data.Element) -> RowContent) where /* Content == OutlineGroup<Data, ID, RowContent, RowContent, DisclosureGroup<RowContent, OutlineSubgroupChildren>>, */ Data : RandomAccessCollection, ID : Hashable, RowContent : View {
-        fatalError()
+    public init<Data, ID, RowContent>(_ data: Data, id: KeyPath<Data.Element, ID>, children: KeyPath<Data.Element, Data?>, selection: Binding<SelectionValue?>?, @ViewBuilder rowContent: @escaping (Data.Element) -> RowContent) where Content == OutlineGroup<Data, ID, RowContent, RowContent, DisclosureGroup<RowContent, OutlineSubgroupChildren>>, Data : RandomAccessCollection, ID : Hashable, RowContent : View {
+        self.init(selection: selection) { OutlineGroup(data, id: id, children: children, content: rowContent) }
     }
 
-    @available(*, unavailable)
     public init<RowContent>(_ data: Range<Int>, selection: Binding<SelectionValue?>?, @ViewBuilder rowContent: @escaping (Int) -> RowContent) where Content == ForEach<Range<Int>, Int, RowContent>, RowContent : View {
-        fatalError()
+        self.init(selection: selection) { ForEach(data, content: rowContent) }
     }
 }
 
@@ -91,18 +113,16 @@ extension List where SelectionValue == Never {
         self.content = ForEach(data, content: rowContent)
     }
 
-    @available(*, unavailable)
-    public init<Data, RowContent>(_ data: Data, children: KeyPath<Data.Element, Data?>, @ViewBuilder rowContent: @escaping (Data.Element) -> RowContent) where /* Content == OutlineGroup<Data, Data.Element.ID, RowContent, RowContent, DisclosureGroup<RowContent, OutlineSubgroupChildren>>, */ Data : RandomAccessCollection, RowContent : View, Data.Element : Identifiable {
-        fatalError()
+    public init<Data, RowContent>(_ data: Data, children: KeyPath<Data.Element, Data?>, @ViewBuilder rowContent: @escaping (Data.Element) -> RowContent) where Content == OutlineGroup<Data, Data.Element.ID, RowContent, RowContent, DisclosureGroup<RowContent, OutlineSubgroupChildren>>, Data : RandomAccessCollection, RowContent : View, Data.Element : Identifiable {
+        self.content = OutlineGroup(data, children: children, content: rowContent)
     }
 
     public init<Data, ID, RowContent>(_ data: Data, id: KeyPath<Data.Element, ID>, @ViewBuilder rowContent: @escaping (Data.Element) -> RowContent) where Content == ForEach<Data, ID, RowContent>, Data : RandomAccessCollection, ID : Hashable, RowContent : View {
         self.content = ForEach(data, id: id, content: rowContent)
     }
 
-    @available(*, unavailable)
-    public init<Data, ID, RowContent>(_ data: Data, id: KeyPath<Data.Element, ID>, children: KeyPath<Data.Element, Data?>, @ViewBuilder rowContent: @escaping (Data.Element) -> RowContent) where /* Content == OutlineGroup<Data, ID, RowContent, RowContent, DisclosureGroup<RowContent, OutlineSubgroupChildren>>, */ Data : RandomAccessCollection, ID : Hashable, RowContent : View {
-        fatalError()
+    public init<Data, ID, RowContent>(_ data: Data, id: KeyPath<Data.Element, ID>, children: KeyPath<Data.Element, Data?>, @ViewBuilder rowContent: @escaping (Data.Element) -> RowContent) where Content == OutlineGroup<Data, ID, RowContent, RowContent, DisclosureGroup<RowContent, OutlineSubgroupChildren>>, Data : RandomAccessCollection, ID : Hashable, RowContent : View {
+        self.content = OutlineGroup(data, id: id, children: children, content: rowContent)
     }
 
     public init<RowContent>(_ data: Range<Int>, @ViewBuilder rowContent: @escaping (Int) -> RowContent) where Content == ForEach<Range<Int>, Int, RowContent>, RowContent : View {
@@ -213,25 +233,29 @@ extension List where SelectionValue == Never {
 }
 
 public struct ListSectionSpacing : Sendable {
-    public static let `default` = ListSectionSpacing()
+    let spacing: CGFloat? // nil for the default
 
-    public static let compact = ListSectionSpacing()
+    public static let `default` = ListSectionSpacing(spacing: nil)
+
+    public static let compact = ListSectionSpacing(spacing: 8.0)
 
     public static func custom(_ spacing: CGFloat) -> ListSectionSpacing {
-        return ListSectionSpacing()
+        return ListSectionSpacing(spacing: spacing)
     }
 }
 
 public struct ListItemTint : Sendable {
+    let color: Color?
+
     public static func fixed(_ tint: Color) -> ListItemTint {
-        return ListItemTint()
+        return ListItemTint(color: tint)
     }
 
     public static func preferred(_ tint: Color) -> ListItemTint {
-        return ListItemTint()
+        return ListItemTint(color: tint)
     }
 
-    public static let monochrome = ListItemTint()
+    public static let monochrome = ListItemTint(color: .secondary)
 }
 
 public protocol ListStyle {
@@ -258,40 +282,62 @@ extension ListStyle where Self == DefaultListStyle {
 }
 
 public struct SidebarListStyle : ListStyle {
-    @available(*, unavailable)
     public init() {
-        fatalError()
     }
+
+    public let identifier = 1 // For bridging
 }
 
 extension ListStyle where Self == SidebarListStyle {
-    @available(*, unavailable)
     public static var sidebar: SidebarListStyle {
-        fatalError()
+        return SidebarListStyle()
+    }
+}
+
+public struct InsetGroupedListStyle : ListStyle {
+    public init() {
+    }
+
+    public let identifier = 2 // For bridging
+}
+
+extension ListStyle where Self == InsetGroupedListStyle {
+    public static var insetGrouped: InsetGroupedListStyle {
+        return InsetGroupedListStyle()
+    }
+}
+
+public struct GroupedListStyle : ListStyle {
+    public init() {
+    }
+
+    public let identifier = 3 // For bridging
+}
+
+extension ListStyle where Self == GroupedListStyle {
+    public static var grouped: GroupedListStyle {
+        return GroupedListStyle()
     }
 }
 
 public struct InsetListStyle : ListStyle {
-    @available(*, unavailable)
     public init() {
-        fatalError()
     }
 
-    @available(*, unavailable)
+    /// - Note: Alternating row backgrounds are macOS-only and ignored.
     public init(alternatesRowBackgrounds: Bool) {
-        fatalError()
     }
+
+    public let identifier = 4 // For bridging
 }
 
 extension ListStyle where Self == InsetListStyle {
-    @available(*, unavailable)
     public static var inset: InsetListStyle {
-        fatalError()
+        return InsetListStyle()
     }
 
-    @available(*, unavailable)
     public static func inset(alternatesRowBackgrounds: Bool) -> InsetListStyle {
-        fatalError()
+        return InsetListStyle(alternatesRowBackgrounds: alternatesRowBackgrounds)
     }
 }
 
@@ -345,19 +391,42 @@ extension View {
         }
     }
 
-    @available(*, unavailable)
     nonisolated public func listRowSeparatorTint(_ color: Color?, edges: VerticalEdge.Set = .all) -> some View {
-        stubView()
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.listRowSeparatorTint(color?.Java_view as? SkipUI.Color, bridgedEdges: Int(edges.rawValue))
+        }
     }
 
-    @available(*, unavailable)
     nonisolated public func listSectionSeparator(_ visibility: Visibility, edges: VerticalEdge.Set = .all) -> some View {
-        stubView()
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.listSectionSeparator(bridgedVisibility: visibility.rawValue, bridgedEdges: Int(edges.rawValue))
+        }
     }
 
-    @available(*, unavailable)
     nonisolated public func listSectionSeparatorTint(_ color: Color?, edges: VerticalEdge.Set = .all) -> some View {
-        stubView()
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.listSectionSeparatorTint(color?.Java_view as? SkipUI.Color, bridgedEdges: Int(edges.rawValue))
+        }
+    }
+
+    nonisolated public func listSectionIndexVisibility(_ visibility: Visibility) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.listSectionIndexVisibility(bridgedVisibility: visibility.rawValue)
+        }
+    }
+
+    nonisolated public func sectionIndexLabel(_ label: Text?) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.sectionIndexLabel(label?.Java_view as? SkipUI.Text)
+        }
+    }
+
+    nonisolated public func sectionIndexLabel(_ label: LocalizedStringKey?) -> some View {
+        return sectionIndexLabel(label.map { Text($0) })
+    }
+
+    @_disfavoredOverload nonisolated public func sectionIndexLabel<S>(_ label: S?) -> some View where S : StringProtocol {
+        return sectionIndexLabel(label.map { Text($0) })
     }
 
     nonisolated public func listStyle<S>(_ style: S) -> some View where S : ListStyle {
@@ -366,9 +435,8 @@ extension View {
         }
     }
 
-    @available(*, unavailable)
     /* @inlinable */ nonisolated public func listItemTint(_ tint: ListItemTint?) -> some View {
-        stubView()
+        return listItemTint(tint?.color)
     }
 
     /* @inlinable */ nonisolated public func listItemTint(_ tint: Color?) -> some View {
@@ -377,24 +445,32 @@ extension View {
         }
     }
 
-    @available(*, unavailable)
     /* @inlinable */ nonisolated public func listRowInsets(_ insets: EdgeInsets?) -> some View {
-        stubView()
+        return ModifierView(target: self) {
+            // nil keeps the default insets
+            guard let insets else {
+                return $0.Java_viewOrEmpty
+            }
+            return $0.Java_viewOrEmpty.listRowInsets(top: insets.top, leading: insets.leading, bottom: insets.bottom, trailing: insets.trailing)
+        }
     }
 
-    @available(*, unavailable)
     /* @inlinable */ nonisolated public func listRowSpacing(_ spacing: CGFloat?) -> some View {
-        stubView()
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.listRowSpacing(spacing)
+        }
     }
 
-    @available(*, unavailable)
     /* @inlinable */ nonisolated public func listSectionSpacing(_ spacing: ListSectionSpacing) -> some View {
-        stubView()
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.listSectionSpacingValue(spacing.spacing)
+        }
     }
 
-    @available(*, unavailable)
     /* @inlinable */ nonisolated public func listSectionSpacing(_ spacing: CGFloat) -> some View {
-        stubView()
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.listSectionSpacingValue(spacing)
+        }
     }
 
     nonisolated public func swipeActions<T>(edge: HorizontalEdge = .trailing, allowsFullSwipe: Bool = true, @ViewBuilder content: () -> T) -> some View where T : View {

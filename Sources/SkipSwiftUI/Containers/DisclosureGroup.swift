@@ -52,7 +52,7 @@ extension DisclosureGroup where Label == Text {
         self.init(isExpanded: isExpanded, content: content, label: { Text(titleResource) })
     }
 
-    public init<S>(_ label: S, @ViewBuilder content: @escaping () -> Content) where S : StringProtocol {
+    @_disfavoredOverload public init<S>(_ label: S, @ViewBuilder content: @escaping () -> Content) where S : StringProtocol {
         self.init(content: content, label: { Text(label) })
     }
 

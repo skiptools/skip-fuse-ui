@@ -79,6 +79,60 @@ public struct CounterTestFixture: View {
     }
 }
 
+/// Sample: a custom `ButtonStyle` whose body reads `@Environment(\.isEnabled)` declared on the style
+/// itself, and a `PrimitiveButtonStyle` that wraps `Button(configuration)` — verifies bridged style
+/// bodies, actions routed through both style kinds, and environment syncing into non-view types.
+public struct ButtonStyleTestFixture: View {
+    @State var count = 0
+    @State var isDisabled = false
+
+    public init() {
+    }
+
+    public var body: some View {
+        VStack {
+            Text("count: \(count)")
+                .accessibilityIdentifier("style-counter-label")
+            Button("styled") {
+                count += 1
+            }
+            .buttonStyle(SampleButtonStyle())
+            .disabled(isDisabled)
+            .accessibilityIdentifier("styled-button")
+            Button("primitive") {
+                count += 10
+            }
+            .buttonStyle(SamplePrimitiveButtonStyle())
+            .accessibilityIdentifier("primitive-button")
+            Button("disable") {
+                isDisabled.toggle()
+            }
+            .accessibilityIdentifier("disable-button")
+        }
+    }
+}
+
+struct SampleButtonStyle: ButtonStyle {
+    @Environment(\.isEnabled) var isEnabled
+
+    func makeBody(configuration: Configuration) -> some View {
+        HStack {
+            configuration.label
+            Text(isEnabled ? "enabled" : "disabled")
+                .accessibilityIdentifier("styled-button-state")
+        }
+        .padding()
+        .opacity(configuration.isPressed ? 0.5 : 1.0)
+    }
+}
+
+struct SamplePrimitiveButtonStyle: PrimitiveButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        Button(configuration)
+            .padding()
+    }
+}
+
 /// Observable model for the `@Observable` provenance samples.
 @available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
 @Observable
