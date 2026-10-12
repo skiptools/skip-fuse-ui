@@ -10,6 +10,10 @@ public struct TextField<Label> where Label : View {
     private let label: Label
     private var selection: Binding<TextSelection?>? = nil
     private var axis = Axis.horizontal
+    /// Whether `text` renders a value through a format. Such a binding reads back the formatted
+    /// value rather than what was typed ("7." reads "7"), so SkipUI keeps the typed text while the
+    /// field has focus, and shows and writes back the formatted value when focus leaves.
+    private var formatsValue = false
 }
 
 extension TextField : View {
@@ -18,7 +22,7 @@ extension TextField : View {
 
 extension TextField : SkipUIBridging {
     public var Java_view: any SkipUI.View {
-        return SkipUI.TextField(getText: { text.wrappedValue }, setText: { text.wrappedValue = $0 }, getSelection: { selection?.wrappedValue }, setSelection: { selection?.wrappedValue = $0 }, prompt: prompt?.Java_view as? SkipUI.Text, isSecure: false, bridgedAxis: Int(axis.rawValue), bridgedLabel: label.Java_viewOrEmpty)
+        return SkipUI.TextField(getText: { text.wrappedValue }, setText: { text.wrappedValue = $0 }, getSelection: { selection?.wrappedValue }, setSelection: { selection?.wrappedValue = $0 }, prompt: prompt?.Java_view as? SkipUI.Text, isSecure: false, formatsValue: formatsValue, bridgedAxis: Int(axis.rawValue), bridgedLabel: label.Java_viewOrEmpty)
     }
 }
 
@@ -70,36 +74,42 @@ extension TextField {
 extension TextField where Label == Text {
     public init<F>(_ titleKey: LocalizedStringKey, value: Binding<F.FormatInput?>, format: F, prompt: Text? = nil) where F : ParseableFormatStyle, F.FormatOutput == String {
         self.text = Self.text(from: value, format: format)
+        self.formatsValue = true
         self.label = Text(titleKey)
         self.prompt = prompt
     }
 
     @_disfavoredOverload public init<F>(_ titleResource: AndroidLocalizedStringResource, value: Binding<F.FormatInput?>, format: F, prompt: Text? = nil) where F : ParseableFormatStyle, F.FormatOutput == String {
         self.text = Self.text(from: value, format: format)
+        self.formatsValue = true
         self.label = Text(titleResource)
         self.prompt = prompt
     }
 
     @_disfavoredOverload public init<S, F>(_ title: S, value: Binding<F.FormatInput?>, format: F, prompt: Text? = nil) where S : StringProtocol, F : ParseableFormatStyle, F.FormatOutput == String {
         self.text = Self.text(from: value, format: format)
+        self.formatsValue = true
         self.label = Text(title)
         self.prompt = prompt
     }
 
     public init<F>(_ titleKey: LocalizedStringKey, value: Binding<F.FormatInput>, format: F, prompt: Text? = nil) where F : ParseableFormatStyle, F.FormatOutput == String {
         self.text = Self.text(from: value, format: format)
+        self.formatsValue = true
         self.label = Text(titleKey)
         self.prompt = prompt
     }
 
     @_disfavoredOverload public init<F>(_ titleResource: AndroidLocalizedStringResource, value: Binding<F.FormatInput>, format: F, prompt: Text? = nil) where F : ParseableFormatStyle, F.FormatOutput == String {
         self.text = Self.text(from: value, format: format)
+        self.formatsValue = true
         self.label = Text(titleResource)
         self.prompt = prompt
     }
 
     @_disfavoredOverload public init<S, F>(_ title: S, value: Binding<F.FormatInput>, format: F, prompt: Text? = nil) where S : StringProtocol, F : ParseableFormatStyle, F.FormatOutput == String {
         self.text = Self.text(from: value, format: format)
+        self.formatsValue = true
         self.label = Text(title)
         self.prompt = prompt
     }
@@ -108,12 +118,14 @@ extension TextField where Label == Text {
 extension TextField {
     public init<F>(value: Binding<F.FormatInput?>, format: F, prompt: Text? = nil, @ViewBuilder label: () -> Label) where F : ParseableFormatStyle, F.FormatOutput == String {
         self.text = Self.text(from: value, format: format)
+        self.formatsValue = true
         self.label = label()
         self.prompt = prompt
     }
 
     public init<F>(value: Binding<F.FormatInput>, format: F, prompt: Text? = nil, @ViewBuilder label: () -> Label) where F : ParseableFormatStyle, F.FormatOutput == String {
         self.text = Self.text(from: value, format: format)
+        self.formatsValue = true
         self.label = label()
         self.prompt = prompt
     }

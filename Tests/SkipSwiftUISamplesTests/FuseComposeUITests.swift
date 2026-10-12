@@ -21,6 +21,10 @@ import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.width
 import androidx.compose.foundation.layout.Row
@@ -626,8 +630,8 @@ final class FuseComposeUITests: XCTestCase {
         #endif
     }
 
-    /// Text that does not parse leaves a `TextField(value:format:)` value alone, and text that
-    /// parses is written to it.
+    /// Text that does not parse leaves a `TextField(value:format:)` value alone and stays on
+    /// screen as typed while the field has focus, and text that parses is written to the value.
     func testFormattedTextFieldKeepsValueForUnparsableText() throws {
         #if !SKIP
         throw XCTSkip("Compose UI testing is Android-only")
@@ -637,13 +641,42 @@ final class FuseComposeUITests: XCTestCase {
             FormattedTextFieldTestFixture().Compose()
         }
         composeRule.waitForIdle()
+        composeRule.onNodeWithTag("dose-field").performClick()
         composeRule.onNodeWithTag("dose-field").performTextReplacement("")
         composeRule.waitForIdle()
         composeRule.onNodeWithTag("dose-value").assertTextEquals("dose: 7")
+        composeRule.onNodeWithTag("dose-field").assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("")))
+
+        composeRule.onNodeWithTag("dose-field").performTextReplacement("7.")
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("dose-value").assertTextEquals("dose: 7")
+        composeRule.onNodeWithTag("dose-field").assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("7.")))
 
         composeRule.onNodeWithTag("dose-field").performTextReplacement("12")
         composeRule.waitForIdle()
         composeRule.onNodeWithTag("dose-value").assertTextEquals("dose: 12")
+        #endif
+    }
+
+    /// A `TextField(value:format:)` cleared and left shows the value it still holds.
+    func testFormattedTextFieldShowsValueWhenFocusLeaves() throws {
+        #if !SKIP
+        throw XCTSkip("Compose UI testing is Android-only")
+        #else
+        try requireBridgedMainActor()
+        composeRule.setContent {
+            FormattedTextFieldTestFixture().Compose()
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("dose-field").performClick()
+        composeRule.onNodeWithTag("dose-field").performTextReplacement("")
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("dose-field").assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("")))
+
+        composeRule.onNodeWithTag("note-field").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("dose-value").assertTextEquals("dose: 7")
+        composeRule.onNodeWithTag("dose-field").assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("7")))
         #endif
     }
 }
