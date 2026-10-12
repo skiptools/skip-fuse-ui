@@ -15,6 +15,11 @@ import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.width
 import androidx.compose.foundation.layout.Row
@@ -517,6 +522,106 @@ final class FuseComposeUITests: XCTestCase {
         composeRule.onNodeWithTag("snap-button").performClick()
         composeRule.waitForIdle()
         composeRule.onNodeWithTag("animated-rect").assertWidthIsEqualTo(300.0.dp)
+        #endif
+    }
+
+    /// A Picker over a range starting at 5, identified by element and without tags, shows and
+    /// writes the elements 5...9.
+    func testForEachRangePickerSelectsElements() throws {
+        #if !SKIP
+        throw XCTSkip("Compose UI testing is Android-only")
+        #else
+        try requireBridgedMainActor()
+        composeRule.setContent {
+            ForEachRangePickerTestFixture().Compose()
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("n7").assertIsSelected()
+        composeRule.onNodeWithText("n5").assertIsNotSelected()
+
+        composeRule.onNodeWithText("n9").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("range-picker-selection").assertTextEquals("selection: 9")
+        composeRule.onNodeWithText("n9").assertIsSelected()
+
+        composeRule.onNodeWithText("n5").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("range-picker-selection").assertTextEquals("selection: 5")
+        #endif
+    }
+
+    /// A menu Picker over a range starting at 1 labels itself with the selected element and
+    /// writes the element that is picked.
+    func testForEachRangeMenuPickerSelectsElements() throws {
+        #if !SKIP
+        throw XCTSkip("Compose UI testing is Android-only")
+        #else
+        try requireBridgedMainActor()
+        composeRule.setContent {
+            ForEachRangeMenuPickerTestFixture().Compose()
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("count 3").assertIsDisplayed()
+        composeRule.onNodeWithText("count 3").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("count 10").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("range-menu-picker-selection").assertTextEquals("selection: 10")
+        #endif
+    }
+
+    /// ForEach renders a range starting at 5, closed ranges, reversed arrays, slices and
+    /// enumerations, none of whose indices is an `Int` counted from zero.
+    func testForEachCollectionsRender() throws {
+        #if !SKIP
+        throw XCTSkip("Compose UI testing is Android-only")
+        #else
+        try requireBridgedMainActor()
+        composeRule.setContent {
+            ForEachCollectionsTestFixture().Compose()
+        }
+        composeRule.waitForIdle()
+        for text in ["range 5", "range 6", "closed 1", "closed 3", "reversed e", "reversed a", "slice d", "slice e", "pair 0 a", "pair 4 e"] {
+            composeRule.onNodeWithText(text).assertExists()
+        }
+        composeRule.onNodeWithText("slice c").assertDoesNotExist()
+        composeRule.onNodeWithText("range 7").assertDoesNotExist()
+        #endif
+    }
+
+    /// Two sibling ForEach ranges over the same numbers render side by side in one List.
+    func testForEachSiblingRangesInList() throws {
+        #if !SKIP
+        throw XCTSkip("Compose UI testing is Android-only")
+        #else
+        try requireBridgedMainActor()
+        composeRule.setContent {
+            ForEachSiblingRangesTestFixture().Compose()
+        }
+        composeRule.waitForIdle()
+        for text in ["first 0", "first 1", "second 0", "second 1"] {
+            composeRule.onNodeWithText(text).assertExists()
+        }
+        #endif
+    }
+
+    /// Swiping to delete a row of a slice that starts at index 2 reports the row's offset from
+    /// the first row, as SwiftUI does.
+    func testForEachSliceDeleteReportsOffsets() throws {
+        #if !SKIP
+        throw XCTSkip("Compose UI testing is Android-only")
+        #else
+        try requireBridgedMainActor()
+        composeRule.setContent {
+            ForEachSliceDeleteTestFixture().Compose()
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("row d").performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("slice-delete-log").assertTextEquals("deleted: 1")
+        composeRule.onNodeWithText("row d").assertDoesNotExist()
+        composeRule.onNodeWithText("row c").assertExists()
+        composeRule.onNodeWithText("row e").assertExists()
         #endif
     }
 }

@@ -8,6 +8,8 @@ public struct ForEach<Data, ID, Content> : ForEachProtocol where Data : RandomAc
     public let data: Data
     public let content : (Data.Element) -> Content
     private let id: ((Data.Element) -> SwiftHashable)?
+    /// The index SkipUI gives the first element; the rest follow by position.
+    private var firstIndex = 0
 
     var onDelete: ((IndexSet) -> Void)?
     var onMove: ((IndexSet, Int) -> Void)?
@@ -15,14 +17,23 @@ public struct ForEach<Data, ID, Content> : ForEachProtocol where Data : RandomAc
 
 extension ForEach : SkipUIBridging {
     public var Java_view: any SkipUI.View {
+        // SkipUI walks rows by Int index from `firstIndex` up, and reports onDelete and onMove as
+        // offsets from the first row, as SwiftUI does. A collection's own index never crosses the
+        // bridge: it need not be an Int (`ClosedRange`, `enumerated()`, `reversed()`) or start at
+        // zero (a slice). Identified data tags each row with its element's ID. A `Range<Int>`
+        // starts at its lower bound, so each row's index is its element, which SkipUI uses as the
+        // row's tag, as in its own range ForEach.
+        let data = self.data
+        let firstIndex = self.firstIndex
+        let element: (Int) -> Data.Element = { data[data.index(data.startIndex, offsetBy: $0 - firstIndex)] }
         let indexedIdentifier: ((Int) -> SwiftHashable)?
         if let id {
-            indexedIdentifier = { Java_swiftHashable(for: id(data[$0 as! Data.Index])) }
+            indexedIdentifier = { id(element($0)) }
         } else {
             indexedIdentifier = nil
         }
-        var forEach = SkipUI.ForEach(startIndex: { data.startIndex as! Int }, endIndex: { data.endIndex as! Int }, identifier: indexedIdentifier, bridgedContent: {
-            let view = content(data[$0 as! Data.Index])
+        var forEach = SkipUI.ForEach(startIndex: { firstIndex }, endIndex: { firstIndex + data.count }, identifier: indexedIdentifier, bridgedContent: {
+            let view = content(element($0))
             return (view as? SkipUIBridging)?.Java_view ?? SkipUI.EmptyView()
         })
         if let onDelete {
@@ -90,6 +101,7 @@ extension ForEach where Data == Range<Int>, ID == Int, Content : View {
         self.data = data
         self.content = content
         self.id = nil
+        self.firstIndex = data.lowerBound
         self.onDelete = nil
         self.onMove = nil
     }
