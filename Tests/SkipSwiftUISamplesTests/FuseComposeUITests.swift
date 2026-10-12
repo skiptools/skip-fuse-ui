@@ -20,6 +20,7 @@ import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.width
 import androidx.compose.foundation.layout.Row
@@ -622,6 +623,27 @@ final class FuseComposeUITests: XCTestCase {
         composeRule.onNodeWithText("row d").assertDoesNotExist()
         composeRule.onNodeWithText("row c").assertExists()
         composeRule.onNodeWithText("row e").assertExists()
+        #endif
+    }
+
+    /// Text that does not parse leaves a `TextField(value:format:)` value alone, and text that
+    /// parses is written to it.
+    func testFormattedTextFieldKeepsValueForUnparsableText() throws {
+        #if !SKIP
+        throw XCTSkip("Compose UI testing is Android-only")
+        #else
+        try requireBridgedMainActor()
+        composeRule.setContent {
+            FormattedTextFieldTestFixture().Compose()
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("dose-field").performTextReplacement("")
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("dose-value").assertTextEquals("dose: 7")
+
+        composeRule.onNodeWithTag("dose-field").performTextReplacement("12")
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("dose-value").assertTextEquals("dose: 12")
         #endif
     }
 }

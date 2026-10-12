@@ -202,3 +202,20 @@ public struct AndroidEquatableIdentityTestFixture: View {
         }
     }
 }
+
+/// Sample: a number field bound to an `Int` through `TextField(value:format:)`.
+public struct FormattedTextFieldTestFixture: View {
+    @State var dose = 7
+
+    public init() {
+    }
+
+    public var body: some View {
+        VStack {
+            TextField("Dose", value: $dose, format: .number)
+                .accessibilityIdentifier("dose-field")
+            Text("dose: \(dose)")
+                .accessibilityIdentifier("dose-value")
+        }
+    }
+}

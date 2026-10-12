@@ -41,8 +41,15 @@ extension TextField {
 
     private static func text<F>(from value: Binding<F.FormatInput>, format: F) -> Binding<String> where F : ParseableFormatStyle, F.FormatOutput == String {
         let getText: (F.FormatInput) -> String = { format.format($0) }
-        let setText: (String) -> F.FormatInput = { try! format.parseStrategy.parse($0) }
-        return Binding<String>(get: { getText(value.wrappedValue) }, set: { value.wrappedValue = setText($0) })
+        // As in SwiftUI, text that does not parse (an emptied field, a lone "-") keeps the last
+        // value; a `try!` here kills the app on the first keystroke that clears the field. Every
+        // value that parses is written, even one that formats like the current value: a format
+        // can drop precision, so "1.2" and 1.1 both read "1" with no fraction digits.
+        return Binding<String>(get: { getText(value.wrappedValue) }, set: { text in
+            if let input = try? format.parseStrategy.parse(text) {
+                value.wrappedValue = input
+            }
+        })
     }
 
     // Error: Cannot find AutoreleasingUnsafeMutablePointer in scope
