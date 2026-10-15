@@ -108,6 +108,46 @@ When Swift code writes to a `@State` property, the `BridgedStateBox` notifies Co
 
 `@Observable` types require `import SkipFuse` to enable this state tracking. See the [App Development](https://skip.dev/docs/app-development/#ui) guide for details.
 
+### Android Recomposition Controls
+
+Both modifiers can prevent unnecessary Android updates, but they provide different behavior. In SwiftUI terms, `androidEquatable` is an update gate, while `androidCompositionBoundary` gives a subtree its own retained identity and lifecycle.
+
+| Modifier | SwiftUI mental model | Use when |
+| --- | --- | --- |
+| `androidEquatable` | Similar to `EquatableView`: while the supplied value remains equal, Skip does not reevaluate the wrapped content. The subtree keeps the identity and lifecycle provided by its existing parent. | The subtree can update as a unit and reevaluating it is expensive. |
+| `androidCompositionBoundary` | Similar to placing the subtree in its own retained hosting container. Its `id` defines the container's identity and lifecycle. | The subtree needs an independently retained lifecycle, such as a WebView, map, or video surface. |
+
+Use `androidEquatable` with a value containing every external input that affects the view:
+
+```swift
+ComplexMetadataPanel(movie: movie)
+    .androidEquatable(recomposeOverride: movie)
+```
+
+If `movie` remains equal, the panel is not reevaluated. If it changes, the panel is reevaluated inside its existing parent view hierarchy. This modifier does not create a new identity or lifecycle.
+
+Use `androidCompositionBoundary` when the subtree should have its own retained identity and lifecycle:
+
+```swift
+BrowserView(url: url)
+    .androidCompositionBoundary(
+        id: "browser",
+        inputs: url.absoluteString
+    )
+```
+
+Think of `id` like SwiftUI view identity and `inputs` as the values used to update that identified view:
+
+- Same `id`, same `inputs`: reuse the existing host without reevaluating or re-bridging its content.
+- Same `id`, changed `inputs`: update the content inside the existing host, preserving its identity and lifecycle.
+- Changed `id`, or removal from the hierarchy: dispose the old host and its state, then create a new one if needed.
+
+State owned inside the boundary can update independently without changing `inputs`. On Apple platforms, `androidCompositionBoundary` returns the original view unchanged.
+
+The boundary inherits the current Compose composition locals, including bridged SwiftUI environment values. It is a composition and lifecycle boundary, not a layout boundary: modifiers and constraints outside the boundary continue to measure the same retained host and child. Resizing native-backed content therefore does not recreate or re-bridge it, but it still changes the native view's measured bounds.
+
+Avoid stacking both modifiers around the same subtree without a measured need. An unchanged composition boundary already prevents its child projection from being reevaluated and re-bridged.
+
 ## What SkipFuseUI Covers
 
 SkipFuseUI mirrors the SwiftUI API surface for iOS 16+, including:
@@ -125,6 +165,8 @@ SkipFuseUI mirrors the SwiftUI API surface for iOS 16+, including:
 - **UIKit compatibility**: `UIApplication`, `UIColor`, `UIImage`, `UIPasteboard`
 
 For the full list of supported SwiftUI components, see the [SkipUI documentation](https://skip.dev/docs/modules/skip-ui/#supported-swiftui).
+
+`simultaneousGesture` support follows SkipUI's current Android limitations: it can observe supported gestures on the same rendered view, including drag observation while scroll views continue scrolling, but only `.all` and `.none` have meaningful mask behavior. `.gesture` and `.subviews` masks are not distinguished.
 
 ### Text Selection
 
