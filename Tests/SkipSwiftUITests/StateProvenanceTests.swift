@@ -91,5 +91,100 @@ import XCTest
         XCTAssertNotNil(StateProvenance.captureLastReadAndClear())
         XCTAssertNil(StateProvenance.captureLastReadAndClear())
     }
+
+    /// An unchanged source must not lend its old animation to a later plain drag update.
+    /// A successful composition consumes the stamp; no timer or animation completion is needed.
+    func testUnchangedAnimatedSourceDoesNotAnimateLaterPlainDrag() {
+        let anchor = BridgedStateBox(0.0, comparator: ==)
+        let drag = BridgedStateBox(0.0, comparator: ==)
+        StateProvenance.pushAnimation(.linear(duration: 0.5))
+        anchor.value = 20
+        StateProvenance.popAnimation()
+        _ = anchor.value + drag.value
+        let initial = StateProvenance.capture()
+        XCTAssertNotNil(initial.animation)
+        initial.didApply()
+
+        drag.value = 40
+        _ = drag.value + anchor.value
+        XCTAssertNil(StateProvenance.captureLastReadAndClear())
+    }
+
+    func testSiblingCapturesSurviveFirstAcknowledgement() {
+        let box = animatedBox()
+        _ = box.value
+        let first = StateProvenance.capture()
+        _ = box.value
+        let second = StateProvenance.capture()
+        XCTAssertNotNil(first.animation)
+        XCTAssertNotNil(second.animation)
+        first.didApply()
+        XCTAssertNotNil(second.animation, "A captured sibling still needs its immutable animation")
+        second.didApply()
+        _ = box.value
+        XCTAssertNil(StateProvenance.capture().animation)
+    }
+
+    func testUnappliedCaptureDoesNotConsumeStamp() {
+        let box = animatedBox()
+        _ = box.value
+        _ = StateProvenance.capture() // Abandoned composition: no acknowledgement.
+        _ = box.value
+        XCTAssertNotNil(StateProvenance.capture().animation)
+    }
+
+    func testOldAcknowledgementCannotExpireNewWriteWithSameAnimation() {
+        let box = animatedBox()
+        _ = box.value
+        let old = StateProvenance.capture()
+        StateProvenance.pushAnimation(.linear(duration: 1))
+        box.value = 2
+        StateProvenance.popAnimation()
+        old.didApply()
+        _ = box.value
+        let fresh = StateProvenance.capture()
+        XCTAssertEqual(fresh.animation, .linear(duration: 1))
+        XCTAssertFalse(old.stamps[0] === fresh.stamps[0])
+    }
+
+    func testAllCombinedArgumentsExpireEvenThoughFirstChoosesAnimation() {
+        let first = animatedBox()
+        let second = animatedBox()
+        _ = first.value + second.value + first.value
+        let combined = StateProvenance.capture()
+        XCTAssertEqual(combined.stamps.count, 2, "Repeated reads must not add duplicate acknowledgements")
+        combined.didApply()
+        _ = second.value
+        XCTAssertNil(StateProvenance.capture().animation)
+    }
+
+    func testPlainOverwriteStaysPlainWhenOldCaptureApplies() {
+        let box = animatedBox()
+        _ = box.value
+        let old = StateProvenance.capture()
+        box.value = 2
+        old.didApply()
+        _ = box.value
+        XCTAssertNil(StateProvenance.capture().animation)
+    }
+
+    func testUnconsumedOtherWriteIsNotExpired() {
+        let consumed = animatedBox()
+        let delayed = animatedBox()
+        _ = consumed.value
+        StateProvenance.capture().didApply()
+        _ = delayed.value
+        XCTAssertNotNil(StateProvenance.capture().animation,
+            "An unrelated composition must not expire all writes from a scope or frame")
+    }
+
+    /// Make real per-slot provenance without needing a live JNI bridge in the host tests.
+    private func animatedBox() -> BridgedStateBox<Int> {
+        let box = BridgedStateBox(0, comparator: ==)
+        StateProvenance.pushAnimation(.linear(duration: 1))
+        box.value = 1
+        StateProvenance.popAnimation()
+        return box
+    }
 }
 #endif
