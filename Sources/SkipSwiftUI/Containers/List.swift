@@ -388,9 +388,10 @@ extension View {
         stubView()
     }
 
-    @available(*, unavailable)
     /* @inlinable */ nonisolated public func listRowSpacing(_ spacing: CGFloat?) -> some View {
-        stubView()
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.listRowSpacing(spacing)
+        }
     }
 
     @available(*, unavailable)
