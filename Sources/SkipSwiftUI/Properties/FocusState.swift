@@ -55,3 +55,13 @@
         self.valueBox = BridgedStateBox(nil, comparator: { $0 == $1 })
     }
 }
+
+extension FocusState : BridgedStateProperty {
+    public func Java_initStateSupport() -> StateSupport {
+        return valueBox.Java_initStateSupport()
+    }
+
+    public func Java_syncStateSupport(_ support: StateSupport) {
+        valueBox.Java_syncStateSupport(support)
+    }
+}

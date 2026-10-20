@@ -39,6 +39,9 @@ import SkipUI
 //extension Environment : Sendable where Value : Sendable {
 //}
 
+extension Environment : BridgedEnvironmentProperty {
+}
+
 @available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
 extension Environment {
     public init(_ objectType: Value.Type) where Value : AnyObject, Value : Observable {

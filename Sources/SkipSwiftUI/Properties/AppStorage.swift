@@ -19,6 +19,16 @@ import Foundation
     }
 }
 
+extension AppStorage : BridgedAppStorageProperty {
+    public func Java_initStateSupport() -> AppStorageSupport {
+        return valueBox.Java_initStateSupport()
+    }
+
+    public func Java_syncStateSupport(_ support: AppStorageSupport) {
+        valueBox.Java_syncStateSupport(support)
+    }
+}
+
 extension AppStorage {
     public init(wrappedValue: Value, _ key: String, store: UserDefaults? = nil) where Value == Bool {
         self.valueBox = BridgedAppStorageBox(wrappedValue, key: key, store: store)
