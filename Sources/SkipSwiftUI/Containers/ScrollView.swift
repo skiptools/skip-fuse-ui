@@ -103,14 +103,13 @@ public struct ScrollGeometry : Equatable, Sendable {
     public var contentInsets = EdgeInsets()
     public var containerSize = CGSize()
 
-    @available(*, unavailable)
+    /// The content rectangle currently visible in the container.
     public var visibleRect: CGRect {
-        fatalError()
+        return CGRect(origin: contentOffset, size: containerSize)
     }
 
-    @available(*, unavailable)
     public var bounds: CGRect {
-        fatalError()
+        return CGRect(origin: CGPoint(x: -contentInsets.leading, y: -contentInsets.top), size: containerSize)
     }
 
     public init() {
@@ -121,6 +120,11 @@ public struct ScrollGeometry : Equatable, Sendable {
         self.contentSize = contentSize
         self.contentInsets = contentInsets
         self.containerSize = containerSize
+    }
+
+    /// Content offset, content size, insets (top, leading, bottom, trailing), and container size.
+    init(bridgedValues values: [Double]) {
+        self.init(contentOffset: CGPoint(x: values[0], y: values[1]), contentSize: CGSize(width: values[2], height: values[3]), contentInsets: EdgeInsets(top: values[4], leading: values[5], bottom: values[6], trailing: values[7]), containerSize: CGSize(width: values[8], height: values[9]))
     }
 }
 
@@ -197,99 +201,111 @@ extension ScrollPhase : CustomDebugStringConvertible {
     }
 }
 
-public struct ScrollPhaseChangeContext {
-    @available(*, unavailable)
-    public var geometry: ScrollGeometry {
-        fatalError()
-    }
-
-    @available(*, unavailable)
-    public var velocity: CGVector? {
-        fatalError()
+extension ScrollPhase {
+    /// The phase with a `SkipUI.ScrollPhase` raw value.
+    init(bridgedRawValue: Int) {
+        self = [.idle, .tracking, .interacting, .decelerating, .animating][bridgedRawValue]
     }
 }
 
-public struct ScrollPosition : Equatable, Sendable {
+public struct ScrollPhaseChangeContext {
+    public let geometry: ScrollGeometry
+    /// The velocity of the content in points per millisecond, which is zero except as the user flings it.
+    public let velocity: CGVector?
+
+    /// `ScrollGeometry` bridged values followed by the velocity's `dx` and `dy`.
+    init(bridgedValues values: [Double]) {
+        self.geometry = ScrollGeometry(bridgedValues: values)
+        self.velocity = CGVector(dx: values[10], dy: values[11])
+    }
+}
+
+/// Where a scroll view's content is scrolled to: a view ID, an edge, or a content offset.
+public struct ScrollPosition : Equatable, @unchecked Sendable {
+    public private(set) var edge: Edge?
+    public var isPositionedByUser = false
+    var id: AnyHashable?
+    /// The content offset on each axis, nil to leave that axis where it is.
+    var x: CGFloat?
+    var y: CGFloat?
+    var anchor: UnitPoint?
 }
 
 extension ScrollPosition {
     public init(id: some Hashable & Sendable, anchor: UnitPoint? = nil) {
+        self.id = id
+        self.anchor = anchor
     }
 
     public init(idType: (some Hashable & Sendable).Type = Never.self) {
     }
 
     public init(idType: (some Hashable & Sendable).Type = Never.self, edge: Edge) {
+        self.edge = edge
     }
 
     public init(idType: (some Hashable & Sendable).Type = Never.self, point: CGPoint) {
+        self.x = point.x
+        self.y = point.y
     }
 
     public init(idType: (some Hashable & Sendable).Type = Never.self, x: CGFloat, y: CGFloat) {
+        self.x = x
+        self.y = y
     }
 
     public init(idType: (some Hashable & Sendable).Type = Never.self, x: CGFloat) {
+        self.x = x
     }
 
     public init(idType: (some Hashable & Sendable).Type = Never.self, y: CGFloat) {
+        self.y = y
     }
 }
 
 extension ScrollPosition {
-    @available(*, unavailable)
     public mutating func scrollTo(id: some Hashable & Sendable, anchor: UnitPoint? = nil) {
+        self = ScrollPosition(id: id, anchor: anchor)
     }
 
-    @available(*, unavailable)
     public mutating func scrollTo(edge: Edge) {
+        self = ScrollPosition(edge: edge)
     }
 
-    @available(*, unavailable)
     public mutating func scrollTo(point: CGPoint) {
+        self = ScrollPosition(point: point)
     }
 
-    @available(*, unavailable)
     public mutating func scrollTo(x: CGFloat, y: CGFloat) {
+        self = ScrollPosition(x: x, y: y)
     }
 
-    @available(*, unavailable)
     public mutating func scrollTo(x: CGFloat) {
+        self = ScrollPosition(x: x)
     }
 
-    @available(*, unavailable)
     public mutating func scrollTo(y: CGFloat) {
+        self = ScrollPosition(y: y)
     }
 }
 
 extension ScrollPosition {
-    @available(*, unavailable)
-    public var isPositionedByUser: Bool {
-        get {
-            fatalError()
-        }
-        set {
-            fatalError()
-        }
-    }
-
-    @available(*, unavailable)
-    public var edge: Edge? {
-        fatalError()
-    }
-
-    @available(*, unavailable)
+    /// The content offset, when the position sets both axes.
     public var point: CGPoint? {
-        fatalError()
+        return x == nil || y == nil ? nil : CGPoint(x: x!, y: y!)
     }
 
-    @available(*, unavailable)
     public var viewID: (any Hashable & Sendable)? {
-        fatalError()
+        // IDs come from `ForEach` or `id`, so are Hashable, and `Sendable` can't be checked at runtime
+        return id.map { $0.base as! any Hashable & Sendable }
     }
 
-    @available(*, unavailable)
     public func viewID<T>(type: T.Type) -> T? where T : Hashable, T : Sendable {
-        fatalError()
+        return id?.base as? T
+    }
+
+    var Java_scrollPosition: SkipUI.ScrollPosition {
+        return SkipUI.ScrollPosition(bridgedID: id.map { Java_swiftHashable(for: $0) }, bridgedEdge: edge.map { Int($0.rawValue) }, x: x, y: y, anchorX: anchor?.x, anchorY: anchor?.y, isPositionedByUser: isPositionedByUser)
     }
 }
 
@@ -624,18 +640,55 @@ extension View {
         stubView()
     }
 
-    @available(*, unavailable)
-    nonisolated public func scrollPosition(_ position: Binding<ScrollPosition>, anchor: UnitPoint? = nil) -> some View {
-        stubView()
+    /// Calls `action` when the value that `transform` derives from a scroll view's geometry changes.
+    nonisolated public func onScrollGeometryChange<T>(for type: T.Type, of transform: @escaping (ScrollGeometry) -> T, action: @escaping (_ oldValue: T, _ newValue: T) -> Void) -> some View where T : Equatable {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.onScrollGeometryChange(bridgedTransform: { Java_swiftEquatable(for: transform(ScrollGeometry(bridgedValues: $0))) }, bridgedAction: { oldValue, newValue in
+                guard let oldValue = (oldValue as? SwiftEquatable)?.value as? T, let newValue = (newValue as? SwiftEquatable)?.value as? T else {
+                    return
+                }
+                action(oldValue, newValue)
+            })
+        }
     }
 
-    nonisolated public func scrollPosition(id: Binding<AnyHashable?>, anchor: UnitPoint? = nil) -> some View {
-        return ModifierView(target: self) {
-            // Bridge to SkipUI using closure-based API
-            let getId: () -> AnyHashable? = { id.wrappedValue }
-            let setId: (AnyHashable?) -> Void = { id.wrappedValue = $0 }
-            return $0.Java_viewOrEmpty.scrollPosition(getId: getId, setId: setId)
+    nonisolated public func onScrollPhaseChange(_ action: @escaping (_ oldPhase: ScrollPhase, _ newPhase: ScrollPhase) -> Void) -> some View {
+        return onScrollPhaseChange { oldPhase, newPhase, _ in
+            action(oldPhase, newPhase)
         }
+    }
+
+    /// Calls `action` as a scroll view in this view starts and stops scrolling: when the user drags or flings it, and
+    /// when the app scrolls it with animation.
+    nonisolated public func onScrollPhaseChange(_ action: @escaping (_ oldPhase: ScrollPhase, _ newPhase: ScrollPhase, _ context: ScrollPhaseChangeContext) -> Void) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.onScrollPhaseChange(bridgedAction: { values in
+                action(ScrollPhase(bridgedRawValue: Int(values[0])), ScrollPhase(bridgedRawValue: Int(values[1])), ScrollPhaseChangeContext(bridgedValues: Array(values.dropFirst(2))))
+            })
+        }
+    }
+
+    /// Scrolls the scroll view in this view as `position` changes, and writes back the ID of the view the user scrolls to.
+    nonisolated public func scrollPosition(_ position: Binding<ScrollPosition>, anchor: UnitPoint? = nil) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.scrollPosition(getPosition: { position.wrappedValue.Java_scrollPosition }, onUserScroll: {
+                var userPosition = ScrollPosition()
+                // The ID arrives as the SwiftHashable that ForEach bridged it as
+                let id = ($0 as? AnyHashable)?.base ?? $0
+                userPosition.id = (id as? SwiftHashable)?.base as? AnyHashable
+                position.wrappedValue = userPosition
+            }, anchorX: anchor?.x, anchorY: anchor?.y)
+        }
+    }
+
+    nonisolated public func scrollPosition<ID>(id: Binding<ID?>, anchor: UnitPoint? = nil) -> some View where ID : Hashable {
+        return scrollPosition(Binding(get: {
+            var position = ScrollPosition()
+            position.id = id.wrappedValue.map { AnyHashable($0) }
+            return position
+        }, set: {
+            id.wrappedValue = $0.id?.base as? ID
+        }), anchor: anchor)
     }
 
     nonisolated public func scrollTargetBehavior(_ behavior: some ScrollTargetBehavior) -> some View {
