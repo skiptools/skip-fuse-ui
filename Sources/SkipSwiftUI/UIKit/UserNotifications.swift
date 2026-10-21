@@ -94,8 +94,13 @@ public final class UNUserNotificationCenter {
         try await SkipUI.UNUserNotificationCenter.current().add(request.Java_request)
     }
 
-    public func pendingNotificationRequests() async -> [Any /* UNNotificationRequest */] {
-        await SkipUI.UNUserNotificationCenter.current().pendingNotificationRequests()
+    /// SkipUI's requests arrive as its own `UNNotificationRequest` projections, which are converted here
+    /// so that callers receive this module's type, as UserNotifications returns them on iOS.
+    public func pendingNotificationRequests() async -> [UNNotificationRequest] {
+        let requests = await SkipUI.UNUserNotificationCenter.current().pendingNotificationRequests()
+        return requests.compactMap { request in
+            (request as? SkipUI.UNNotificationRequest).map { UNNotificationRequest(Java_request: $0) }
+        }
     }
 
     public func removePendingNotificationRequests(withIdentifiers: [String]) {
@@ -106,8 +111,11 @@ public final class UNUserNotificationCenter {
         SkipUI.UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
     }
 
-    public func deliveredNotifications() async -> [Any /* UNNotification */] {
-        await SkipUI.UNUserNotificationCenter.current().deliveredNotifications()
+    public func deliveredNotifications() async -> [UNNotification] {
+        let notifications = await SkipUI.UNUserNotificationCenter.current().deliveredNotifications()
+        return notifications.compactMap { notification in
+            (notification as? SkipUI.UNNotification).map { UNNotification(Java_notification: $0) }
+        }
     }
 
     public func removeDeliveredNotifications(withIdentifiers: [String]) {

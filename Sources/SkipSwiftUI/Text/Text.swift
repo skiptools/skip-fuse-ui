@@ -153,7 +153,8 @@ extension Text {
     public struct DateStyle : Equatable, Sendable {
         public static let time: DateStyle = {
             let formatter = DateFormatter()
-            formatter.timeStyle = .medium
+            // Hours and minutes, as SwiftUI's `.time` shows them.
+            formatter.timeStyle = .short
             return DateStyle(identifier: 1) {
                 return formatter.string(from: $0)
             }
