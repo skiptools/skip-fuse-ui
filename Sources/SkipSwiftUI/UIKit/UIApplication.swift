@@ -31,6 +31,17 @@ import SkipUI
     public func requestPermission(_ permission: String) async -> Bool {
         return await application.requestPermission(permission)
     }
+
+    /// Whether the system recommends showing a rationale before requesting the given permission.
+    ///
+    /// This is `false` both when the permission has never been requested and when it has been
+    /// permanently denied, so callers that need to distinguish those cases must combine it with
+    /// their own record of having asked.
+    /// - Parameter permission: The name of the permission, such as `android.permission.RECORD_AUDIO`.
+    /// - Returns: `true` if a rationale should be shown before requesting the permission.
+    public func shouldShowPermissionRationale(_ permission: String) -> Bool {
+        return application.shouldShowPermissionRationale(permission)
+    }
     #endif
 
     @available(*, unavailable)
