@@ -168,6 +168,40 @@ For the full list of supported SwiftUI components, see the [SkipUI documentation
 
 `simultaneousGesture` support follows SkipUI's current Android limitations: it can observe supported gestures on the same rendered view, including drag observation while scroll views continue scrolling, but only `.all` and `.none` have meaningful mask behavior. `.gesture` and `.subviews` masks are not distinguished.
 
+### Presentation backgrounds
+
+Use `presentationBackground(_ color: Color)` to set the background of a sheet or
+full-screen cover. The Android implementation bridges to SkipUI 1.63.0 or later
+and supports opaque, partially opaque, and clear colors. iOS uses native SwiftUI.
+
+Apply the modifier directly to the root view returned by the `.sheet` or
+`.fullScreenCover` content closure:
+
+```swift
+.sheet(isPresented: $showSheet) {
+    VStack {
+        Text("Sheet content")
+    }
+    .presentationBackground(Color.clear)
+}
+```
+
+Use `Color.blue` for an opaque background or `Color.blue.opacity(0.5)` for a
+partially opaque background. `Color.clear` allows the presenting view to show
+through where the presented content has no opaque background of its own. This
+modifier does not remove backgrounds drawn by child views or change dismissal
+and background-interaction behavior.
+
+Android supports only the `Color` overload, not the full SwiftUI API:
+
+- Materials, gradients, and other `ShapeStyle` arguments are unavailable.
+- `presentationBackground(alignment:content:)` is unsupported. Its current stub
+  returns `EmptyView`, so do not use the custom-view overload on Android.
+- Place the modifier on the presentation's root view, not a nested child.
+
+See the [SkipUI 1.63.0 implementation](https://github.com/skiptools/skip-ui/blob/1.63.0/Sources/SkipUI/SkipUI/Layout/Presentation.swift)
+for the underlying Android behavior.
+
 ### Text Selection
 
 SkipFuseUI supports programmatic text selection for editable text controls that expose a `TextSelection` binding, such as `TextField` and `TextEditor`.
