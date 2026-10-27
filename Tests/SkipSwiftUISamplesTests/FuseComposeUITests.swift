@@ -9,6 +9,9 @@ import SkipSwiftUISamples
 #if SKIP
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.assertAll
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.assertWidthIsEqualTo
@@ -96,6 +99,43 @@ final class FuseComposeUITests: XCTestCase {
         composeRule.onNodeWithTag("increment-button").performClick()
         composeRule.waitForIdle()
         composeRule.onNodeWithTag("counter-label").assertTextEquals("count: 2")
+        #endif
+    }
+
+    /// Custom button styles through the bridge: the native style body renders around the label,
+    /// actions fire through both `ButtonStyle` and `PrimitiveButtonStyle`, and `@Environment`
+    /// values declared on the style itself track the button's environment, whether `.disabled` is
+    /// applied outside or inside `.buttonStyle`.
+    func testCustomButtonStyles() throws {
+        #if !SKIP
+        throw XCTSkip("Compose UI testing is Android-only")
+        #else
+        try requireBridgedMainActor()
+        composeRule.setContent {
+            ButtonStyleTestFixture().Compose()
+        }
+        composeRule.waitForIdle()
+        composeRule.onAllNodesWithTag("styled-button-state", useUnmergedTree: true).assertAll(hasText("enabled"))
+
+        composeRule.onNodeWithTag("styled-button").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("style-counter-label").assertTextEquals("count: 1")
+
+        composeRule.onNodeWithTag("primitive-button").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("style-counter-label").assertTextEquals("count: 11")
+
+        composeRule.onNodeWithTag("disable-button").performClick()
+        composeRule.waitForIdle()
+        composeRule.onAllNodesWithTag("styled-button-state", useUnmergedTree: true).assertAll(hasText("disabled"))
+
+        composeRule.onNodeWithTag("styled-button").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("style-counter-label").assertTextEquals("count: 11")
+
+        composeRule.onNodeWithTag("inner-disabled-button").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("style-counter-label").assertTextEquals("count: 11")
         #endif
     }
 
