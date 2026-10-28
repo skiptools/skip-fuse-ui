@@ -71,9 +71,9 @@ extension Button where Label == SkipSwiftUI.Label<Text, Image> {
 //}
 
 extension Button where Label == PrimitiveButtonStyleConfiguration.Label {
-    @available(*, unavailable)
-    public init(_ configuration: PrimitiveButtonStyleConfiguration) {
-        fatalError()
+    @preconcurrency public init(_ configuration: PrimitiveButtonStyleConfiguration) {
+        let configurationBox = UncheckedSendableBox(configuration)
+        self.init(role: configuration.role, action: { configurationBox.wrappedValue.trigger() }, label: { configuration.label })
     }
 }
 
@@ -146,6 +146,7 @@ public struct ButtonSizing : Hashable, Sendable {
     let identifier: Int // For bridging
 }
 
+/// - Note: On Android, mark `public` conformers in a bridged module with `// SKIP @nobridge`.
 @MainActor @preconcurrency public protocol ButtonStyle {
     associatedtype Body : View
 
@@ -157,11 +158,29 @@ public struct ButtonSizing : Hashable, Sendable {
 public struct ButtonStyleConfiguration {
     public struct Label : View {
         public typealias Body = Never
+
+        nonisolated(unsafe) let Java_label: any SkipUI.View
+
+        nonisolated init(Java_label: any SkipUI.View) {
+            self.Java_label = Java_label
+        }
     }
 
     public let role: ButtonRole?
     public let label: ButtonStyleConfiguration.Label
     public let isPressed: Bool
+
+    init(Java_configuration: SkipUI.ButtonStyleBridgedConfiguration) {
+        self.role = Java_configuration.bridgedRole.map { ButtonRole(identifier: $0) }
+        self.label = Label(Java_label: Java_configuration.label)
+        self.isPressed = Java_configuration.isPressed
+    }
+}
+
+extension ButtonStyleConfiguration.Label : SkipUIBridging {
+    public var Java_view: any SkipUI.View {
+        return Java_label
+    }
 }
 
 public struct BorderedButtonStyle : PrimitiveButtonStyle {
@@ -169,7 +188,7 @@ public struct BorderedButtonStyle : PrimitiveButtonStyle {
     }
 
     @MainActor @preconcurrency public func makeBody(configuration: BorderedButtonStyle.Configuration) -> some View {
-        stubView()
+        Button(configuration).buttonStyle(self)
     }
 
     public let identifier = 3 // For bridging
@@ -180,7 +199,7 @@ public struct BorderedProminentButtonStyle : PrimitiveButtonStyle {
     }
 
     @MainActor @preconcurrency public func makeBody(configuration: BorderedProminentButtonStyle.Configuration) -> some View {
-        stubView()
+        Button(configuration).buttonStyle(self)
     }
 
     public let identifier = 4 // For bridging
@@ -191,7 +210,7 @@ public struct BorderlessButtonStyle : PrimitiveButtonStyle {
     }
 
     @MainActor @preconcurrency public func makeBody(configuration: BorderlessButtonStyle.Configuration) -> some View {
-        stubView()
+        Button(configuration).buttonStyle(self)
     }
 
     public let identifier = 2 // For bridging
@@ -202,7 +221,7 @@ public struct DefaultButtonStyle : PrimitiveButtonStyle {
     }
 
     @MainActor @preconcurrency public func makeBody(configuration: DefaultButtonStyle.Configuration) -> some View {
-        stubView()
+        Button(configuration).buttonStyle(self)
     }
 
     public let identifier = 0 // For bridging
@@ -213,7 +232,7 @@ public struct PlainButtonStyle : PrimitiveButtonStyle {
     }
 
     @MainActor @preconcurrency public func makeBody(configuration: PlainButtonStyle.Configuration) -> some View {
-        stubView()
+        Button(configuration).buttonStyle(self)
     }
 
     public let identifier = 1 // For bridging
@@ -236,12 +255,13 @@ public struct M3TextButtonStyle : PrimitiveButtonStyle {
     }
 
     @MainActor @preconcurrency public func makeBody(configuration: M3TextButtonStyle.Configuration) -> some View {
-        stubView()
+        Button(configuration).buttonStyle(self)
     }
 
     public let identifier = 7 // For bridging
 }
 
+/// - Note: On Android, mark `public` conformers in a bridged module with `// SKIP @nobridge`.
 @MainActor @preconcurrency public protocol PrimitiveButtonStyle {
     associatedtype Body : View
 
@@ -304,19 +324,32 @@ extension PrimitiveButtonStyle where Self == M3TextButtonStyle {
 public struct PrimitiveButtonStyleConfiguration {
     public struct Label : View {
         public typealias Body = Never
+
+        nonisolated(unsafe) let Java_label: any SkipUI.View
+
+        nonisolated init(Java_label: any SkipUI.View) {
+            self.Java_label = Java_label
+        }
     }
 
     public let role: ButtonRole?
     public let label: PrimitiveButtonStyleConfiguration.Label
+    private let Java_configuration: SkipUI.ButtonStyleBridgedConfiguration
 
-    @available(*, unavailable)
-    public init(role: ButtonRole?, label: Label) {
-        fatalError()
+    init(Java_configuration: SkipUI.ButtonStyleBridgedConfiguration) {
+        self.role = Java_configuration.bridgedRole.map { ButtonRole(identifier: $0) }
+        self.label = Label(Java_label: Java_configuration.label)
+        self.Java_configuration = Java_configuration
     }
 
-    @available(*, unavailable)
     public func trigger() {
-        fatalError()
+        Java_configuration.trigger()
+    }
+}
+
+extension PrimitiveButtonStyleConfiguration.Label : SkipUIBridging {
+    public var Java_view: any SkipUI.View {
+        return Java_label
     }
 }
 
@@ -332,8 +365,58 @@ extension View {
     }
 
     nonisolated public func buttonStyle<S>(_ style: S) -> some View where S : PrimitiveButtonStyle {
-        return ModifierView(target: self) {
-            $0.Java_viewOrEmpty.buttonStyle(bridgedStyle: style.identifier)
+        let identifier = style.identifier
+        guard identifier < 0 else {
+            return ModifierView(target: self) { $0.Java_viewOrEmpty.buttonStyle(bridgedStyle: identifier) }
         }
+        let resolvedStyle = ResolvedButtonStyle(style) { style, Java_configuration in
+            style.makeBody(configuration: PrimitiveButtonStyleConfiguration(Java_configuration: Java_configuration)).Java_viewOrEmpty
+        }
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.buttonStyle(isPrimitive: true, environmentKeys: resolvedStyle.environmentKeys, bridgedMakeBody: resolvedStyle.makeBody(Java_configuration:))
+        }
+    }
+
+    nonisolated public func buttonStyle<S>(_ style: S) -> some View where S : ButtonStyle {
+        let resolvedStyle = ResolvedButtonStyle(style) { style, Java_configuration in
+            style.makeBody(configuration: ButtonStyleConfiguration(Java_configuration: Java_configuration)).Java_viewOrEmpty
+        }
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.buttonStyle(isPrimitive: false, environmentKeys: resolvedStyle.environmentKeys, bridgedMakeBody: resolvedStyle.makeBody(Java_configuration:))
+        }
+    }
+}
+
+/// A natively-compiled `ButtonStyle` or `PrimitiveButtonStyle` prepared for SkipUI.
+///
+/// SwiftUI resolves a style's dynamic properties before creating its body. Skip does not generate that resolution for
+/// styles, so the style's `@Environment` properties are synced from each button's Compose environment before its body
+/// is created.
+///
+/// - Note: One style instance serves every button it applies to. Its `@Environment` values are
+///   synced right before each `makeBody`, so values read lazily (e.g. inside a `GeometryReader`
+///   closure) may reflect another button's environment.
+struct ResolvedButtonStyle<Style> : @unchecked Sendable {
+    /// The keys of the style's `@Environment` properties, which SkipUI reads at each button's position.
+    let environmentKeys: [String]
+    private let style: Style
+    private let makeStyleBody: @MainActor (Style, SkipUI.ButtonStyleBridgedConfiguration) -> any SkipUI.View
+
+    nonisolated init(_ style: Style, makeBody: @escaping @MainActor (Style, SkipUI.ButtonStyleBridgedConfiguration) -> any SkipUI.View) {
+        self.environmentKeys = Java_environmentKeys(of: style)
+        self.style = style
+        self.makeStyleBody = makeBody
+    }
+
+    /// Creates the style's body for a button.
+    ///
+    /// Styles are only used on the main thread during composition.
+    nonisolated func makeBody(Java_configuration: SkipUI.ButtonStyleBridgedConfiguration) -> any SkipUI.View {
+        let Java_configurationBox = UncheckedSendableBox(Java_configuration)
+        return assumeMainActorUnchecked {
+            let Java_configuration = Java_configurationBox.wrappedValue
+            Java_syncEnvironment(of: style) { Java_configuration.environmentSupport(forKey: $0) }
+            return UncheckedSendableBox(makeStyleBody(style, Java_configuration))
+        }.wrappedValue
     }
 }
