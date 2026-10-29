@@ -41,4 +41,11 @@ extension IndexedIdentifierCollection : BidirectionalCollection where Base : Bid
 }
 
 extension IndexedIdentifierCollection : RandomAccessCollection where Base : RandomAccessCollection {
+    public func index(_ i: IndexedIdentifierCollection<Base, ID>.Index, offsetBy distance: Int) -> IndexedIdentifierCollection<Base, ID>.Index {
+        return base.wrappedValue.index(i, offsetBy: distance)
+    }
+
+    public func distance(from start: IndexedIdentifierCollection<Base, ID>.Index, to end: IndexedIdentifierCollection<Base, ID>.Index) -> Int {
+        return base.wrappedValue.distance(from: start, to: end)
+    }
 }
