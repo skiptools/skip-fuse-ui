@@ -20,7 +20,8 @@ let package = Package(
         .package(url: "https://github.com/skiptools/skip-bridge.git", "0.17.3"..<"2.0.0"),
         .package(url: "https://github.com/skiptools/skip-android-bridge.git", "0.6.6"..<"2.0.0"),
         .package(url: "https://github.com/skiptools/swift-jni.git", "0.5.0"..<"2.0.0"),
-        .package(url: "https://github.com/skiptools/skip-ui.git", from: "1.66.0"),
+        // Temporary pin to SkipUI #584. Replace with a numbered release before merging.
+        .package(url: "https://github.com/skiptools/skip-ui.git", revision: "8aed4c746937e3f86ea550c1302f70f81f00db70"),
     ],
     targets: [
         .target(name: "SkipFuseUI", dependencies: ["SkipSwiftUI"]),
