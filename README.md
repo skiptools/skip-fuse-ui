@@ -168,6 +168,86 @@ For the full list of supported SwiftUI components, see the [SkipUI documentation
 
 `simultaneousGesture` support follows SkipUI's current Android limitations: it can observe supported gestures on the same rendered view, including drag observation while scroll views continue scrolling, but only `.all` and `.none` have meaningful mask behavior. `.gesture` and `.subviews` masks are not distinguished.
 
+### Presentation backgrounds
+
+Use `presentationBackground(_ color: Color)` to set the background of a sheet or
+full-screen cover. The Android implementation bridges to SkipUI 1.63.0 or later
+and supports opaque, partially opaque, and clear colors. iOS uses native SwiftUI.
+
+Apply the modifier directly to the root view returned by the `.sheet` or
+`.fullScreenCover` content closure:
+
+```swift
+.sheet(isPresented: $showSheet) {
+    VStack {
+        Text("Sheet content")
+    }
+    .presentationBackground(Color.clear)
+}
+```
+
+Use `Color.blue` for an opaque background or `Color.blue.opacity(0.5)` for a
+partially opaque background. `Color.clear` allows the presenting view to show
+through where the presented content has no opaque background of its own. This
+modifier does not remove backgrounds drawn by child views or change dismissal
+and background-interaction behavior.
+
+Android supports only the `Color` overload, not the full SwiftUI API:
+
+- Materials, gradients, and other `ShapeStyle` arguments are unavailable.
+- `presentationBackground(alignment:content:)` is unsupported. Its current stub
+  returns `EmptyView`, so do not use the custom-view overload on Android.
+- Place the modifier on the presentation's root view, not a nested child.
+
+See the [SkipUI 1.63.0 implementation](https://github.com/skiptools/skip-ui/blob/1.63.0/Sources/SkipUI/SkipUI/Layout/Presentation.swift)
+for the underlying Android behavior.
+
+### Attributed text
+
+`Text(AttributedString)` supports a source-compatible subset of Apple's attributed
+text APIs in native Skip Fuse code. It is not a full drop-in replacement. On iOS,
+apps continue to use Apple's Foundation and SwiftUI implementations. On Android,
+native Foundation stores the value, and Skip supplies the supported UI attributes,
+inline Markdown parser, and renderer.
+
+See [Attributed text compatibility](docs/attributed-text.md) for APIs that can be
+shared unchanged, differences from iOS, and guidance for Apple-only code.
+
+Supported Android rendering attributes are `font`, `foregroundColor`, `link`,
+`underlineStyle` and `strikethroughStyle` with solid single lines, `baselineOffset`,
+plus the inline presentation intents for bold, italic, code, and strikethrough.
+Attributes on a range override inherited text
+styling for that range. Links use the surrounding tint unless a foreground color is
+specified, and taps use the environment's `openURL` action.
+
+```swift
+import SwiftUI
+
+var content = try AttributedString(
+    markdown: "Read **important** instructions at [Skip](https://skip.dev)",
+    options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)
+)
+if let range = content.range(of: "important") {
+    content[range].foregroundColor = .orange
+    content[range].underlineStyle = .single
+}
+Text(content)
+```
+
+Always pass `.inlineOnlyPreservingWhitespace` in shared Markdown code. Apple's
+default is `.full`; Android supports only `.inlineOnlyPreservingWhitespace` and
+uses it as the default. Decoration patterns and separate decoration colors are
+ignored on Android even though their initializer arguments compile. Unsupported
+attributes may be unavailable at compile time; custom attributes stored in the
+native value have no rendering effect. This support does not extend Skip Lite's
+existing `AttributedString` implementation.
+
+Use `baselineOffset` to raise a range by a distance in points, or use a negative
+value to lower it. This does not change its font size. For superscript or subscript,
+apply a smaller `font` to the same range. Offsets remain point distances when the
+surrounding font changes. This support is specific to attributed strings; the
+`Text.baselineOffset(_:)` modifier remains unavailable.
+
 ### Text Selection
 
 SkipFuseUI supports programmatic text selection for editable text controls that expose a `TextSelection` binding, such as `TextField` and `TextEditor`.

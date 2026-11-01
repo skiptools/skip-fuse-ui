@@ -19,8 +19,10 @@ import SkipUI
         self.init(spec: TextSpec(verbatim: content))
     }
 
+    // SwiftUI documents this overload as displaying a stored string without localization,
+    // so the content must not be looked up in the string catalog again (#135).
     @_disfavoredOverload public init<S>(_ content: S) where S : StringProtocol {
-        self.init(spec: TextSpec(key: LocalizedStringKey(String(content))))
+        self.init(spec: TextSpec(verbatim: String(content)))
     }
 
     public static func == (lhs: Text, rhs: Text) -> Bool {
@@ -30,6 +32,7 @@ import SkipUI
 
 /// Define text content.
 struct TextSpec : Equatable, @unchecked Sendable {
+    var attributedContent: AttributedString?
     var verbatim: String?
     var key: LocalizedStringKey?
     var resource: AndroidLocalizedStringResource?
@@ -51,7 +54,9 @@ extension Text : SkipUIBridging {
             return view.Java_viewOrEmpty
         }
 
-        if let verbatim = spec.verbatim {
+        if let attributedContent = spec.attributedContent {
+            return SkipUI.Text(attributedRuns: attributedContent.attributedTextRuns)
+        } else if let verbatim = spec.verbatim {
             return SkipUI.Text(verbatim: verbatim)
         } else if let key = spec.key {
             let values = key.interpolation.values.isEmpty ? nil : key.interpolation.values
@@ -95,6 +100,8 @@ extension Text {
 }
 
 extension Text {
+    /// A text decoration. Android currently renders only solid single lines in
+    /// the text color, ignoring the pattern and separate color arguments.
     public struct LineStyle : Hashable, Sendable {
         public init(pattern: Text.LineStyle.Pattern = .solid, color: Color? = nil) {
         }
@@ -222,9 +229,11 @@ extension Text {
 }
 
 extension Text {
-    @available(*, unavailable)
-    public init(_ attributedContent: AttributedString) {
-        fatalError()
+    /// Display the current attributes and links of a native attributed string.
+    /// Renders font, foreground color, links, single solid decorations, baseline
+    /// offsets, and supported inline intents. Other stored attributes are ignored.
+    @_disfavoredOverload public init(_ attributedContent: AttributedString) {
+        self.init(spec: TextSpec(attributedContent: attributedContent))
     }
 }
 
@@ -240,6 +249,24 @@ extension Text {
         case head
         case tail
         case middle
+
+        /// Encodes the mode using SkipUI's existing bridge identifiers.
+        var bridgedValue: Int {
+            switch self {
+            case .head: return 1
+            case .tail: return 2
+            case .middle: return 3
+            }
+        }
+
+        /// Decodes a mode, using SwiftUI's tail default when no value is set.
+        init(bridgedValue: Int?) {
+            switch bridgedValue {
+            case 1: self = .head
+            case 3: self = .middle
+            default: self = .tail
+            }
+        }
     }
 
     public enum Case : Int, Hashable, Sendable {
@@ -554,9 +581,11 @@ extension View {
         stubView()
     }
 
-    @available(*, unavailable)
+    /// Sets where overflowing text is replaced by an ellipsis.
+    /// Android supports all three modes for a single line. For multiple lines,
+    /// head and middle use tail truncation, matching SkipUI's Compose behavior.
     nonisolated public func truncationMode(_ mode: Text.TruncationMode) -> some View {
-        stubView()
+        environment(\.truncationMode, mode)
     }
 
     @available(*, unavailable)

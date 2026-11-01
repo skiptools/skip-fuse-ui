@@ -4,13 +4,14 @@ import SkipFuse
 import SkipUI
 
 public struct DisclosureGroup<Label, Content> where Label : View, Content : View {
-    private let isExpanded: Binding<Bool>
+    private let isExpanded: Binding<Bool>?
     private let label: Label
     private let content: Content
 
-    @available(*, unavailable)
     public init(@ViewBuilder content: @escaping () -> Content, @ViewBuilder label: () -> Label) {
-        fatalError()
+        self.isExpanded = nil
+        self.content = content()
+        self.label = label()
     }
 
     public init(isExpanded: Binding<Bool>, @ViewBuilder content: @escaping () -> Content, @ViewBuilder label: () -> Label) {
@@ -26,19 +27,21 @@ extension DisclosureGroup : View {
 
 extension DisclosureGroup : SkipUIBridging {
     public var Java_view: any SkipUI.View {
-        return SkipUI.DisclosureGroup(getExpanded: { isExpanded.wrappedValue }, setExpanded: { isExpanded.wrappedValue = $0 }, bridgedContent: content.Java_viewOrEmpty, bridgedLabel: label.Java_viewOrEmpty)
+        if let isExpanded {
+            return SkipUI.DisclosureGroup(getExpanded: { isExpanded.wrappedValue }, setExpanded: { isExpanded.wrappedValue = $0 }, bridgedContent: content.Java_viewOrEmpty, bridgedLabel: label.Java_viewOrEmpty)
+        } else {
+            return SkipUI.DisclosureGroup(bridgedContent: content.Java_viewOrEmpty, bridgedLabel: label.Java_viewOrEmpty)
+        }
     }
 }
 
 extension DisclosureGroup where Label == Text {
-    @available(*, unavailable)
     public init(_ titleKey: LocalizedStringKey, @ViewBuilder content: @escaping () -> Content) {
-        fatalError()
+        self.init(content: content, label: { Text(titleKey) })
     }
 
-    @available(*, unavailable)
     @_disfavoredOverload public init(_ titleResource: AndroidLocalizedStringResource, @ViewBuilder content: @escaping () -> Content) {
-        fatalError()
+        self.init(content: content, label: { Text(titleResource) })
     }
 
     public init(_ titleKey: LocalizedStringKey, isExpanded: Binding<Bool>, @ViewBuilder content: @escaping () -> Content) {
@@ -49,9 +52,8 @@ extension DisclosureGroup where Label == Text {
         self.init(isExpanded: isExpanded, content: content, label: { Text(titleResource) })
     }
 
-    @available(*, unavailable)
     public init<S>(_ label: S, @ViewBuilder content: @escaping () -> Content) where S : StringProtocol {
-        fatalError()
+        self.init(content: content, label: { Text(label) })
     }
 
     @_disfavoredOverload public init<S>(_ label: S, isExpanded: Binding<Bool>, @ViewBuilder content: @escaping () -> Content) where S : StringProtocol {

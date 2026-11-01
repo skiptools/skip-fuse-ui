@@ -96,7 +96,7 @@ extension Toggle where Label == SkipSwiftUI.Label<Text, Image> {
 //
 //    public init<C>(_ titleKey: LocalizedStringKey, image: ImageResource, sources: C, isOn: KeyPath<C.Element, Binding<Bool>>) where C : RandomAccessCollection
 //
-//    public init<S, C>(_ title: S, image: ImageResource, sources: C, isOn: KeyPath<C.Element, Binding<Bool>>) where S : StringProtocol, C : RandomAccessCollection
+//    @_disfavoredOverload public init<S, C>(_ title: S, image: ImageResource, sources: C, isOn: KeyPath<C.Element, Binding<Bool>>) where S : StringProtocol, C : RandomAccessCollection
 //}
 
 @MainActor @preconcurrency public protocol ToggleStyle {

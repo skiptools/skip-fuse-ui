@@ -56,6 +56,7 @@ public final class UNUserNotificationCenter {
                     let delegateBox = UncheckedSendableBox(newValue)
                     Task {
                         await delegateBox.wrappedValue.userNotificationCenter(UNUserNotificationCenter.current(), didReceive: responseBox.wrappedValue)
+                        completion.run()
                     }
                 }, willPresent: { [weak newValue] notification, completion in
                     guard let newValue else {

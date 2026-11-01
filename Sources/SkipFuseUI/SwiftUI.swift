@@ -3,6 +3,8 @@
 
 #if os(Android)
 @_exported import SkipSwiftUI
+// Prefer Skip's UI scalar when Foundation also exposes CGFloat.
+@_exported import typealias SkipSwiftUI.CGFloat
 #elseif canImport(SwiftUI)
 @_exported import SwiftUI
 @_exported import struct SkipSwiftUI.TextSelectionIndex
