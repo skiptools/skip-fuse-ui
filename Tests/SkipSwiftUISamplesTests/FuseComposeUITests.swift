@@ -79,6 +79,50 @@ final class FuseComposeUITests: XCTestCase {
         #endif
     }
 
+    /// Native truncation modifiers and environment values produce actual ellipses.
+    func testTextTruncation() throws {
+        #if !SKIP
+        throw XCTSkip("Compose UI testing is Android-only")
+        #else
+        try requireBridgedMainActor()
+        composeRule.setContent { TruncationTestFixture().Compose() }
+        assertTextTruncation(composeRule)
+        #endif
+    }
+
+    /// Real native attributed values cross the bridge, render as spans, and retain links.
+    func testAttributedText() throws {
+        #if !SKIP
+        throw XCTSkip("Compose UI testing is Android-only")
+        #else
+        try requireBridgedMainActor()
+        composeRule.runOnUiThread {
+            XCTAssertNil(AttributedTextTestFixture.validationFailure())
+        }
+        composeRule.setContent { AttributedTextTestFixture().Compose() }
+        composeRule.onNodeWithTag("attributed-styles").assertTextEquals("Font Color Both 👩🏽‍💻")
+        composeRule.onNodeWithTag("attributed-markdown").assertTextEquals("bold italic code gone")
+        assertAttributedTextSpans(composeRule)
+        composeRule.onNodeWithTag("attributed-change").performClick()
+        assertAttributedTextSpans(composeRule, changed: true)
+        tapAttributedLink(composeRule)
+        composeRule.onNodeWithTag("attributed-opened").assertTextEquals("https://example.com/edited")
+        #endif
+    }
+
+    /// Point offsets stay constant when accessibility settings enlarge the fonts.
+    func testAttributedTextLargeFontScale() throws {
+        #if !SKIP
+        throw XCTSkip("Compose UI testing is Android-only")
+        #else
+        try requireBridgedMainActor()
+        setAttributedTextContent(composeRule, fontScale: Float(2.0))
+        assertAttributedTextSpans(composeRule)
+        composeRule.onNodeWithTag("attributed-change").performClick()
+        assertAttributedTextSpans(composeRule, changed: true)
+        #endif
+    }
+
     /// State-driven text updates through the bridge: each click increments native `@State`
     /// and the recomposed label must reflect the new value.
     func testCounterIncrements() throws {
