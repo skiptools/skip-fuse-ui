@@ -183,6 +183,28 @@ final class FuseComposeUITests: XCTestCase {
         #endif
     }
 
+    // Uncomment once a skipstone release bridges private state (skiptools/skipstone#316).
+    //func testPrivateCounterIncrements() throws {
+    //    #if !SKIP
+    //    throw XCTSkip("Compose UI testing is Android-only")
+    //    #else
+    //    try requireBridgedMainActor()
+    //    composeRule.setContent {
+    //        PrivateCounterTestFixture().Compose()
+    //    }
+    //    composeRule.waitForIdle()
+    //    composeRule.onNodeWithTag("private-counter-label").assertTextEquals("count: 0 dir: ltr")
+    //
+    //    composeRule.onNodeWithTag("private-increment-button").performClick()
+    //    composeRule.waitForIdle()
+    //    composeRule.onNodeWithTag("private-counter-label").assertTextEquals("count: 1 dir: ltr")
+    //
+    //    composeRule.onNodeWithTag("private-increment-button").performClick()
+    //    composeRule.waitForIdle()
+    //    composeRule.onNodeWithTag("private-counter-label").assertTextEquals("count: 2 dir: ltr")
+    //    #endif
+    //}
+
     /// Structural recomposition through the bridge: toggling native `@State` must insert
     /// and remove a node from the Compose tree, not just update values.
     func testConditionalContentTogglesExistence() throws {

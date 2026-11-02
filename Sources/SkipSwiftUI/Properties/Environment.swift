@@ -40,7 +40,7 @@ import SkipUI
 //}
 
 /// An `@Environment` property whose value is synced from Compose by key.
-protocol EnvironmentSupportSyncable {
+public protocol EnvironmentSupportSyncable {
     var key: String { get }
     func Java_syncEnvironmentSupport(_ support: EnvironmentSupport?)
 }
