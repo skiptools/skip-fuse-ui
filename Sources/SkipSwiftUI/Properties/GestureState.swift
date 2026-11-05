@@ -1,5 +1,4 @@
 // Copyright 2025–2026 Skip
-// SPDX-License-Identifier: MPL-2.0
 
 @propertyWrapper @frozen public struct GestureState<Value> : DynamicProperty {
     private let _valueBox: BridgedStateBox<Value>

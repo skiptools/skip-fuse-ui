@@ -1,5 +1,4 @@
 // Copyright 2025–2026 Skip
-// SPDX-License-Identifier: MPL-2.0
 import Observation
 
 @available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)

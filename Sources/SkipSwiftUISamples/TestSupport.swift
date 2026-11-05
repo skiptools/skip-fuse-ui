@@ -1,5 +1,4 @@
 // Copyright 2026 Skip
-// SPDX-License-Identifier: MPL-2.0
 /// Native support for the transpiled `SkipSwiftUISamplesTests` Compose UI tests.
 public final class SkipSwiftUITestSupport {
     /// Whether the current test environment supports bridged main-actor calls.

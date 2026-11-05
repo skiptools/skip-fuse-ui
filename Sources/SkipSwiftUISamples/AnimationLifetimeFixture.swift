@@ -1,5 +1,4 @@
 // Copyright 2026 Skip
-// SPDX-License-Identifier: MPL-2.0
 #if os(macOS) && !SKIP_BRIDGE
 import SwiftUI
 import Observation

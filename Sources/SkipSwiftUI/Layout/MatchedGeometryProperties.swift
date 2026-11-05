@@ -1,5 +1,4 @@
 // Copyright 2023–2026 Skip
-// SPDX-License-Identifier: MPL-2.0
 
 @frozen public struct MatchedGeometryProperties : OptionSet {
     public let rawValue: UInt32

@@ -289,8 +289,3 @@ These wrapper types keep the source shape close to SwiftUI's native `TextSelecti
 - [SkipUI Module](https://skip.dev/docs/modules/skip-ui/) — Supported SwiftUI components and Compose integration topics
 - [SkipBridge Module](https://skip.dev/docs/modules/skip-bridge/) — The JNI bridging infrastructure that SkipFuseUI depends on
 - [SkipFuse Module](https://skip.dev/docs/modules/skip-fuse/) — Observable state tracking and Android runtime support
-
-## License
-
-This software is licensed under the
-[Mozilla Public License 2.0](https://www.mozilla.org/MPL/).

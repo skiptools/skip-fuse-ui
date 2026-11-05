@@ -1,5 +1,4 @@
 // Copyright 2025–2026 Skip
-// SPDX-License-Identifier: MPL-2.0
 
 public struct EditActions<Data> : OptionSet, Sendable {
     public let rawValue: Int

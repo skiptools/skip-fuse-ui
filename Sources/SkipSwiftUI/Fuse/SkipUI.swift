@@ -1,5 +1,4 @@
 // Copyright 2025–2026 Skip
-// SPDX-License-Identifier: MPL-2.0
 import SkipBridge
 
 @_exported import class SkipUI.AppStorageSupport
