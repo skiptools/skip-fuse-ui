@@ -70,6 +70,8 @@ extension EnvironmentValues {
             return rawValue == nil ? nil : UserInterfaceSizeClass(rawValue: rawValue!) ?? .regular
         case "isEnabled":
             return bridgedValue as? Bool != false
+        case "isPresented":
+            return bridgedValue as? Bool == true
         case "isSearching":
             return bridgedValue as? Bool == true
         case "layoutDirection":
@@ -162,6 +164,8 @@ extension EnvironmentValues {
             return (value as? UserInterfaceSizeClass)?.rawValue
         case "isEnabled":
             return value as? Bool != false
+        case "isPresented":
+            return value as? Bool == true
         case "isSearching":
             return value as? Bool == true
         case "layoutDirection":
@@ -247,6 +251,7 @@ extension EnvironmentValues {
         keys[\EnvironmentValues.font] = "font"
         keys[\EnvironmentValues.horizontalSizeClass] = "horizontalSizeClass"
         keys[\EnvironmentValues.isEnabled] = "isEnabled"
+        keys[\EnvironmentValues.isPresented] = "isPresented"
         keys[\EnvironmentValues.isSearching] = "isSearching"
         keys[\EnvironmentValues.layoutDirection] = "layoutDirection"
         keys[\EnvironmentValues.lineLimit] = "lineLimit"
@@ -662,7 +667,6 @@ extension EnvironmentValues {
         get { fatalError("Read via @Environment property wrapper") }
     }
 
-    @available(*, unavailable)
     public var isPresented: Bool {
         get { fatalError("Read via @Environment property wrapper") }
     }
