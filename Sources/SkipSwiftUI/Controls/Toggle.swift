@@ -1,5 +1,4 @@
 // Copyright 2025–2026 Skip
-// SPDX-License-Identifier: MPL-2.0
 import SkipFuse
 import SkipUI
 
@@ -88,6 +87,16 @@ extension Toggle where Label == SkipSwiftUI.Label<Text, Image> {
         self.init(sources: sources, isOn: isOn, label: { SkipSwiftUI.Label(title, systemImage: systemImage) })
     }
 }
+
+//extension Toggle where Label == Label<Text, Image> {
+//    public init(_ titleKey: LocalizedStringKey, image: ImageResource, isOn: Binding<Bool>)
+//
+//    @_disfavoredOverload public init<S>(_ title: S, image: ImageResource, isOn: Binding<Bool>) where S : StringProtocol
+//
+//    public init<C>(_ titleKey: LocalizedStringKey, image: ImageResource, sources: C, isOn: KeyPath<C.Element, Binding<Bool>>) where C : RandomAccessCollection
+//
+//    @_disfavoredOverload public init<S, C>(_ title: S, image: ImageResource, sources: C, isOn: KeyPath<C.Element, Binding<Bool>>) where S : StringProtocol, C : RandomAccessCollection
+//}
 
 @MainActor @preconcurrency public protocol ToggleStyle {
     associatedtype Body : View

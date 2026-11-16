@@ -1,5 +1,4 @@
 // Copyright 2025–2026 Skip
-// SPDX-License-Identifier: MPL-2.0
 
 @resultBuilder public struct ViewBuilder {
     public static func buildExpression<Content>(_ content: Content) -> Content where Content : View {

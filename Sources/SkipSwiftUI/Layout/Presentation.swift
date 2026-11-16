@@ -1,5 +1,4 @@
 // Copyright 2025–2026 Skip
-// SPDX-License-Identifier: MPL-2.0
 #if !ROBOLECTRIC && canImport(CoreGraphics)
 import CoreGraphics
 #endif
@@ -467,6 +466,18 @@ extension View {
 }
 
 extension View {
+    /// Sets a sheet or full-screen cover background to a color, including clear or partially opaque colors.
+    ///
+    /// Apply directly to the root view returned by the presentation's content closure.
+    /// Clear allows the presenting view to show through where the content has no opaque background.
+    /// On Android, this requires SkipUI 1.63.0 or later. Materials, gradients, and custom
+    /// background views are unsupported.
+    nonisolated public func presentationBackground(_ color: Color) -> some View {
+        ModifierView(target: self) {
+            $0.Java_viewOrEmpty.presentationBackground(color.Java_view as? SkipUI.Color ?? SkipUI.Color._clear)
+        }
+    }
+
     @available(*, unavailable)
     nonisolated public func presentationBackground<S>(_ style: S) -> some View where S : ShapeStyle {
         stubView()

@@ -1,5 +1,4 @@
 // Copyright 2025–2026 Skip
-// SPDX-License-Identifier: MPL-2.0
 
 @frozen public struct Alignment : Equatable, Sendable {
     public var horizontal: HorizontalAlignment

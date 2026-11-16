@@ -1,5 +1,4 @@
 // Copyright 2025–2026 Skip
-// SPDX-License-Identifier: MPL-2.0
 #if !ROBOLECTRIC && canImport(CoreGraphics)
 import CoreGraphics
 #endif
@@ -111,6 +110,8 @@ extension EnvironmentValues {
         case "timeZone":
             let identifier = bridgedValue as? String
             return identifier == nil ? TimeZone.current : TimeZone(identifier: identifier!) ?? .current
+        case "truncationMode":
+            return Text.TruncationMode(bridgedValue: bridgedValue as? Int)
         case "verticalSizeClass":
             let rawValue = bridgedValue as? Int
             return rawValue == nil ? nil : UserInterfaceSizeClass(rawValue: rawValue!) ?? .regular
@@ -210,6 +211,8 @@ extension EnvironmentValues {
             return (value as? ScrollDismissesKeyboardMode ?? .automatic).identifier
         case "timeZone":
             return (value as? TimeZone ?? TimeZone.current).identifier
+        case "truncationMode":
+            return (value as? Text.TruncationMode ?? .tail).bridgedValue
         case "verticalSizeClass":
             return (value as? UserInterfaceSizeClass)?.rawValue
         case "accessibilityEnabled", "accessibilityInvertColors", "accessibilityReduceMotion",
@@ -253,6 +256,7 @@ extension EnvironmentValues {
         keys[\EnvironmentValues.scenePhase] = "scenePhase"
         keys[\EnvironmentValues.scrollDismissesKeyboardMode] = "scrollDismissesKeyboardMode"
         keys[\EnvironmentValues.timeZone] = "timeZone"
+        keys[\EnvironmentValues.truncationMode] = "truncationMode"
         keys[\EnvironmentValues.verticalSizeClass] = "verticalSizeClass"
         keys[\EnvironmentValues.accessibilityEnabled] = "accessibilityEnabled"
         keys[\EnvironmentValues.accessibilityInvertColors] = "accessibilityInvertColors"
@@ -400,8 +404,8 @@ extension EnvironmentValues {
         set { fatalError("Set via dedicated View modifier") }
     }
 
-    @available(*, unavailable)
-    public var truncationMode: Any /* Text.TruncationMode */ {
+    /// The truncation mode inherited by text views, with tail as the default.
+    public var truncationMode: Text.TruncationMode {
         get { fatalError("Read via @Environment property wrapper") }
         set { fatalError("Set via dedicated View modifier") }
     }

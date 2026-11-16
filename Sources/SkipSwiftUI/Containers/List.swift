@@ -1,5 +1,4 @@
 // Copyright 2025–2026 Skip
-// SPDX-License-Identifier: MPL-2.0
 #if !ROBOLECTRIC && canImport(CoreGraphics)
 import CoreGraphics
 #endif
@@ -360,6 +359,12 @@ extension View {
         stubView()
     }
 
+    nonisolated public func listSectionCornerRadius(_ radius: CGFloat) -> some View {
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.listSectionCornerRadius(radius)
+        }
+    }
+
     nonisolated public func listStyle<S>(_ style: S) -> some View where S : ListStyle {
         return ModifierView(target: self) {
             $0.Java_viewOrEmpty.listStyle(bridgedStyle: style.identifier)
@@ -382,9 +387,10 @@ extension View {
         stubView()
     }
 
-    @available(*, unavailable)
     /* @inlinable */ nonisolated public func listRowSpacing(_ spacing: CGFloat?) -> some View {
-        stubView()
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.listRowSpacing(spacing)
+        }
     }
 
     @available(*, unavailable)

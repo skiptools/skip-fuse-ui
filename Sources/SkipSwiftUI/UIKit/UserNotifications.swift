@@ -1,5 +1,4 @@
 // Copyright 2023–2026 Skip
-// SPDX-License-Identifier: MPL-2.0
 import Foundation
 import SkipBridge
 import SkipUI
@@ -56,6 +55,7 @@ public final class UNUserNotificationCenter {
                     let delegateBox = UncheckedSendableBox(newValue)
                     Task {
                         await delegateBox.wrappedValue.userNotificationCenter(UNUserNotificationCenter.current(), didReceive: responseBox.wrappedValue)
+                        completion.run()
                     }
                 }, willPresent: { [weak newValue] notification, completion in
                     guard let newValue else {

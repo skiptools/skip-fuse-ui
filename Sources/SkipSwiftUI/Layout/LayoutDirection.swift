@@ -1,5 +1,4 @@
 // Copyright 2025–2026 Skip
-// SPDX-License-Identifier: MPL-2.0
 
 public enum LayoutDirection : Int, Hashable, CaseIterable, Sendable {
     case leftToRight = 0 // For bridging

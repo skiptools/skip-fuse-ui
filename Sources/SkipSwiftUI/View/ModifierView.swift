@@ -1,5 +1,4 @@
 // Copyright 2025–2026 Skip
-// SPDX-License-Identifier: MPL-2.0
 import SkipBridge
 import SkipUI
 
@@ -26,10 +25,13 @@ public struct ModifierView<Target> where Target : View {
     ///
     /// The `modifier` closure receives the already-materialized and primed bridged target.
     public init(animatableTarget target: Target, modifier: @escaping (any SkipUI.View) -> any SkipUI.View) {
-        let primedAnimation = StateProvenance.capturePrimedAnimation()
+        let provenance = StateProvenance.capture()
+        let primedAnimation = provenance.animation?.Java_animation
         self.init(target: target) {
             let Java_target = $0.Java_viewOrEmpty
-            SkipUI.Animation.primeBridgedProvenance(primedAnimation)
+            // Retain this capture's immutable animation across sibling acknowledgements.
+            // Only later source reads see expiry; this modifier can finish its current run.
+            SkipUI.Animation.primeBridgedProvenance(primedAnimation, onApplied: provenance.animation == nil ? nil : { provenance.didApply() })
             return modifier(Java_target)
         }
     }

@@ -1,5 +1,4 @@
 // Copyright 2026 Skip
-// SPDX-License-Identifier: MPL-2.0
 import SkipFuse
 import SkipSwiftUI
 
@@ -81,7 +80,8 @@ public struct CounterTestFixture: View {
 
 /// Sample: a custom `ButtonStyle` whose body reads `@Environment(\.isEnabled)` declared on the style
 /// itself, and a `PrimitiveButtonStyle` that wraps `Button(configuration)` — verifies bridged style
-/// bodies, actions routed through both style kinds, and environment syncing into non-view types.
+/// bodies, actions routed through both style kinds, and environment syncing into non-view types,
+/// with `.disabled` applied both outside and inside `.buttonStyle`.
 public struct ButtonStyleTestFixture: View {
     @State var count = 0
     @State var isDisabled = false
@@ -104,6 +104,12 @@ public struct ButtonStyleTestFixture: View {
             }
             .buttonStyle(SamplePrimitiveButtonStyle())
             .accessibilityIdentifier("primitive-button")
+            Button("inner-disabled") {
+                count += 100
+            }
+            .disabled(isDisabled)
+            .buttonStyle(SampleButtonStyle())
+            .accessibilityIdentifier("inner-disabled-button")
             Button("disable") {
                 isDisabled.toggle()
             }
@@ -112,10 +118,14 @@ public struct ButtonStyleTestFixture: View {
     }
 }
 
-struct SampleButtonStyle: ButtonStyle {
+// SKIP @nobridge
+public struct SampleButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) var isEnabled
 
-    func makeBody(configuration: Configuration) -> some View {
+    public init() {
+    }
+
+    public func makeBody(configuration: Configuration) -> some View {
         HStack {
             configuration.label
             Text(isEnabled ? "enabled" : "disabled")
@@ -227,6 +237,32 @@ public struct ConditionalContentTestFixture: View {
                 shown.toggle()
             }
             .accessibilityIdentifier("toggle-button")
+        }
+    }
+}
+
+/// Verifies that `androidEquatable` preserves full Swift equality when an `Identifiable` value
+/// changes without changing its ID.
+public struct AndroidEquatableIdentityTestFixture: View {
+    struct Model: Identifiable, Equatable {
+        let id: Int
+        var title: String
+    }
+
+    @State var model = Model(id: 1, title: "A")
+
+    public init() {
+    }
+
+    public var body: some View {
+        VStack {
+            Text(model.title)
+                .accessibilityIdentifier("android-equatable-identity-title")
+                .androidEquatable(recomposeOverride: model)
+            Button("update title") {
+                model.title = "B"
+            }
+            .accessibilityIdentifier("android-equatable-identity-update")
         }
     }
 }

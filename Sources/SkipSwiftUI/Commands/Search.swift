@@ -1,5 +1,4 @@
 // Copyright 2025–2026 Skip
-// SPDX-License-Identifier: MPL-2.0
 import SkipFuse
 import SkipUI
 
@@ -115,24 +114,22 @@ extension View {
 }
 
 extension View {
-    @available(*, unavailable)
     nonisolated public func searchable(text: Binding<String>, isPresented: Binding<Bool>, placement: SearchFieldPlacement = .automatic, prompt: Text? = nil) -> some View {
-        stubView()
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.searchable(getText: text.get, setText: text.set, getIsPresented: { isPresented.wrappedValue }, setIsPresented: { isPresented.wrappedValue = $0 }, prompt: prompt?.Java_view as? SkipUI.Text)
+        }
     }
 
-    @available(*, unavailable)
     nonisolated public func searchable(text: Binding<String>, isPresented: Binding<Bool>, placement: SearchFieldPlacement = .automatic, prompt: LocalizedStringKey) -> some View {
-        stubView()
+        return searchable(text: text, isPresented: isPresented, placement: placement, prompt: Text(prompt))
     }
 
-    @available(*, unavailable)
     @_disfavoredOverload nonisolated public func searchable(text: Binding<String>, isPresented: Binding<Bool>, placement: SearchFieldPlacement = .automatic, prompt: AndroidLocalizedStringResource) -> some View {
-        stubView()
+        return searchable(text: text, isPresented: isPresented, placement: placement, prompt: Text(prompt))
     }
 
-    @available(*, unavailable)
     @_disfavoredOverload nonisolated public func searchable<S>(text: Binding<String>, isPresented: Binding<Bool>, placement: SearchFieldPlacement = .automatic, prompt: S) -> some View where S : StringProtocol {
-        stubView()
+        return searchable(text: text, isPresented: isPresented, placement: placement, prompt: Text(prompt))
     }
 }
 

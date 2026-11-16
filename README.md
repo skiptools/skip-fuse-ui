@@ -108,6 +108,46 @@ When Swift code writes to a `@State` property, the `BridgedStateBox` notifies Co
 
 `@Observable` types require `import SkipFuse` to enable this state tracking. See the [App Development](https://skip.dev/docs/app-development/#ui) guide for details.
 
+### Android Recomposition Controls
+
+Both modifiers can prevent unnecessary Android updates, but they provide different behavior. In SwiftUI terms, `androidEquatable` is an update gate, while `androidCompositionBoundary` gives a subtree its own retained identity and lifecycle.
+
+| Modifier | SwiftUI mental model | Use when |
+| --- | --- | --- |
+| `androidEquatable` | Similar to `EquatableView`: while the supplied value remains equal, Skip does not reevaluate the wrapped content. The subtree keeps the identity and lifecycle provided by its existing parent. | The subtree can update as a unit and reevaluating it is expensive. |
+| `androidCompositionBoundary` | Similar to placing the subtree in its own retained hosting container. Its `id` defines the container's identity and lifecycle. | The subtree needs an independently retained lifecycle, such as a WebView, map, or video surface. |
+
+Use `androidEquatable` with a value containing every external input that affects the view:
+
+```swift
+ComplexMetadataPanel(movie: movie)
+    .androidEquatable(recomposeOverride: movie)
+```
+
+If `movie` remains equal, the panel is not reevaluated. If it changes, the panel is reevaluated inside its existing parent view hierarchy. This modifier does not create a new identity or lifecycle.
+
+Use `androidCompositionBoundary` when the subtree should have its own retained identity and lifecycle:
+
+```swift
+BrowserView(url: url)
+    .androidCompositionBoundary(
+        id: "browser",
+        inputs: url.absoluteString
+    )
+```
+
+Think of `id` like SwiftUI view identity and `inputs` as the values used to update that identified view:
+
+- Same `id`, same `inputs`: reuse the existing host without reevaluating or re-bridging its content.
+- Same `id`, changed `inputs`: update the content inside the existing host, preserving its identity and lifecycle.
+- Changed `id`, or removal from the hierarchy: dispose the old host and its state, then create a new one if needed.
+
+State owned inside the boundary can update independently without changing `inputs`. On Apple platforms, `androidCompositionBoundary` returns the original view unchanged.
+
+The boundary inherits the current Compose composition locals, including bridged SwiftUI environment values. It is a composition and lifecycle boundary, not a layout boundary: modifiers and constraints outside the boundary continue to measure the same retained host and child. Resizing native-backed content therefore does not recreate or re-bridge it, but it still changes the native view's measured bounds.
+
+Avoid stacking both modifiers around the same subtree without a measured need. An unchanged composition boundary already prevents its child projection from being reevaluated and re-bridged.
+
 ## What SkipFuseUI Covers
 
 SkipFuseUI mirrors the SwiftUI API surface for iOS 16+, including:
@@ -125,6 +165,88 @@ SkipFuseUI mirrors the SwiftUI API surface for iOS 16+, including:
 - **UIKit compatibility**: `UIApplication`, `UIColor`, `UIImage`, `UIPasteboard`
 
 For the full list of supported SwiftUI components, see the [SkipUI documentation](https://skip.dev/docs/modules/skip-ui/#supported-swiftui).
+
+`simultaneousGesture` support follows SkipUI's current Android limitations: it can observe supported gestures on the same rendered view, including drag observation while scroll views continue scrolling, but only `.all` and `.none` have meaningful mask behavior. `.gesture` and `.subviews` masks are not distinguished.
+
+### Presentation backgrounds
+
+Use `presentationBackground(_ color: Color)` to set the background of a sheet or
+full-screen cover. The Android implementation bridges to SkipUI 1.63.0 or later
+and supports opaque, partially opaque, and clear colors. iOS uses native SwiftUI.
+
+Apply the modifier directly to the root view returned by the `.sheet` or
+`.fullScreenCover` content closure:
+
+```swift
+.sheet(isPresented: $showSheet) {
+    VStack {
+        Text("Sheet content")
+    }
+    .presentationBackground(Color.clear)
+}
+```
+
+Use `Color.blue` for an opaque background or `Color.blue.opacity(0.5)` for a
+partially opaque background. `Color.clear` allows the presenting view to show
+through where the presented content has no opaque background of its own. This
+modifier does not remove backgrounds drawn by child views or change dismissal
+and background-interaction behavior.
+
+Android supports only the `Color` overload, not the full SwiftUI API:
+
+- Materials, gradients, and other `ShapeStyle` arguments are unavailable.
+- `presentationBackground(alignment:content:)` is unsupported. Its current stub
+  returns `EmptyView`, so do not use the custom-view overload on Android.
+- Place the modifier on the presentation's root view, not a nested child.
+
+See the [SkipUI 1.63.0 implementation](https://github.com/skiptools/skip-ui/blob/1.63.0/Sources/SkipUI/SkipUI/Layout/Presentation.swift)
+for the underlying Android behavior.
+
+### Attributed text
+
+`Text(AttributedString)` supports a source-compatible subset of Apple's attributed
+text APIs in native Skip Fuse code. It is not a full drop-in replacement. On iOS,
+apps continue to use Apple's Foundation and SwiftUI implementations. On Android,
+native Foundation stores the value, and Skip supplies the supported UI attributes,
+inline Markdown parser, and renderer.
+
+See [Attributed text compatibility](docs/attributed-text.md) for APIs that can be
+shared unchanged, differences from iOS, and guidance for Apple-only code.
+
+Supported Android rendering attributes are `font`, `foregroundColor`, `link`,
+`underlineStyle` and `strikethroughStyle` with solid single lines, `baselineOffset`,
+plus the inline presentation intents for bold, italic, code, and strikethrough.
+Attributes on a range override inherited text
+styling for that range. Links use the surrounding tint unless a foreground color is
+specified, and taps use the environment's `openURL` action.
+
+```swift
+import SwiftUI
+
+var content = try AttributedString(
+    markdown: "Read **important** instructions at [Skip](https://skip.dev)",
+    options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)
+)
+if let range = content.range(of: "important") {
+    content[range].foregroundColor = .orange
+    content[range].underlineStyle = .single
+}
+Text(content)
+```
+
+Always pass `.inlineOnlyPreservingWhitespace` in shared Markdown code. Apple's
+default is `.full`; Android supports only `.inlineOnlyPreservingWhitespace` and
+uses it as the default. Decoration patterns and separate decoration colors are
+ignored on Android even though their initializer arguments compile. Unsupported
+attributes may be unavailable at compile time; custom attributes stored in the
+native value have no rendering effect. This support does not extend Skip Lite's
+existing `AttributedString` implementation.
+
+Use `baselineOffset` to raise a range by a distance in points, or use a negative
+value to lower it. This does not change its font size. For superscript or subscript,
+apply a smaller `font` to the same range. Offsets remain point distances when the
+surrounding font changes. This support is specific to attributed strings; the
+`Text.baselineOffset(_:)` modifier remains unavailable.
 
 ### Text Selection
 
@@ -167,8 +289,3 @@ These wrapper types keep the source shape close to SwiftUI's native `TextSelecti
 - [SkipUI Module](https://skip.dev/docs/modules/skip-ui/) — Supported SwiftUI components and Compose integration topics
 - [SkipBridge Module](https://skip.dev/docs/modules/skip-bridge/) — The JNI bridging infrastructure that SkipFuseUI depends on
 - [SkipFuse Module](https://skip.dev/docs/modules/skip-fuse/) — Observable state tracking and Android runtime support
-
-## License
-
-This software is licensed under the
-[Mozilla Public License 2.0](https://www.mozilla.org/MPL/).

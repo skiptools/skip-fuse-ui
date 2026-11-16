@@ -1,5 +1,4 @@
 // Copyright 2025–2026 Skip
-// SPDX-License-Identifier: MPL-2.0
 import SkipBridge
 import SkipFuse
 import SkipUI
@@ -146,6 +145,7 @@ public struct ButtonSizing : Hashable, Sendable {
     let identifier: Int // For bridging
 }
 
+/// - Note: On Android, mark `public` conformers in a bridged module with `// SKIP @nobridge`.
 @MainActor @preconcurrency public protocol ButtonStyle {
     associatedtype Body : View
 
@@ -155,10 +155,14 @@ public struct ButtonSizing : Hashable, Sendable {
 }
 
 public struct ButtonStyleConfiguration {
-    public struct Label {
+    public struct Label : View {
         public typealias Body = Never
 
-        let Java_label: any SkipUI.View
+        nonisolated(unsafe) let Java_label: any SkipUI.View
+
+        nonisolated init(Java_label: any SkipUI.View) {
+            self.Java_label = Java_label
+        }
     }
 
     public let role: ButtonRole?
@@ -172,7 +176,7 @@ public struct ButtonStyleConfiguration {
     }
 }
 
-extension ButtonStyleConfiguration.Label : View, SkipUIBridging {
+extension ButtonStyleConfiguration.Label : SkipUIBridging {
     public var Java_view: any SkipUI.View {
         return Java_label
     }
@@ -256,6 +260,7 @@ public struct M3TextButtonStyle : PrimitiveButtonStyle {
     public let identifier = 7 // For bridging
 }
 
+/// - Note: On Android, mark `public` conformers in a bridged module with `// SKIP @nobridge`.
 @MainActor @preconcurrency public protocol PrimitiveButtonStyle {
     associatedtype Body : View
 
@@ -316,10 +321,14 @@ extension PrimitiveButtonStyle where Self == M3TextButtonStyle {
 }
 
 public struct PrimitiveButtonStyleConfiguration {
-    public struct Label {
+    public struct Label : View {
         public typealias Body = Never
 
-        let Java_label: any SkipUI.View
+        nonisolated(unsafe) let Java_label: any SkipUI.View
+
+        nonisolated init(Java_label: any SkipUI.View) {
+            self.Java_label = Java_label
+        }
     }
 
     public let role: ButtonRole?
@@ -337,7 +346,7 @@ public struct PrimitiveButtonStyleConfiguration {
     }
 }
 
-extension PrimitiveButtonStyleConfiguration.Label : View, SkipUIBridging {
+extension PrimitiveButtonStyleConfiguration.Label : SkipUIBridging {
     public var Java_view: any SkipUI.View {
         return Java_label
     }
@@ -356,14 +365,14 @@ extension View {
 
     nonisolated public func buttonStyle<S>(_ style: S) -> some View where S : PrimitiveButtonStyle {
         let identifier = style.identifier
+        guard identifier < 0 else {
+            return ModifierView(target: self) { $0.Java_viewOrEmpty.buttonStyle(bridgedStyle: identifier) }
+        }
         let resolvedStyle = ResolvedButtonStyle(style) { style, Java_configuration in
             style.makeBody(configuration: PrimitiveButtonStyleConfiguration(Java_configuration: Java_configuration)).Java_viewOrEmpty
         }
         return ModifierView(target: self) {
-            guard identifier < 0 else {
-                return $0.Java_viewOrEmpty.buttonStyle(bridgedStyle: identifier)
-            }
-            return $0.Java_viewOrEmpty.buttonStyle(isPrimitive: true, environmentKeys: resolvedStyle.environmentKeys, bridgedMakeBody: resolvedStyle.makeBody(Java_configuration:))
+            $0.Java_viewOrEmpty.buttonStyle(isPrimitive: true, environmentKeys: resolvedStyle.environmentKeys, bridgedMakeBody: resolvedStyle.makeBody(Java_configuration:))
         }
     }
 
@@ -382,6 +391,10 @@ extension View {
 /// SwiftUI resolves a style's dynamic properties before creating its body. Skip does not generate that resolution for
 /// styles, so the style's `@Environment` properties are synced from each button's Compose environment before its body
 /// is created.
+///
+/// - Note: One style instance serves every button it applies to. Its `@Environment` values are
+///   synced right before each `makeBody`, so values read lazily (e.g. inside a `GeometryReader`
+///   closure) may reflect another button's environment.
 struct ResolvedButtonStyle<Style> : @unchecked Sendable {
     /// The keys of the style's `@Environment` properties, which SkipUI reads at each button's position.
     let environmentKeys: [String]

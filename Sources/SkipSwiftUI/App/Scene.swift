@@ -1,5 +1,4 @@
 // Copyright 2023–2026 Skip
-// SPDX-License-Identifier: MPL-2.0
 
 public enum ScenePhase : Int, Comparable, Hashable, Sendable {
     case background = 1 // For bridging
