@@ -21,6 +21,8 @@ let package = Package(
         .package(url: "https://github.com/skiptools/skip-android-bridge.git", "0.6.6"..<"2.0.0"),
         .package(url: "https://github.com/skiptools/swift-jni.git", "0.5.0"..<"2.0.0"),
         .package(url: "https://github.com/skiptools/skip-ui.git", from: "1.66.2"),
+        // TEMPORARY (CI verification only): skip-unit with espresso-core 3.7.0 pinned.
+        .package(url: "https://github.com/skiptools/skip-unit.git", branch: "pin-espresso-3.7.0"),
     ],
     targets: [
         .target(name: "SkipFuseUI", dependencies: ["SkipSwiftUI"]),
