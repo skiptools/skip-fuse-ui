@@ -14,4 +14,5 @@ permissions:
 jobs:
   call-workflow:
     uses: skiptools/actions/.github/workflows/skip-framework.yml@v1
-
+    with:
+      runs-on: "['macos-26']"
