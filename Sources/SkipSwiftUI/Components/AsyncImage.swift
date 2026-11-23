@@ -79,9 +79,7 @@ extension AsyncImage : SkipUIBridging {
                 } else {
                     phase = .empty(nil)
                 }
-                let result = content(phase)
-
-                return result.Java_viewOrEmpty
+                return Java_withBodyObservationTracking { content(phase).Java_viewOrEmpty }
             }
         } else {
             factory = nil

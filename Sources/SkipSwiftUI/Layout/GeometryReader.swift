@@ -61,7 +61,7 @@ extension GeometryReader : View {
 extension GeometryReader : SkipUIBridging {
     public var Java_view: any SkipUI.View {
         return SkipUI.GeometryReader(content: { javaProxy in
-            content(GeometryProxy(javaProxy: javaProxy)).Java_viewOrEmpty
+            Java_withBodyObservationTracking { content(GeometryProxy(javaProxy: javaProxy)).Java_viewOrEmpty }
         })
     }
 }

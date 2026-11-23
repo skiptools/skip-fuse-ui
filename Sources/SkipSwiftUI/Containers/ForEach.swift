@@ -20,9 +20,12 @@ extension ForEach : SkipUIBridging {
         } else {
             indexedIdentifier = nil
         }
-        var forEach = SkipUI.ForEach(startIndex: { data.startIndex as! Int }, endIndex: { data.endIndex as! Int }, identifier: indexedIdentifier, bridgedContent: {
-            let view = content(data[$0 as! Data.Index])
-            return (view as? SkipUIBridging)?.Java_view ?? SkipUI.EmptyView()
+        var forEach = SkipUI.ForEach(startIndex: { data.startIndex as! Int }, endIndex: { data.endIndex as! Int }, identifier: indexedIdentifier, bridgedContent: { index in
+            // Lazy containers compose items after the enclosing body returned; track each item.
+            Java_withBodyObservationTracking {
+                let view = content(data[index as! Data.Index])
+                return (view as? SkipUIBridging)?.Java_view ?? SkipUI.EmptyView()
+            }
         })
         if let onDelete {
             forEach = forEach.onDeleteArray(bridgedAction: { onDelete(IndexSet($0)) })

@@ -533,8 +533,7 @@ extension ScrollViewReader : SkipUIBridging {
     public var Java_view: any SkipUI.View {
         return SkipUI.ScrollViewReader { skipUIProxy in
             let proxy = ScrollViewProxy(proxy: skipUIProxy)
-            let view = content(proxy)
-            return view.Java_viewOrEmpty
+            return Java_withBodyObservationTracking { content(proxy).Java_viewOrEmpty }
         }
     }
 }
