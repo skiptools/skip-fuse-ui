@@ -256,36 +256,61 @@ extension ListStyle where Self == DefaultListStyle {
     }
 }
 
+/// An inset grouped list whose section headers collapse and expand their sections.
 public struct SidebarListStyle : ListStyle {
-    @available(*, unavailable)
     public init() {
-        fatalError()
     }
+
+    public let identifier = 1 // For bridging
 }
 
 extension ListStyle where Self == SidebarListStyle {
-    @available(*, unavailable)
     public static var sidebar: SidebarListStyle {
-        fatalError()
+        return SidebarListStyle()
+    }
+}
+
+public struct InsetGroupedListStyle : ListStyle {
+    public init() {
+    }
+
+    public let identifier = 2 // For bridging
+}
+
+extension ListStyle where Self == InsetGroupedListStyle {
+    public static var insetGrouped: InsetGroupedListStyle {
+        return InsetGroupedListStyle()
+    }
+}
+
+public struct GroupedListStyle : ListStyle {
+    public init() {
+    }
+
+    public let identifier = 3 // For bridging
+}
+
+extension ListStyle where Self == GroupedListStyle {
+    public static var grouped: GroupedListStyle {
+        return GroupedListStyle()
     }
 }
 
 public struct InsetListStyle : ListStyle {
-    @available(*, unavailable)
     public init() {
-        fatalError()
     }
 
     @available(*, unavailable)
     public init(alternatesRowBackgrounds: Bool) {
         fatalError()
     }
+
+    public let identifier = 4 // For bridging
 }
 
 extension ListStyle where Self == InsetListStyle {
-    @available(*, unavailable)
     public static var inset: InsetListStyle {
-        fatalError()
+        return InsetListStyle()
     }
 
     @available(*, unavailable)
@@ -382,9 +407,14 @@ extension View {
         }
     }
 
-    @available(*, unavailable)
+    /// Replaces the row's default insets. Pass `nil` to use the default insets.
     /* @inlinable */ nonisolated public func listRowInsets(_ insets: EdgeInsets?) -> some View {
-        stubView()
+        return ModifierView(target: self) {
+            guard let insets else {
+                return $0.Java_viewOrEmpty
+            }
+            return $0.Java_viewOrEmpty.listRowInsets(bridgedTop: Double(insets.top), bridgedLeading: Double(insets.leading), bridgedBottom: Double(insets.bottom), bridgedTrailing: Double(insets.trailing))
+        }
     }
 
     /* @inlinable */ nonisolated public func listRowSpacing(_ spacing: CGFloat?) -> some View {
