@@ -143,6 +143,26 @@ struct SamplePrimitiveButtonStyle: PrimitiveButtonStyle {
     }
 }
 
+// Uncomment once a skip release bridges private state (skiptools/skip#757).
+//public struct PrivateCounterTestFixture: View {
+//    @State private var count = 0
+//    @Environment(\.layoutDirection) private var layoutDirection
+//
+//    public init() {
+//    }
+//
+//    public var body: some View {
+//        VStack {
+//            Text("count: \(count) dir: \(layoutDirection == .leftToRight ? "ltr" : "rtl")")
+//                .accessibilityIdentifier("private-counter-label")
+//            Button("increment") {
+//                count += 1
+//            }
+//            .accessibilityIdentifier("private-increment-button")
+//        }
+//    }
+//}
+
 /// Observable model for the `@Observable` provenance samples.
 @available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
 @Observable
