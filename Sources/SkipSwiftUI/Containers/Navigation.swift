@@ -223,7 +223,7 @@ extension View {
         return ModifierView(target: self) {
             let bridgedDestination: (Any) -> any SkipUI.View = {
                 let data = ($0 as! SwiftHashable).base as! D
-                return destination(data).Java_viewOrEmpty
+                return Java_withBodyObservationTracking { destination(data).Java_viewOrEmpty }
             }
             return $0.Java_viewOrEmpty.navigationDestination(destinationKey: String(describing: data), bridgedDestination: bridgedDestination)
         }
@@ -322,7 +322,7 @@ extension View {
         return ModifierView(target: self) {
             let bridgedDestination: (Any) -> any SkipUI.View = {
                 let data = ($0 as! SwiftHashable).base as! D
-                return destination(data).Java_viewOrEmpty
+                return Java_withBodyObservationTracking { destination(data).Java_viewOrEmpty }
             }
             let getItem: () -> Any? = {
                 if let value = item.wrappedValue {

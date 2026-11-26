@@ -17,6 +17,8 @@ import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.width
 import androidx.compose.foundation.layout.Row
@@ -142,6 +144,54 @@ final class FuseComposeUITests: XCTestCase {
         composeRule.onNodeWithTag("increment-button").performClick()
         composeRule.waitForIdle()
         composeRule.onNodeWithTag("counter-label").assertTextEquals("count: 2")
+        #endif
+    }
+
+    /// A model that is not Skip-aware (stock `Observation` registrar) refreshes the body that
+    /// reads it, lazy `ForEach` items evaluated after the body, and a `Toggle` that reads it only
+    /// through a `Binding`.
+    func testStockObservableRefreshesViews() throws {
+        #if !SKIP
+        throw XCTSkip("Compose UI testing is Android-only")
+        #else
+        try requireBridgedMainActor()
+        composeRule.setContent {
+            StockObservableTestFixture().Compose()
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("stock-count").assertTextEquals("count: 0")
+        composeRule.onNodeWithTag("stock-increment").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("stock-count").assertTextEquals("count: 1")
+
+        composeRule.onNodeWithTag("stock-row-0").assertTextEquals("row 0: 0")
+        composeRule.onNodeWithTag("stock-bump-row").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("stock-row-0").assertTextEquals("row 0: 1")
+
+        composeRule.onNodeWithTag("stock-toggle").assertIsOff()
+        composeRule.onNodeWithTag("stock-flip-flag").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("stock-toggle").assertIsOn()
+        #endif
+    }
+
+    /// Control for `testStockObservableRefreshesViews`: with body observation tracking off, the
+    /// same change to a non-Skip-aware model does not refresh the view.
+    func testStockObservableIsStaleWithTrackingDisabled() throws {
+        #if !SKIP
+        throw XCTSkip("Compose UI testing is Android-only")
+        #else
+        try requireBridgedMainActor()
+        StockObservableTestFixture.setBodyObservationTrackingEnabled(false)
+        defer { StockObservableTestFixture.setBodyObservationTrackingEnabled(true) }
+        composeRule.setContent {
+            StockObservableTestFixture().Compose()
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("stock-increment").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("stock-count").assertTextEquals("count: 0")
         #endif
     }
 

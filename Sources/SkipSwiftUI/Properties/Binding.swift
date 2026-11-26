@@ -38,7 +38,8 @@ import SkipUI
 
     public var wrappedValue: Value {
         get {
-            get()
+            // Controls read bindings from Compose after body returned; track those reads.
+            Java_withBodyObservationTracking(get)
         }
         nonmutating set {
             set(newValue)
@@ -169,7 +170,9 @@ extension Binding : JConvertible, JObjectProtocol {
     }
     
     public func toJavaObject(options: JConvertibleOptions) -> JavaObjectPointer? {
-        let get_java = SwiftClosure0.javaObject(for: self.get, options: options)!.toJavaParameter(options: options)
+        let get = self.get
+        // Compose reads the value later, inside the control's own composable; track that read.
+        let get_java = SwiftClosure0.javaObject(for: { Java_withBodyObservationTracking(get) }, options: options)!.toJavaParameter(options: options)
         let set_java = SwiftClosure1.javaObject(for: self.set, options: options)!.toJavaParameter(options: options)
         return try! Java_SkipUIBinding.create(ctor: Java_SkipUIBinding_constructor_methodID, options: options, args: [get_java, set_java])
     }

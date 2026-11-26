@@ -21,6 +21,7 @@ let package = Package(
         .package(url: "https://github.com/skiptools/skip-android-bridge.git", "0.6.6"..<"2.0.0"),
         .package(url: "https://github.com/skiptools/swift-jni.git", "0.5.0"..<"2.0.0"),
         .package(url: "https://github.com/skiptools/skip-ui.git", from: "1.66.2"),
+        .package(url: "https://github.com/skiptools/skip-model.git", from: "1.9.0"),
     ],
     targets: [
         .target(name: "SkipFuseUI", dependencies: ["SkipSwiftUI"]),
@@ -29,7 +30,9 @@ let package = Package(
             .product(name: "SkipBridge", package: "skip-bridge"),
             .product(name: "SkipAndroidBridge", package: "skip-android-bridge"),
             .product(name: "SwiftJNI", package: "swift-jni"),
-            .product(name: "SkipUI", package: "skip-ui")
+            .product(name: "SkipUI", package: "skip-ui"),
+            // Body observation tracking calls skip.model.trackBodyInvalidation (1.9.0+).
+            .product(name: "SkipModel", package: "skip-model")
         ], plugins: [.plugin(name: "skipstone", package: "skip")]),
         .testTarget(name: "SkipSwiftUITests", dependencies: [
             "SkipSwiftUI",
@@ -78,7 +81,4 @@ if let dependencyRoot = Context.environment["SKIP_DEPENDENCY_ROOT"] {
             return dep
         }
     }
-    // Root-package dependencies override transitive dependencies with the same identity,
-    // so also pin transitive skip libraries that this package doesn't depend on directly.
-    package.dependencies.append(.package(path: dependencyRoot + "/skip-model"))
 }
