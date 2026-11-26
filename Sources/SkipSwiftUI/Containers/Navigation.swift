@@ -343,24 +343,34 @@ extension View {
 }
 
 public struct NavigationSplitView<Sidebar, Content, Detail> where Sidebar : View, Content : View, Detail : View {
-    @available(*, unavailable)
+    private let sidebar: Sidebar
+    private let content: Content?
+    private let detail: Detail
+    private let columnVisibility: Binding<NavigationSplitViewVisibility>?
+    private let preferredCompactColumn: Binding<NavigationSplitViewColumn>?
+
     public init(@ViewBuilder sidebar: () -> Sidebar, @ViewBuilder content: () -> Content, @ViewBuilder detail: () -> Detail) {
-        fatalError()
+        self.init(columnVisibility: nil, preferredCompactColumn: nil, sidebar: sidebar(), content: content(), detail: detail())
     }
 
-    @available(*, unavailable)
     public init(columnVisibility: Binding<NavigationSplitViewVisibility>, @ViewBuilder sidebar: () -> Sidebar, @ViewBuilder content: () -> Content, @ViewBuilder detail: () -> Detail) {
-        fatalError()
+        self.init(columnVisibility: columnVisibility, preferredCompactColumn: nil, sidebar: sidebar(), content: content(), detail: detail())
     }
 
-    @available(*, unavailable)
     public init(@ViewBuilder sidebar: () -> Sidebar, @ViewBuilder detail: () -> Detail) where Content == EmptyView {
-        fatalError()
+        self.init(columnVisibility: nil, preferredCompactColumn: nil, sidebar: sidebar(), content: nil, detail: detail())
     }
 
-    @available(*, unavailable)
     public init(columnVisibility: Binding<NavigationSplitViewVisibility>, @ViewBuilder sidebar: () -> Sidebar, @ViewBuilder detail: () -> Detail) where Content == EmptyView {
-        fatalError()
+        self.init(columnVisibility: columnVisibility, preferredCompactColumn: nil, sidebar: sidebar(), content: nil, detail: detail())
+    }
+
+    private init(columnVisibility: Binding<NavigationSplitViewVisibility>?, preferredCompactColumn: Binding<NavigationSplitViewColumn>?, sidebar: Sidebar, content: Content?, detail: Detail) {
+        self.sidebar = sidebar
+        self.content = content
+        self.detail = detail
+        self.columnVisibility = columnVisibility
+        self.preferredCompactColumn = preferredCompactColumn
     }
 }
 
@@ -369,53 +379,56 @@ extension NavigationSplitView : View {
 }
 
 extension NavigationSplitView {
-    @available(*, unavailable)
     public init(preferredCompactColumn: Binding<NavigationSplitViewColumn>, @ViewBuilder sidebar: () -> Sidebar, @ViewBuilder content: () -> Content, @ViewBuilder detail: () -> Detail) {
-        fatalError()
+        self.init(columnVisibility: nil, preferredCompactColumn: preferredCompactColumn, sidebar: sidebar(), content: content(), detail: detail())
     }
 
-    @available(*, unavailable)
     public init(columnVisibility: Binding<NavigationSplitViewVisibility>, preferredCompactColumn: Binding<NavigationSplitViewColumn>, @ViewBuilder sidebar: () -> Sidebar, @ViewBuilder content: () -> Content, @ViewBuilder detail: () -> Detail) {
-        fatalError()
+        self.init(columnVisibility: columnVisibility, preferredCompactColumn: preferredCompactColumn, sidebar: sidebar(), content: content(), detail: detail())
     }
 
-    @available(*, unavailable)
     public init(preferredCompactColumn: Binding<NavigationSplitViewColumn>, @ViewBuilder sidebar: () -> Sidebar, @ViewBuilder detail: () -> Detail) where Content == EmptyView {
-        fatalError()
+        self.init(columnVisibility: nil, preferredCompactColumn: preferredCompactColumn, sidebar: sidebar(), content: nil, detail: detail())
     }
 
-    @available(*, unavailable)
     public init(columnVisibility: Binding<NavigationSplitViewVisibility>, preferredCompactColumn: Binding<NavigationSplitViewColumn>, @ViewBuilder sidebar: () -> Sidebar, @ViewBuilder detail: () -> Detail) where Content == EmptyView {
-        fatalError()
+        self.init(columnVisibility: columnVisibility, preferredCompactColumn: preferredCompactColumn, sidebar: sidebar(), content: nil, detail: detail())
+    }
+}
+
+extension NavigationSplitView : SkipUIBridging {
+    public var Java_view: any SkipUI.View {
+        let columnVisibility = self.columnVisibility
+        let preferredCompactColumn = self.preferredCompactColumn
+        return SkipUI.NavigationSplitView(
+            getColumnVisibility: columnVisibility.map { binding in { binding.wrappedValue.rawValue } },
+            setColumnVisibility: columnVisibility.map { binding in { binding.wrappedValue = NavigationSplitViewVisibility(rawValue: $0) } },
+            getPreferredCompactColumn: preferredCompactColumn.map { binding in { binding.wrappedValue.rawValue } },
+            setPreferredCompactColumn: preferredCompactColumn.map { binding in { binding.wrappedValue = NavigationSplitViewColumn(rawValue: $0) } },
+            bridgedSidebar: sidebar.Java_viewOrEmpty,
+            bridgedContent: content?.Java_viewOrEmpty,
+            bridgedDetail: detail.Java_viewOrEmpty
+        )
     }
 }
 
 public struct NavigationSplitViewColumn : Hashable, Sendable {
-    @available(*, unavailable)
-    public static var sidebar: NavigationSplitViewColumn {
-        fatalError()
-    }
+    let rawValue: Int // For bridging
 
-    @available(*, unavailable)
-    public static var content: NavigationSplitViewColumn {
-        fatalError()
-    }
-
-    @available(*, unavailable)
-    public static var detail: NavigationSplitViewColumn {
-        fatalError()
-    }
+    public static let sidebar = NavigationSplitViewColumn(rawValue: 0) // For bridging
+    public static let content = NavigationSplitViewColumn(rawValue: 1) // For bridging
+    public static let detail = NavigationSplitViewColumn(rawValue: 2) // For bridging
 }
 
 extension View {
-    @available(*, unavailable)
     nonisolated public func navigationSplitViewColumnWidth(_ width: CGFloat) -> some View {
-        stubView()
+        return ModifierView(target: self) {
+            $0.Java_viewOrEmpty.navigationSplitViewColumnWidth(width)
+        }
     }
 
-    @available(*, unavailable)
     nonisolated public func navigationSplitViewColumnWidth(min: CGFloat? = nil, ideal: CGFloat, max: CGFloat? = nil) -> some View {
-        stubView()
+        return navigationSplitViewColumnWidth(ideal)
     }
 }
 
@@ -486,25 +499,12 @@ public struct NavigationSplitViewStyleConfiguration {
 }
 
 public struct NavigationSplitViewVisibility : Equatable, Codable, Sendable {
-    @available(*, unavailable)
-    public static var detailOnly: NavigationSplitViewVisibility {
-        fatalError()
-    }
+    let rawValue: Int // For bridging
 
-    @available(*, unavailable)
-    public static var doubleColumn: NavigationSplitViewVisibility {
-        fatalError()
-    }
-
-    @available(*, unavailable)
-    public static var all: NavigationSplitViewVisibility {
-        fatalError()
-    }
-
-    @available(*, unavailable)
-    public static var automatic: NavigationSplitViewVisibility {
-        fatalError()
-    }
+    public static let detailOnly = NavigationSplitViewVisibility(rawValue: 0) // For bridging
+    public static let doubleColumn = NavigationSplitViewVisibility(rawValue: 1) // For bridging
+    public static let all = NavigationSplitViewVisibility(rawValue: 2) // For bridging
+    public static let automatic = NavigationSplitViewVisibility(rawValue: 3) // For bridging
 }
 
 public protocol NavigationTransition {
