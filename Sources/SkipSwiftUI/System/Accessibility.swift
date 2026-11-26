@@ -861,7 +861,7 @@ public struct AccessibilitySystemRotor : Sendable {
     }
 }
 
-public struct AccessibilityTechnologies : SetAlgebra, Sendable, OptionSet /* Added OptionSet conformance */ {
+public struct AccessibilityTechnologies : OptionSet, Sendable {
     public static let voiceOver = AccessibilityTechnologies(rawValue: 1 << 0)
     public static let switchControl = AccessibilityTechnologies(rawValue: 1 << 1)
 
@@ -872,7 +872,7 @@ public struct AccessibilityTechnologies : SetAlgebra, Sendable, OptionSet /* Add
     }
 
     public init() {
-        self = []
+        self.init(rawValue: 0)
     }
 }
 
@@ -887,7 +887,7 @@ public struct AccessibilityTextContentType : Sendable {
     public static let wordProcessing = AccessibilityTextContentType()
 }
 
-public struct AccessibilityTraits : SetAlgebra, OptionSet /* Added OptionSet conformance */, Sendable {
+public struct AccessibilityTraits : OptionSet, Sendable {
     public let rawValue: Int
 
     public init(rawValue: Int) {
@@ -895,7 +895,7 @@ public struct AccessibilityTraits : SetAlgebra, OptionSet /* Added OptionSet con
     }
 
     public init() {
-        self = []
+        self.init(rawValue: 0)
     }
 
     public static let isButton = AccessibilityTraits(rawValue: 1 << 0) // For bridging
