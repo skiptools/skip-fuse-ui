@@ -29,6 +29,16 @@ struct SwiftUIImportTests {
         #endif
     }
 
+    @Test("Geometry types remain unambiguous")
+    func geometryTypes() {
+        let origin: CGPoint = CGPoint(x: 1, y: 2)
+        let size: CGSize = CGSize(width: 3, height: 4)
+        let rect: CGRect = CGRect(origin: origin, size: size)
+        let corner: CGPoint = CGPoint(x: rect.maxX, y: rect.maxY)
+        #expect(corner == CGPoint(x: 4, y: 6))
+        #expect(rect.size == size)
+    }
+
     @Test("Explicit Skip scope remains available with Apple SwiftUI")
     func explicitSkipScope() {
         var text = AttributedString("HD")
