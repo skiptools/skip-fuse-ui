@@ -255,14 +255,15 @@ public struct CGAffineTransform : Codable, Equatable, Sendable {
         return self == Self.identity
     }
 
+    /// `self` followed by `transform`, as in CoreGraphics: the result maps a point through `self` first.
     public func concatenating(_ transform: CGAffineTransform) -> CGAffineTransform {
         var result = CGAffineTransform()
-        result.a = transform.a * a + transform.b * c
-        result.b = transform.a * b + transform.b * d
-        result.c = transform.c * a + transform.d * c
-        result.d = transform.c * b + transform.d * d
-        result.tx = transform.tx * a + transform.ty * c + tx
-        result.ty = transform.tx * b + transform.ty * d + ty
+        result.a = a * transform.a + b * transform.c
+        result.b = a * transform.b + b * transform.d
+        result.c = c * transform.a + d * transform.c
+        result.d = c * transform.b + d * transform.d
+        result.tx = tx * transform.a + ty * transform.c + transform.tx
+        result.ty = tx * transform.b + ty * transform.d + transform.ty
         return result
     }
 
@@ -282,16 +283,18 @@ public struct CGAffineTransform : Codable, Equatable, Sendable {
         return result
     }
 
+    // As in CoreGraphics, these apply the new rotation, scale or translation before `self`.
+
     public func rotated(by angle: CGFloat) -> CGAffineTransform {
-        return concatenating(CGAffineTransform(rotationAngle: angle))
+        return CGAffineTransform(rotationAngle: angle).concatenating(self)
     }
 
     public func scaledBy(x: CGFloat, y: CGFloat) -> CGAffineTransform {
-        return concatenating(CGAffineTransform(scaleX: x, y: y))
+        return CGAffineTransform(scaleX: x, y: y).concatenating(self)
     }
 
     public func translatedBy(x: CGFloat, y: CGFloat) -> CGAffineTransform {
-        return concatenating(CGAffineTransform(translationX: x, y: y))
+        return CGAffineTransform(translationX: x, y: y).concatenating(self)
     }
 }
 
